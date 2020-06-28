@@ -2,8 +2,8 @@ from datetime import datetime
 from sqlalchemy import DateTime, Column, ForeignKey, Integer, String, Enum, Text
 from sqlalchemy.orm import relationship
 
-from core.db.database import Base
-from core.db.enum import TransportType
+from db.database import Base
+from db.enum import TransportType
 
 
 class Account(Base):
@@ -53,7 +53,7 @@ class Application(Base):
     to_go_to = Column(String(255), nullable=True)
     to_go_when = Column(DateTime)
     count_seats = Column(Integer)
-    description = Column(Text(1024), nullable=True)
+    description = Column(String(1024), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     confirmed_at = Column(DateTime, nullable=True)
     completed_at = Column(DateTime, nullable=True)
@@ -80,6 +80,6 @@ class File(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     transport_id = Column(Integer, ForeignKey("transports.id"))
-    content = Column(Text)
+    content = Column(String)
 
     transport = relationship("Transport", back_populates="files")

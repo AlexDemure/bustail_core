@@ -1,10 +1,8 @@
 import uvicorn
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends
 
-from core.db import crud, models
-from core.db.database import SessionLocal, engine
-from core import schemas
-
+from db import crud, models, schemas
+from db.database import SessionLocal, engine
 
 app = FastAPI(debug=True)
 
@@ -31,9 +29,9 @@ async def read_item(item_id: int, q: str = None):
     return {"item_id": item_id, "q": q}
 
 
-@app.post("/account/", response_model=schemas.Account)
-def create_user(account: schemas.AccountCreate, db: SessionLocal = Depends(get_db)):
-    return crud.create_account(db=db, account=account)
+# @app.post("/account/", response_model=schemas.Account)
+# def create_user(account: schemas.AccountCreate, db: SessionLocal = Depends(get_db)):
+#     return crud.create_account(db=db, account=account)
 
 
 if __name__ == '__main__':
