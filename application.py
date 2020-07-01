@@ -1,22 +1,9 @@
 import uvicorn
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
+from routers import accounts, persons, clients, applications
 
-from db import crud, models, schemas
-from db.database import SessionLocal, engine
 
 app = FastAPI(debug=True)
-
-
-models.Base.metadata.create_all(bind=engine)
-
-
-# Dependency
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 @app.get("/")
@@ -28,10 +15,37 @@ async def read_root():
 async def read_item(item_id: int, q: str = None):
     return {"item_id": item_id, "q": q}
 
+#TODO Сделать для каждого router dependencies=[Depends(get_token_header)]
+#
+# Он будет выполняться при каждом запросе
+# async def get_token_header(x_token: str = Header(...)):
+#     if x_token != "fake-super-secret-token":
+#         raise HTTPException(status_code=400, detail="X-Token header invalid")
 
-@app.post("/account/", response_model=schemas.Account)
-def create_user(account: schemas.AccountCreate, db: SessionLocal = Depends(get_db)):
-    return crud.create_account(db=db, account=account)
+
+app.include_router(
+    accounts.router,
+    prefix="/account",
+    tags=["Работа с моделью Accounts"],
+)
+
+app.include_router(
+    persons.router,
+    prefix="/person",
+    tags=["Работа с моделью Persons"],
+)
+
+app.include_router(
+    clients.router,
+    prefix="/client",
+    tags=["Работа с моделью Clients"],
+)
+
+app.include_router(
+    applications.router,
+    prefix="/application",
+    tags=["Работа с моделью Applications"],
+)
 
 
 if __name__ == '__main__':

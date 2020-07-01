@@ -26,6 +26,9 @@ class Person(Base):
     city = Column(String(128), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
+    client = relationship("Client", uselist=False, back_populates='person')
+    driver = relationship("Driver", uselist=False, back_populates='person')
+
 
 class Client(Base):
     __tablename__ = "clients"
@@ -34,6 +37,7 @@ class Client(Base):
     person_id = Column(Integer, ForeignKey("persons.id"))
     created_at = Column(DateTime, default=datetime.utcnow)
 
+    person = relationship("Person", back_populates='client')
     applications = relationship("Application", back_populates="client")
 
 
@@ -46,6 +50,7 @@ class Driver(Base):
 
     applications = relationship("Application", back_populates="driver")
     transports = relationship("Transport", back_populates="driver")
+    person = relationship("Person", back_populates='driver')
 
 
 class Application(Base):
