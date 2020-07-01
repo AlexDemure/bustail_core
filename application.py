@@ -29,9 +29,9 @@ async def read_item(item_id: int, q: str = None):
     return {"item_id": item_id, "q": q}
 
 
-# @app.post("/account/", response_model=schemas.Account)
-# def create_user(account: schemas.AccountCreate, db: SessionLocal = Depends(get_db)):
-#     return crud.create_account(db=db, account=account)
+@app.post("/account/", response_model=schemas.Account)
+def create_user(account: schemas.AccountCreate, db: SessionLocal = Depends(get_db)):
+    return crud.create_account(db=db, account=account)
 
 
 if __name__ == '__main__':

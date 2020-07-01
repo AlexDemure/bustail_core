@@ -34,6 +34,8 @@ class Client(Base):
     person_id = Column(Integer, ForeignKey("persons.id"))
     created_at = Column(DateTime, default=datetime.utcnow)
 
+    applications = relationship("Application", back_populates="client")
+
 
 class Driver(Base):
     __tablename__ = "drivers"
@@ -41,6 +43,9 @@ class Driver(Base):
     id = Column(Integer, primary_key=True, index=True)
     person_id = Column(Integer, ForeignKey("persons.id"))
     created_at = Column(DateTime, default=datetime.utcnow)
+
+    applications = relationship("Application", back_populates="driver")
+    transports = relationship("Transport", back_populates="driver")
 
 
 class Application(Base):
@@ -73,6 +78,7 @@ class Transport(Base):
     count_seats = Column(Integer)
 
     driver = relationship("Driver", back_populates="transports")
+    files = relationship("File", back_populates='transport')
 
 
 class File(Base):
@@ -82,4 +88,4 @@ class File(Base):
     transport_id = Column(Integer, ForeignKey("transports.id"))
     content = Column(String)
 
-    transport = relationship("Transport", back_populates="files")
+    transport = relationship("Transport", back_populates='files')
