@@ -45,12 +45,13 @@ RUN pip install "poetry==$POETRY_VERSION"
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-COPY . /app
 WORKDIR /app
 
 ADD poetry.lock pyproject.toml /app/
 
 RUN poetry install --no-dev
+
+COPY . /app
 
 EXPOSE 8000
 

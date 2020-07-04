@@ -1,16 +1,16 @@
 from pydantic import BaseModel
 from datetime import datetime
 
+
 class AccountBase(BaseModel):
     login: str
-    password: str
 
 
 class AccountCreate(AccountBase):
-    pass
+    password: str
 
 
-class Account(AccountBase):
+class Account(AccountCreate):
     id: int
 
     class Config:
