@@ -1,6 +1,5 @@
-from datetime import datetime
-
 from sqlalchemy import DateTime, Column, Integer, String, ForeignKey
+from sqlalchemy.sql import func
 
 from db.database import Base
 
@@ -9,7 +8,7 @@ class Account(Base):
     __tablename__ = "accounts"
 
     id = Column(Integer, primary_key=True, index=True)
-    registration_date = Column(DateTime, default=datetime.utcnow)
+    registration_date = Column(DateTime, server_default=func.now())
 
 
 accounts = Account.__table__
