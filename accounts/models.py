@@ -12,10 +12,29 @@ class Account(Base):
     registration_date = Column(DateTime, default=datetime.utcnow)
 
 
+accounts = Account.__table__
+
+
 class AuthorizationData(Base):
     __tablename__ = "authorization_data"
 
-    id = Column(Integer, primary_key=True, index=True)
     account_id = Column(Integer, ForeignKey("accounts.id"), primary_key=True, index=True)
     login = Column(String(12), unique=True)
     password = Column(String(64))
+
+
+authorization_data = AuthorizationData.__table__
+
+
+class PersonalData(Base):
+    __tablename__ = "personal_data"
+
+    account_id = Column(Integer, ForeignKey("accounts.id"), primary_key=True, index=True)
+    fullname = Column(String(255))
+    phone = Column(String(12))
+    email = Column(String(64), nullable=True)
+    birthday = Column(DateTime, nullable=True)
+    city = Column(String(128))
+
+
+personal_data = PersonalData.__table__
