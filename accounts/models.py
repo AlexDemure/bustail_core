@@ -1,4 +1,4 @@
-from sqlalchemy import DateTime, Column, Integer, String, ForeignKey
+from sqlalchemy import DateTime, Column, Integer, String, ForeignKey, Date
 from sqlalchemy.sql import func
 
 from db.database import Base
@@ -32,7 +32,7 @@ class PersonalData(Base):
     fullname = Column(String(255))
     phone = Column(String(12))
     email = Column(String(64), nullable=True)
-    birthday = Column(DateTime, nullable=True)
+    birthday = Column(Date, nullable=True)
     city = Column(String(128))
 
 
