@@ -35,14 +35,14 @@ class PersonalData(PersonalDataCreate):
         orm_mode = True
 
 
-class AccountBase(BaseModel):
+class AccountCreate(BaseModel):
+    authorization_data: AuthorizationDataBase
+    personal_data: PersonalDataBase
+
+
+class Account(AccountCreate):
     id: int
     registration_date: datetime
 
     class Config:
         orm_mode = True
-
-
-class Account(AccountBase):
-    authorization_data: AuthorizationDataBase = None
-    personal_data: PersonalDataBase = None

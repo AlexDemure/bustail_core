@@ -10,12 +10,17 @@ async def create_account():
     return account_id
 
 
-async def get_account(account_id: int):
+async def get_account(account_id: int) -> dict:
     query = (
         select([accounts, personal_data, authorization_data])
-        .where(accounts.c.id == account_id)
+        .where(
+            (accounts.c.id == account_id) &
+            (personal_data.c.account_id == account_id) &
+            (authorization_data.c.account_id == account_id)
+        )
     )
-    return await database.fetch_one(query)
+    account_data = await database.fetch_one(query)
+    return dict(account_data) if account_data else dict()
 
 
 async def create_authorization_data(data: AuthorizationDataCreate):
@@ -23,9 +28,10 @@ async def create_authorization_data(data: AuthorizationDataCreate):
     await database.execute(query)
 
 
-async def get_authorization_data(account_id: int):
-    query = authorization_data.select(authorization_data.c.account_id == account_id)
-    return await database.fetch_one(query)
+async def get_authorization_data(login: str) -> dict:
+    query = authorization_data.select(authorization_data.c.login == login)
+    data = await database.fetch_one(query)
+    return dict(data) if data else dict()
 
 
 async def create_personal_data(data: PersonalDataCreate):
@@ -33,6 +39,7 @@ async def create_personal_data(data: PersonalDataCreate):
     await database.execute(query)
 
 
-async def get_personal_data(account_id):
-    query = personal_data.select(personal_data.c.account_id == account_id)
-    return await database.fetch_one(query)
+async def get_personal_data(attribute: str, value) -> dict:
+    query = personal_data.select(getattr(personal_data.c, attribute) == value)
+    data = await database.fetch_one(query)
+    return dict(data) if data else dict()
