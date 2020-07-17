@@ -26,7 +26,7 @@ app.include_router(
 app.include_router(
     accounts.router,
     prefix="/account",
-    tags=["Работа с моделью Accounts, PersonalData"],
+    tags=["Работа с моделью Accounts, PersonalData, AuthorizationData"],
 )
 
 # app.include_router(

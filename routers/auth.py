@@ -1,8 +1,9 @@
 from fastapi import APIRouter, HTTPException, status
 from starlette.responses import Response
 
+from accounts.schemas import AuthorizationDataBase
 from authorization.utils import create_access_token, authenticate_user
-from authorization.schemas import Token, AuthorizationDataBase
+from authorization.schemas import Token
 from authorization.settings import ACCESS_TOKEN_EXPIRE_MINUTES, TOKEN_DOMAIN
 
 

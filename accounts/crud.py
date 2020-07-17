@@ -1,8 +1,7 @@
 from sqlalchemy import select
 
-from accounts.models import accounts, personal_data
-from accounts.schemas import PersonalDataCreate
-from authorization.models import authorization_data
+from accounts.models import accounts, personal_data, authorization_data
+from accounts.schemas import PersonalDataCreate, AuthorizationDataCreate
 from db.database import database
 
 
@@ -32,5 +31,16 @@ async def create_personal_data(data: PersonalDataCreate):
 
 async def get_personal_data(attribute: str, value) -> dict:
     query = personal_data.select(getattr(personal_data.c, attribute) == value)
+    data = await database.fetch_one(query)
+    return dict(data) if data else dict()
+
+
+async def create_authorization_data(data: AuthorizationDataCreate):
+    query = authorization_data.insert().values(**data.dict())
+    await database.execute(query)
+
+
+async def get_authorization_data(login: str) -> dict:
+    query = authorization_data.select(authorization_data.c.login == login)
     data = await database.fetch_one(query)
     return dict(data) if data else dict()

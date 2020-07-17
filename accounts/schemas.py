@@ -1,8 +1,6 @@
 from pydantic import BaseModel, constr
 from datetime import datetime, date
 
-from authorization.schemas import AuthorizationDataBase
-
 
 class PersonalDataBase(BaseModel):
     fullname: constr(max_length=255)
@@ -17,6 +15,21 @@ class PersonalDataCreate(PersonalDataBase):
 
 
 class PersonalData(PersonalDataCreate):
+
+    class Config:
+        orm_mode = True
+
+
+class AuthorizationDataBase(BaseModel):
+    login: str
+    password: str
+
+
+class AuthorizationDataCreate(AuthorizationDataBase):
+    account_id: int
+
+
+class AuthorizationData(AuthorizationDataBase):
 
     class Config:
         orm_mode = True

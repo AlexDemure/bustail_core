@@ -2,17 +2,14 @@ from datetime import datetime, timedelta
 
 from fastapi import HTTPException, status
 from jose import JWTError, jwt
-
 from starlette.requests import Request
 
-from accounts.schemas import Account
+from accounts.crud import get_authorization_data
+from accounts.schemas import Account, AuthorizationDataBase
 from accounts.views import AccountView
-
-from .schemas import AuthorizationDataBase, TokenData
-from .settings import AUTH_SECRET_KEY, ALGORITHM
-from .crud import get_authorization_data
-
 from crypt import verify_password
+from .schemas import TokenData
+from .settings import AUTH_SECRET_KEY, ALGORITHM
 
 
 async def authenticate_user(auth: AuthorizationDataBase) -> int:
