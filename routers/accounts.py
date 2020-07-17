@@ -4,8 +4,7 @@ from accounts.crud import get_personal_data
 from accounts.views import AccountView
 from accounts.schemas import AccountCreate, Account
 
-from authorization.utils import get_current_user
-from authorization.crud import get_authorization_data
+from authorization.utils import get_current_user, get_authorization_data
 
 
 router = APIRouter()

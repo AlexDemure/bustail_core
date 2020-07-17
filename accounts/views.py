@@ -1,9 +1,6 @@
-from authorization.crud import create_authorization_data
-from authorization.schemas import AuthorizationDataCreate
-
-from .crud import create_personal_data, get_account, create_account
+from .crud import create_personal_data, get_account, create_account, create_authorization_data
 from .schemas import Account
-from .schemas import AccountCreate, PersonalDataCreate
+from .schemas import AccountCreate, PersonalDataCreate, AuthorizationDataCreate
 from .serializer import AccountSerializer
 
 from crypt import get_password_hash
