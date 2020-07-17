@@ -14,17 +14,6 @@ class Account(Base):
 accounts = Account.__table__
 
 
-class AuthorizationData(Base):
-    __tablename__ = "authorization_data"
-
-    account_id = Column(Integer, ForeignKey("accounts.id"), primary_key=True, index=True)
-    login = Column(String(12), unique=True)
-    password = Column(String(64))
-
-
-authorization_data = AuthorizationData.__table__
-
-
 class PersonalData(Base):
     __tablename__ = "personal_data"
 
