@@ -1,5 +1,6 @@
 from .database import Base
-from accounts.models import Account, AuthorizationData, PersonalData
+from authorization.models import AuthorizationData
+from accounts.models import Account, PersonalData
 from applications.models import Application
 from clients.models import Client
 from drivers.models import Driver, Transport
