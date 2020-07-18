@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from db.database import database
 
-from routers import accounts, auth
+from routers import accounts, auth, clients
 
 app = FastAPI(debug=True)
 
@@ -20,13 +20,19 @@ async def shutdown():
 app.include_router(
     auth.router,
     prefix="/auth",
-    tags=["Работы с токенами авторизации."],
+    tags=["Работа с базовыми токенами авторизации."],
 )
 
 app.include_router(
     accounts.router,
     prefix="/account",
     tags=["Работа с моделью Accounts, PersonalData, AuthorizationData"],
+)
+
+app.include_router(
+    clients.router,
+    prefix="/client",
+    tags=["Работа с моделью Clients"],
 )
 
 # app.include_router(

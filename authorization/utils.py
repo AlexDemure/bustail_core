@@ -8,8 +8,12 @@ from starlette.requests import Request
 from accounts.crud import get_authorization_data
 from accounts.schemas import Account, AuthorizationDataBase
 from accounts.views import AccountView
+
+from clients.schemas import Client
+from clients.views import ClientView
+
 from crypt import verify_password
-from .schemas import TokenData
+from .schemas import AuthTokenData, ClientCardTokenData
 from .settings import AUTH_SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, TOKEN_DOMAIN
 
 
@@ -24,8 +28,8 @@ async def authenticate_user(auth: AuthorizationDataBase) -> int:
     return auth_data['account_id']
 
 
-def create_access_token(data: dict) -> str:
-    """Создание токена доступа."""
+def create_token(data: dict) -> str:
+    """Создание токена."""
     to_encode = data.copy()
     expire = datetime.utcnow() + timedelta(hours=12)
     to_encode.update({"exp": expire})
@@ -33,41 +37,26 @@ def create_access_token(data: dict) -> str:
     return encoded_jwt
 
 
-async def get_current_user(request: Request) -> Account:
-    """Получение текущего пользователя."""
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    cookie = request.cookies.get('Authorization')
+def get_cookie_payload(key: str, request: Request, exception: HTTPException) -> dict:
+    cookie = request.cookies.get(key)
     if not cookie:
-        raise credentials_exception
+        raise exception
     else:
         schema, token = cookie.split(" ")
 
     try:
         payload = jwt.decode(token, AUTH_SECRET_KEY, algorithms=[ALGORITHM])
     except JWTError:
-        raise credentials_exception
+        raise exception
 
-    account_id = payload.get("sub")
-    if account_id is None:
-        raise credentials_exception
-
-    token_data = TokenData(account_id=account_id)
-
-    account = await AccountView.get(token_data.account_id)
-    if not account:
-        raise credentials_exception
-    return account
+    return payload
 
 
-def create_auth_cookie(token: str):
+def create_cookie(key: str, token: str):
     response = Response()
 
     response.set_cookie(
-        "Authorization",
+        key=key,
         value=f"Bearer {token}",
         domain=TOKEN_DOMAIN,
         httponly=True,
@@ -77,14 +66,60 @@ def create_auth_cookie(token: str):
     return response
 
 
-def delete_auth_cookie():
+def delete_cookie(key: str):
     response = Response()
 
     response.delete_cookie(
-        key="Authorization",
+        key=key,
         path='/',
         domain=TOKEN_DOMAIN
     )
 
     return response
+
+
+async def get_current_user(request: Request) -> Account:
+    """Получение текущего пользователя."""
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Account is not found.",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    payload = get_cookie_payload("Authorization", request, credentials_exception)
+
+    account_id = payload.get("sub")
+    if account_id is None:
+        raise credentials_exception
+
+    token_data = AuthTokenData(account_id=account_id)
+
+    account = await AccountView.get(token_data.account_id)
+    if not account:
+        raise credentials_exception
+    return account
+
+
+async def get_current_client(request: Request) -> Client:
+    """Получение текущего пользователя."""
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Client card is not found.",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    payload = get_cookie_payload("ClientCard", request, credentials_exception)
+
+    client_id = payload.get("sub")
+    if client_id is None:
+        raise credentials_exception
+
+    token_data = ClientCardTokenData(client_id=client_id)
+
+    client = await ClientView.get("id", token_data.client_id)
+    if not client:
+        raise credentials_exception
+    return client
+
+
 

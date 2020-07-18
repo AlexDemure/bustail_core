@@ -3,14 +3,14 @@ from pydantic import BaseModel
 
 
 class ClientBase(BaseModel):
-    phone: str
+    account_id: int
 
 
-class ClientCreate(BaseModel):
-    person_id: int
+class ClientCreate(ClientBase):
+    pass
 
 
-class Client(ClientCreate):
+class Client(ClientBase):
     id: int
     created_at: datetime
 

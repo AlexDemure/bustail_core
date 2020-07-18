@@ -11,7 +11,7 @@ from accounts.schemas import (
 
 from crypt import get_password_hash, verify_password, get_verify_code
 
-from authorization.utils import get_current_user, get_authorization_data, delete_auth_cookie
+from authorization.utils import get_current_user, get_authorization_data, delete_cookie
 
 
 router = APIRouter()
@@ -46,7 +46,7 @@ async def get_account(account: Account = Depends(get_current_user)):
 async def delete_account(account: Account = Depends(get_current_user)):
     """Удаление аккаунта вместе с персональными данными и авторизационными.."""
     await crud.delete_account(account.id)
-    return delete_auth_cookie()
+    return delete_cookie("Authorization")
 
 
 @router.put('/personal_data', response_model=Account)
