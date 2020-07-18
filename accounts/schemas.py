@@ -14,6 +14,10 @@ class PersonalDataCreate(PersonalDataBase):
     account_id: int
 
 
+class PersonalDataUpdate(PersonalDataCreate):
+    pass
+
+
 class PersonalData(PersonalDataCreate):
 
     class Config:
@@ -29,6 +33,10 @@ class AuthorizationDataCreate(AuthorizationDataBase):
     account_id: int
 
 
+class AuthorizationDataUpdate(AuthorizationDataCreate):
+    pass
+
+
 class AuthorizationData(AuthorizationDataBase):
 
     class Config:
@@ -38,6 +46,10 @@ class AuthorizationData(AuthorizationDataBase):
 class AccountCreate(BaseModel):
     authorization_data: AuthorizationDataBase
     personal_data: PersonalDataBase
+
+
+class AccountDelete(BaseModel):
+    account_id: int
 
 
 class Account(AccountCreate):

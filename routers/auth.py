@@ -1,16 +1,14 @@
 from fastapi import APIRouter, HTTPException, status
-from starlette.responses import Response
 
 from accounts.schemas import AuthorizationDataBase
-from authorization.utils import create_access_token, authenticate_user
 from authorization.schemas import Token
-from authorization.settings import ACCESS_TOKEN_EXPIRE_MINUTES, TOKEN_DOMAIN
+from authorization.utils import create_access_token, authenticate_user, create_auth_cookie, delete_auth_cookie
 
 
 router = APIRouter()
 
 
-@router.post("/", response_model=Token)
+@router.post("/login", response_model=Token)
 async def login_for_access_token(auth_data: AuthorizationDataBase):
     account_id = await authenticate_user(auth_data)
     if not account_id:
@@ -23,15 +21,12 @@ async def login_for_access_token(auth_data: AuthorizationDataBase):
         data={"sub": str(account_id)},
     )
 
-    response = Response()
+    return create_auth_cookie(access_token)
 
-    response.set_cookie(
-        "Authorization",
-        value=f"Bearer {access_token}",
-        domain=TOKEN_DOMAIN,
-        httponly=True,
-        max_age=60*ACCESS_TOKEN_EXPIRE_MINUTES,
-        expires=60*ACCESS_TOKEN_EXPIRE_MINUTES,
-    )
-    return response
+
+@router.post("/logout")
+async def logout():
+    return delete_auth_cookie()
+
+
 

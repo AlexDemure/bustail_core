@@ -1,7 +1,10 @@
-from sqlalchemy import select
+from sqlalchemy import select, update
 
 from accounts.models import accounts, personal_data, authorization_data
-from accounts.schemas import PersonalDataCreate, AuthorizationDataCreate
+from accounts.schemas import (
+    PersonalDataCreate, AuthorizationDataCreate,
+    AuthorizationDataUpdate, PersonalDataUpdate
+)
 from db.database import database
 
 
@@ -24,15 +27,51 @@ async def get_account(account_id: int) -> dict:
     return dict(account_data) if account_data else dict()
 
 
+async def delete_account(account_id: int):
+    delete_personal_data = (
+        personal_data.delete()
+        .where(personal_data.c.account_id == account_id)
+    )
+
+    delete_auth_data = (
+        authorization_data.delete()
+        .where(authorization_data.c.account_id == account_id)
+    )
+
+    delete_account_data = (
+        accounts.delete()
+        .where(accounts.c.id == account_id)
+    )
+
+    queries = [delete_personal_data, delete_auth_data, delete_account_data]
+    for query in queries:
+        await database.execute(query)
+
+
 async def create_personal_data(data: PersonalDataCreate):
     query = personal_data.insert().values(**data.dict())
     await database.execute(query)
 
 
-async def get_personal_data(attribute: str, value) -> dict:
-    query = personal_data.select(getattr(personal_data.c, attribute) == value)
+async def get_personal_data(attribute: str, value, account_id: int = None) -> dict:
+    query = (
+        select([personal_data])
+        .where(
+            (getattr(personal_data.c, attribute) == value) &
+            (personal_data.c.account_id != account_id)
+        )
+    )
     data = await database.fetch_one(query)
     return dict(data) if data else dict()
+
+
+async def update_personal_data(update_data: PersonalDataUpdate):
+    query = (
+        update(personal_data)
+        .where(personal_data.c.account_id == update_data.account_id)
+        .values(**update_data.dict())
+    )
+    await database.execute(query)
 
 
 async def create_authorization_data(data: AuthorizationDataCreate):
@@ -40,7 +79,22 @@ async def create_authorization_data(data: AuthorizationDataCreate):
     await database.execute(query)
 
 
-async def get_authorization_data(login: str) -> dict:
-    query = authorization_data.select(authorization_data.c.login == login)
+async def get_authorization_data(login: str, account_id: int = None) -> dict:
+    query = (
+        select([authorization_data])
+        .where(
+            (authorization_data.c.login == login) &
+            (authorization_data.c.account_id != account_id)
+        )
+    )
     data = await database.fetch_one(query)
     return dict(data) if data else dict()
+
+
+async def update_auth_data(update_data: AuthorizationDataUpdate):
+    query = (
+        update(authorization_data)
+        .where(authorization_data.c.account_id == update_data.account_id)
+        .values(**update_data.dict())
+    )
+    await database.execute(query)

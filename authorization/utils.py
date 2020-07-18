@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from starlette.responses import Response
 from fastapi import HTTPException, status
 from jose import JWTError, jwt
 from starlette.requests import Request
@@ -9,7 +10,7 @@ from accounts.schemas import Account, AuthorizationDataBase
 from accounts.views import AccountView
 from crypt import verify_password
 from .schemas import TokenData
-from .settings import AUTH_SECRET_KEY, ALGORITHM
+from .settings import AUTH_SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, TOKEN_DOMAIN
 
 
 async def authenticate_user(auth: AuthorizationDataBase) -> int:
@@ -60,3 +61,30 @@ async def get_current_user(request: Request) -> Account:
     if not account:
         raise credentials_exception
     return account
+
+
+def create_auth_cookie(token: str):
+    response = Response()
+
+    response.set_cookie(
+        "Authorization",
+        value=f"Bearer {token}",
+        domain=TOKEN_DOMAIN,
+        httponly=True,
+        max_age=60 * ACCESS_TOKEN_EXPIRE_MINUTES,
+        expires=60 * ACCESS_TOKEN_EXPIRE_MINUTES,
+    )
+    return response
+
+
+def delete_auth_cookie():
+    response = Response()
+
+    response.delete_cookie(
+        key="Authorization",
+        path='/',
+        domain=TOKEN_DOMAIN
+    )
+
+    return response
+
