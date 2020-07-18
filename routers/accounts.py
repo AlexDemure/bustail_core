@@ -34,7 +34,7 @@ async def create_account(account: AccountCreate):
 
 @router.get("/", response_model=Account)
 async def get_account(account: Account = Depends(get_current_user)):
-    """Получение аккаунта."""
+    """Получение аккаунта только при наличии токена авторизации."""
     account = await AccountView.get(account.id)
     if not account:
         raise HTTPException(status_code=400, detail="Account is not found.")
@@ -44,12 +44,14 @@ async def get_account(account: Account = Depends(get_current_user)):
 
 @router.delete("/")
 async def delete_account(account: Account = Depends(get_current_user)):
+    """Удаление аккаунта вместе с персональными данными и авторизационными.."""
     await crud.delete_account(account.id)
     return delete_auth_cookie()
 
 
 @router.put('/personal_data', response_model=Account)
 async def update_person_data(update_data: PersonalDataBase, account: Account = Depends(get_current_user)):
+    """Обновление персональных данных только при наличии токена авторизации."""
     personal_data = await crud.get_personal_data('phone', update_data.phone, account.id)
     if personal_data:
         raise HTTPException(status_code=400, detail="Phone number associated with another account.")
@@ -62,6 +64,7 @@ async def update_person_data(update_data: PersonalDataBase, account: Account = D
 
 @router.put('/authorization_data', response_model=Account)
 async def update_auth_data(update_data: AuthorizationDataBase, account: Account = Depends(get_current_user)):
+    """Обновление авторизационных данных только при наличии токена авторизации."""
     auth_data = await get_authorization_data(update_data.login, account.id)
     if auth_data:
         raise HTTPException(status_code=400, detail="Login associated with another account.")
@@ -79,7 +82,7 @@ async def update_auth_data(update_data: AuthorizationDataBase, account: Account 
 
 @router.post('/reset_password')
 async def reset_password(reset_data: ResetPasswordBase):
-    """Получение """
+    """Получение кода подтверждения для восстановления пароля."""
     auth_data = await get_authorization_data(reset_data.login)
     if not auth_data:
         raise HTTPException(status_code=400, detail="Login is not found.")
