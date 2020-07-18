@@ -18,9 +18,7 @@ async def login_for_access_token(auth_data: AuthorizationDataBase):
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token = create_token(
-        data={"sub": str(account_id)},
-    )
+    access_token = create_token(data={"sub": str(account_id)})
 
     return create_cookie("Authorization", access_token)
 

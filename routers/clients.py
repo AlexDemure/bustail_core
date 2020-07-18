@@ -26,9 +26,8 @@ async def create_client(account: Account = Depends(get_current_user)):
 
     client_id = await ClientView.create(client_data)
 
-    client_token = create_token(
-        data={"sub": str(client_id)},
-    )
+    client_token = create_token(data={"sub": str(client_id)})
+
     return create_cookie("ClientCard", client_token)
 
 
@@ -59,9 +58,7 @@ async def login(account: Account = Depends(get_current_user)):
             detail="Client is not found",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    client_token = create_token(
-        data={"sub": str(client.id)},
-    )
+    client_token = create_token(data={"sub": str(client.id)})
 
     return create_cookie("ClientCard", client_token)
 
