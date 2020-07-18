@@ -10,6 +10,7 @@ router = APIRouter()
 
 @router.post("/login", response_model=Token)
 async def login_for_access_token(auth_data: AuthorizationDataBase):
+    """Получение авторизационного токена с созданием его в токен."""
     account_id = await authenticate_user(auth_data)
     if not account_id:
         raise HTTPException(
