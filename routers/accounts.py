@@ -1,15 +1,15 @@
 from fastapi import APIRouter, HTTPException, Depends
-from starlette.responses import Response
 
 from accounts import crud
 from accounts.views import AccountView
 from accounts.schemas import (
     AccountCreate, Account,
     PersonalDataBase, PersonalDataUpdate,
-    AuthorizationDataBase, AuthorizationDataUpdate
+    AuthorizationDataBase, AuthorizationDataUpdate,
+    ResetPassword, ResetPasswordBase
 )
 
-from crypt import get_password_hash, verify_password
+from crypt import get_password_hash, verify_password, get_verify_code
 
 from authorization.utils import get_current_user, get_authorization_data, delete_auth_cookie
 
@@ -75,3 +75,34 @@ async def update_auth_data(update_data: AuthorizationDataBase, account: Account 
     await crud.update_auth_data(update_data)
 
     return await AccountView.get(account.id)
+
+
+@router.post('/reset_password')
+async def reset_password(reset_data: ResetPasswordBase):
+    """Получение """
+    auth_data = await get_authorization_data(reset_data.login)
+    if not auth_data:
+        raise HTTPException(status_code=400, detail="Login is not found.")
+
+    verify_code = get_verify_code(auth_data['password'])
+    return dict(verify_code=verify_code)
+
+
+@router.put('/reset_password')
+async def reset_password(reset_data: ResetPassword):
+    """Обновление пароля у аккаунта."""
+    auth_data = await get_authorization_data(reset_data.login)
+    if not auth_data:
+        raise HTTPException(status_code=400, detail="Login is not found.")
+
+    if reset_data.verify_code != get_verify_code(auth_data['password']):
+        raise HTTPException(status_code=400, detail="Incorrect verify code.")
+
+    hash_password = get_password_hash(reset_data.password)
+
+    auth_data = AuthorizationDataUpdate(
+        account_id=auth_data['account_id'],
+        login=reset_data.login,
+        password=hash_password,
+    )
+    await crud.update_auth_data(auth_data)

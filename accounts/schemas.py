@@ -58,3 +58,12 @@ class Account(AccountCreate):
 
     class Config:
         orm_mode = True
+
+
+class ResetPasswordBase(BaseModel):
+    login: str
+
+
+class ResetPassword(ResetPasswordBase):
+    password: str
+    verify_code: str
