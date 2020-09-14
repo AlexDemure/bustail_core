@@ -7,7 +7,7 @@ from common.schemas import UpdateBase
 router = APIRouter()
 
 
-@router.post("/", response_model=schemas.Account)
+@router.post("/", response_model=schemas.AccountData)
 async def create_account(request: schemas.AccountCreate):
     """Создание пользовательского аккаунта."""
     personal_data = await service.PersonalDataService.get_by_attribute('phone', request.personal_data.phone)
@@ -21,13 +21,13 @@ async def create_account(request: schemas.AccountCreate):
     return await logic.create_account(request)
 
 
-@router.get("/", response_model=schemas.Account)
+@router.get("/", response_model=schemas.AccountData)
 async def get_account(account: models.Account = Depends(get_current_user)):
     """Получение аккаунта только при наличии токена авторизации."""
     return serializer.AccountSerializer.prepared_data(**dict(account))
 
 
-@router.put('/personal_data', response_model=schemas.Account)
+@router.put('/personal_data')
 async def update_person_data(request: schemas.PersonalDataBase, account: models.Account = Depends(get_current_user)):
     """Обновление персональных данных только при наличии токена авторизации."""
     personal_data = await service.PersonalDataService.get_by_attribute('phone', request.phone, account.id)

@@ -21,10 +21,6 @@ class PersonalDataCreate(PersonalDataBase):
     account_id: int
 
 
-class PersonalDataUpdate(PersonalDataCreate):
-    pass
-
-
 class PersonalData(PersonalDataCreate):
 
     class Config:
@@ -40,10 +36,6 @@ class AuthorizationDataCreate(AuthorizationDataBase):
     account_id: int
 
 
-class AuthorizationDataUpdate(AuthorizationDataCreate):
-    pass
-
-
 class AuthorizationData(AuthorizationDataBase):
 
     class Config:
@@ -55,22 +47,10 @@ class AccountCreate(BaseModel):
     personal_data: PersonalDataBase
 
 
-class AccountDelete(BaseModel):
-    account_id: int
-
-
-class Account(AccountCreate):
+class AccountData(AccountCreate):
     id: int
     registration_date: datetime
 
     class Config:
         orm_mode = True
 
-
-class ResetPasswordBase(BaseModel):
-    login: str
-
-
-class ResetPassword(ResetPasswordBase):
-    password: str
-    verify_code: str

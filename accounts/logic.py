@@ -4,7 +4,7 @@ from common.schemas import UpdateBase
 from crypt import get_password_hash
 
 
-async def get_account(account_id: int) -> Optional[schemas.Account]:
+async def get_account(account_id: int) -> Optional[schemas.AccountData]:
     """Получение структуры данных пользователя."""
     account_data = await service.AccountService.get(account_id)
     if account_data:
@@ -13,7 +13,7 @@ async def get_account(account_id: int) -> Optional[schemas.Account]:
         return None
 
 
-async def create_account(schema: schemas.AccountCreate) -> Optional[schemas.Account]:
+async def create_account(schema: schemas.AccountCreate) -> Optional[schemas.AccountData]:
     """Создание пользовательского аккаунта с персональными данными и авторизационными."""
     assert isinstance(schema, schemas.AccountCreate), 'Schema is wrong format'
 
