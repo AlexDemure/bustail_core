@@ -1,13 +1,10 @@
-from .schemas import (
-    PersonalDataBase, AuthorizationDataBase,
-    Account
-)
+from accounts.schemas import PersonalDataBase, AuthorizationDataBase, AccountData
 
 
 class AccountSerializer:
 
     @staticmethod
-    def prepared_data(**kwargs) -> Account:
+    def prepared_data(**kwargs) -> AccountData:
         personal_data = PersonalDataBase(
             fullname=kwargs['fullname'],
             phone=kwargs['phone'],
@@ -19,7 +16,7 @@ class AccountSerializer:
             login=kwargs['login'],
             password=kwargs['password']
         )
-        return Account(
+        return AccountData(
             id=kwargs['id'],
             registration_date=kwargs['registration_date'],
             authorization_data=authorization_data,

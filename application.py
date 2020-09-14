@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from db.database import database
 
-from routers import accounts, auth, clients
+from routers import accounts, auth
 
 app = FastAPI(debug=True)
 

@@ -47,11 +47,11 @@ async def update_personal_data(schema: UpdateBase):
     phone = schema.updated_fields.get('phone', None)
     if phone:
         if personal_data.get('phone', None) != phone:
-            schema = UpdateBase(
+            auth_data = UpdateBase(
                 id=schema.id,
-                updated_fields=dict(phone=schema.updated_fields['phone'])
+                updated_fields=dict(login=schema.updated_fields['phone'])
             )
-            await service.AuthorizationDataService(schema).update()
+            await service.AuthorizationDataService(auth_data).update()
 
     await service.PersonalDataService(schema).update()
 

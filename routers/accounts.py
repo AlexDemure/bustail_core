@@ -24,7 +24,7 @@ async def create_account(request: schemas.AccountCreate):
 @router.get("/", response_model=schemas.AccountData)
 async def get_account(account: models.Account = Depends(get_current_user)):
     """Получение аккаунта только при наличии токена авторизации."""
-    return serializer.AccountSerializer.prepared_data(**dict(account))
+    return account
 
 
 @router.put('/personal_data')
