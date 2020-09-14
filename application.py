@@ -29,30 +29,6 @@ app.include_router(
     tags=["Работа с моделью Accounts, PersonalData, AuthorizationData"],
 )
 
-app.include_router(
-    clients.router,
-    prefix="/client",
-    tags=["Работа с моделью Clients"],
-)
-
-# app.include_router(
-#     persons.router,
-#     prefix="/person",
-#     tags=["Работа с моделью Persons"],
-# )
-#
-# app.include_router(
-#     clients.router,
-#     prefix="/client",
-#     tags=["Работа с моделью Clients"],
-# )
-#
-# app.include_router(
-#     applications.router,
-#     prefix="/application",
-#     tags=["Работа с моделью Applications"],
-# )
-
 
 if __name__ == '__main__':
     uvicorn.run("application:app", host="0.0.0.0", port=8000, reload=True, log_level="debug")
