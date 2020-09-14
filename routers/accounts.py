@@ -1,111 +1,43 @@
 from fastapi import APIRouter, HTTPException, Depends
 
-from accounts import crud
-from accounts.views import AccountView
-from accounts.schemas import (
-    AccountCreate, Account,
-    PersonalDataBase, PersonalDataUpdate,
-    AuthorizationDataBase, AuthorizationDataUpdate,
-    ResetPassword, ResetPasswordBase
-)
-
-from crypt import get_password_hash, verify_password, get_verify_code
-
-from authorization.utils import get_current_user, get_authorization_data, delete_cookie
-
+from accounts import schemas, logic, service, models, serializer
+from authorization.utils import get_current_user
+from common.schemas import UpdateBase
 
 router = APIRouter()
 
 
-@router.post("/", response_model=Account)
-async def create_account(account: AccountCreate):
+@router.post("/", response_model=schemas.Account)
+async def create_account(request: schemas.AccountCreate):
     """Создание пользовательского аккаунта."""
-    personal_data = await crud.get_personal_data('phone', account.personal_data.phone)
+    personal_data = await service.PersonalDataService.get_by_attribute('phone', request.personal_data.phone)
     if personal_data:
         raise HTTPException(status_code=400, detail="Phone number associated with another account.")
 
-    auth_data = await get_authorization_data(account.authorization_data.login)
+    auth_data = await service.AuthorizationDataService.get_by_login(request.authorization_data.login)
     if auth_data:
         raise HTTPException(status_code=400, detail="Login associated with another account.")
 
-    new_account = await AccountView.create(account)
-    return new_account
+    return await logic.create_account(request)
 
 
-@router.get("/", response_model=Account)
-async def get_account(account: Account = Depends(get_current_user)):
+@router.get("/", response_model=schemas.Account)
+async def get_account(account: models.Account = Depends(get_current_user)):
     """Получение аккаунта только при наличии токена авторизации."""
-    account = await AccountView.get(account.id)
-    if not account:
-        raise HTTPException(status_code=400, detail="Account is not found.")
-
-    return account
+    return serializer.AccountSerializer.prepared_data(**dict(account))
 
 
-@router.delete("/")
-async def delete_account(account: Account = Depends(get_current_user)):
-    """Удаление аккаунта вместе с персональными данными и авторизационными.."""
-    await crud.delete_account(account.id)
-    return delete_cookie("Authorization")
-
-
-@router.put('/personal_data', response_model=Account)
-async def update_person_data(update_data: PersonalDataBase, account: Account = Depends(get_current_user)):
+@router.put('/personal_data', response_model=schemas.Account)
+async def update_person_data(request: schemas.PersonalDataBase, account: models.Account = Depends(get_current_user)):
     """Обновление персональных данных только при наличии токена авторизации."""
-    personal_data = await crud.get_personal_data('phone', update_data.phone, account.id)
+    personal_data = await service.PersonalDataService.get_by_attribute('phone', request.phone, account.id)
     if personal_data:
         raise HTTPException(status_code=400, detail="Phone number associated with another account.")
 
-    update_data = PersonalDataUpdate(account_id=account.id, **update_data.dict())
-    await crud.update_personal_data(update_data)
+    personal_data = await service.PersonalDataService.get_by_account_id(account.id)
+    if not personal_data:
+        raise HTTPException(status_code=400, detail="Personal data is not found")
 
-    return await AccountView.get(account.id)
+    schema = UpdateBase(id=account.id, updated_fields=request.dict())
+    await logic.update_personal_data(schema)
 
-
-@router.put('/authorization_data', response_model=Account)
-async def update_auth_data(update_data: AuthorizationDataBase, account: Account = Depends(get_current_user)):
-    """Обновление авторизационных данных только при наличии токена авторизации."""
-    auth_data = await get_authorization_data(update_data.login, account.id)
-    if auth_data:
-        raise HTTPException(status_code=400, detail="Login associated with another account.")
-
-    if verify_password(update_data.password, account.authorization_data.password):
-        update_data.password = account.authorization_data.password
-    else:
-        update_data.password = get_password_hash(update_data.password)
-
-    update_data = AuthorizationDataUpdate(account_id=account.id, **update_data.dict())
-    await crud.update_auth_data(update_data)
-
-    return await AccountView.get(account.id)
-
-
-@router.post('/reset_password')
-async def reset_password(reset_data: ResetPasswordBase):
-    """Получение кода подтверждения для восстановления пароля."""
-    auth_data = await get_authorization_data(reset_data.login)
-    if not auth_data:
-        raise HTTPException(status_code=400, detail="Login is not found.")
-
-    verify_code = get_verify_code(auth_data['password'])
-    return dict(verify_code=verify_code)
-
-
-@router.put('/reset_password')
-async def reset_password(reset_data: ResetPassword):
-    """Обновление пароля у аккаунта."""
-    auth_data = await get_authorization_data(reset_data.login)
-    if not auth_data:
-        raise HTTPException(status_code=400, detail="Login is not found.")
-
-    if reset_data.verify_code != get_verify_code(auth_data['password']):
-        raise HTTPException(status_code=400, detail="Incorrect verify code.")
-
-    hash_password = get_password_hash(reset_data.password)
-
-    auth_data = AuthorizationDataUpdate(
-        account_id=auth_data['account_id'],
-        login=reset_data.login,
-        password=hash_password,
-    )
-    await crud.update_auth_data(auth_data)
