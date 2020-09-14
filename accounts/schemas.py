@@ -1,5 +1,6 @@
 from pydantic import BaseModel, constr, root_validator
 from datetime import datetime, date
+from accounts.enums import Roles
 
 
 class PersonalDataBase(BaseModel):
@@ -45,6 +46,10 @@ class AuthorizationData(AuthorizationDataBase):
 class AccountCreate(BaseModel):
     authorization_data: AuthorizationDataBase
     personal_data: PersonalDataBase
+
+
+class ArmAccountCreate(AccountCreate):
+    role: Roles
 
 
 class AccountData(AccountCreate):

@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 from db.database import database
-
+from fixtures import setup_permissions_and_roles, create_account
 from routers import accounts, auth
 
 app = FastAPI(debug=True)
@@ -10,6 +10,8 @@ app = FastAPI(debug=True)
 @app.on_event("startup")
 async def startup():
     await database.connect()
+    await setup_permissions_and_roles()
+    await create_account()
 
 
 @app.on_event("shutdown")

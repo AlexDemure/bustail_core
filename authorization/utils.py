@@ -6,8 +6,12 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 from accounts.schemas import AccountData, AuthorizationDataBase
-from accounts.service import AccountService, AuthorizationDataService
+from accounts.service import (
+    AccountService, AuthorizationDataService, AccountRoleService,
+    PermissionService, RolePermissionService
+)
 from accounts.serializer import AccountSerializer
+from accounts.enums import Permissions
 from crypt import verify_password
 from authorization.schemas import AuthTokenData
 from authorization.settings import AUTH_SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, TOKEN_DOMAIN
@@ -97,3 +101,16 @@ async def get_current_user(request: Request) -> AccountData:
     return AccountSerializer.prepared_data(**account)
 
 
+async def has_permission(account_id: int, permission: Permissions) -> bool:
+    """Проверка на наличие разрешения у пользователя."""
+    account_role = await AccountRoleService.get(account_id)
+    if not account_role:
+        return False
+
+    role_permissions = await RolePermissionService.get_role_permissions(account_role['role_id'])
+    for role_permission in role_permissions:
+        permission_data = await PermissionService.get(role_permission['permission_id'])
+        if permission_data.get('name') == permission.value:
+            return True
+
+    return False
