@@ -52,8 +52,9 @@ class ArmAccountCreate(AccountCreate):
     role: Roles
 
 
-class AccountData(AccountCreate):
+class AccountData(BaseModel):
     id: int
+    personal_data: PersonalDataBase
     registration_date: datetime
 
     class Config:
