@@ -8,7 +8,7 @@ class Client(Base):
     __tablename__ = "clients"
 
     id = Column(Integer, primary_key=True, index=True)
-    account_id = Column(Integer, ForeignKey("accounts.id"))
+    account_id = Column(Integer, ForeignKey("accounts.id"), unique=True)
     created_at = Column(DateTime, server_default=func.now())
 
 
