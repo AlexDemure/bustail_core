@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from db.database import database
 from fixtures import setup_permissions_and_roles, create_account
-from routers import accounts, auth, clients, drivers
+from routers import accounts, auth, clients, drivers, applications
 
 app = FastAPI(debug=True)
 
@@ -41,6 +41,12 @@ app.include_router(
     drivers.router,
     prefix="/drivers",
     tags=["Работа c моделью Drivers."],
+)
+
+app.include_router(
+    applications.router,
+    prefix="/applications",
+    tags=["Работа c моделью Applications."],
 )
 
 
