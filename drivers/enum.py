@@ -3,7 +3,7 @@ from enum import Enum
 
 class TransportType(Enum):
     car = "car"
-    minu_bus = "mini_bus"
+    minubus = "minibus"
     bus = "bus"
     truck = "truck"
     other = "other"
