@@ -23,7 +23,7 @@ async def get_driver(account: AccountData = Depends(get_current_user)):
     if not await has_permission(account.id, Permissions.public_api_access):
         raise HTTPException(status_code=400, detail="User is not have permission")
 
-    driver = await service.ServiceDriver.get(account.id)
+    driver = await service.ServiceDriver.get_by_account_id(account.id)
     if not driver:
         raise HTTPException(status_code=400, detail="Driver is not found")
 
@@ -36,7 +36,7 @@ async def create_transport(request: schemas.TransportBase, account: AccountData 
     if not await has_permission(account.id, Permissions.public_api_access):
         raise HTTPException(status_code=400, detail="User is not have permission")
 
-    driver = await service.ServiceDriver.get(account.id)
+    driver = await service.ServiceDriver.get_by_account_id(account.id)
     if not driver:
         raise HTTPException(status_code=400, detail="Driver is not found")
 
@@ -53,7 +53,7 @@ async def get_driver_transports(driver_id: int, account: AccountData = Depends(g
     if not await has_permission(account.id, Permissions.public_api_access):
         raise HTTPException(status_code=400, detail="User is not have permission")
 
-    driver = await service.ServiceDriver.get(account.id)
+    driver = await service.ServiceDriver.get_by_account_id(account.id)
     if not driver:
         raise HTTPException(status_code=400, detail="Driver is not found")
 

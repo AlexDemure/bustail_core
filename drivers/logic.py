@@ -8,7 +8,7 @@ async def create_driver(account_id: int) -> int:
     if not account:
         raise ValueError("Account is not found")
 
-    driver = await service.ServiceDriver.get(account.id)
+    driver = await service.ServiceDriver.get_by_account_id(account.id)
     if driver:
         return driver['id']
 

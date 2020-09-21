@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from db.database import database
 from fixtures import setup_permissions_and_roles, create_account
-from routers import accounts, auth, clients, drivers, applications
+from routers import accounts, auth, clients, drivers, applications, notifications
 
 app = FastAPI(debug=True)
 
@@ -49,6 +49,11 @@ app.include_router(
     tags=["Работа c моделью Applications."],
 )
 
+app.include_router(
+    notifications.router,
+    prefix="/notifications",
+    tags=["Работа c моделью Notifications."],
+)
 
 if __name__ == '__main__':
     uvicorn.run("application:app", host="0.0.0.0", port=8000, reload=True, log_level="debug")

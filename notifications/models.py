@@ -12,7 +12,7 @@ class Notifications(Base):
     id = Column(Integer, primary_key=True, index=True)
     application_id = Column(Integer, ForeignKey("applications.id"))
     transport_id = Column(Integer, ForeignKey("transports.id"))
-    status = Column(String(64), Enum(ApplicationStatus), default=ApplicationStatus.waiting)
+    decision = Column(String(64), nullable=True)
     notification_type = Column(String(64), Enum(NotificationTypes))
     price = Column(Integer, default=0)
     created_at = Column(DateTime, server_default=func.now())
