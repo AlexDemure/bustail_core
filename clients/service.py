@@ -1,7 +1,9 @@
 from typing import Optional
+
 from sqlalchemy import select
-from common.service import BaseService
+
 from clients import models, schemas
+from common.service import BaseService
 from db.database import database
 
 

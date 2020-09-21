@@ -25,3 +25,7 @@ class Transport(Base):
     count_seats = Column(Integer)
     price = Column(Integer, default=0)
     state_number = Column(String(64), nullable=True)
+
+
+drivers = Driver.__table__
+transports = Transport.__table__
