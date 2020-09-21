@@ -3,3 +3,4 @@ from accounts.models import Account, AuthorizationData, PersonalData, Role, Perm
 from applications.models import Application
 from clients.models import Client
 from drivers.models import Driver, Transport
+from notifications.models import Notifications

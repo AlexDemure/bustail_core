@@ -1,7 +1,7 @@
 from sqlalchemy import DateTime, Column, Integer, ForeignKey, String, Enum
 from sqlalchemy.sql import func
 
-from .enum import TransportType
+from drivers.enum import TransportType
 
 from db.database import Base
 

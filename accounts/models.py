@@ -1,4 +1,4 @@
-from sqlalchemy import DateTime,Enum, Column, Integer, String, ForeignKey, Date
+from sqlalchemy import DateTime, Enum, Column, Integer, String, ForeignKey, Date
 from sqlalchemy.sql import func
 
 from accounts.enums import Roles, Permissions
