@@ -14,3 +14,7 @@ async def create_driver(account_id: int) -> int:
 
     return await service.ServiceDriver(schemas.DriverDataCreate(account_id=account.id)).create()
 
+
+async def create_transport(schema: schemas.TransportCreate) -> int:
+    """Создание транспорта"""
+    return await service.ServiceTransport(schema).create()
