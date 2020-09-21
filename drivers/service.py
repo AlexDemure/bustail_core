@@ -29,3 +29,12 @@ class ServiceTransport(BaseService):
     async def create(self) -> int:
         assert isinstance(self.schema, schemas.TransportCreate), 'Schema is wrong format'
         return await create_object_model(models.transports, self.schema.dict())
+
+    @staticmethod
+    async def get_driver_transports(driver_id: int) -> list:
+        query = (
+            select([models.transports])
+            .where(models.transports.c.driver_id == driver_id)
+        )
+        transports = await database.fetch_all(query)
+        return [dict(x) for x in transports]

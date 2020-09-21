@@ -18,3 +18,8 @@ async def create_driver(account_id: int) -> int:
 async def create_transport(schema: schemas.TransportCreate) -> int:
     """Создание транспорта"""
     return await service.ServiceTransport(schema).create()
+
+
+async def get_transports(driver_id: int) -> list:
+    """Получение списках всех транспортов водителя."""
+    return await service.ServiceTransport.get_driver_transports(driver_id)
