@@ -5,9 +5,9 @@ from accounts.schemas import AccountData
 from applications.enums import ApplicationStatus
 from applications.service import ServiceApplication
 from authorization.utils import get_current_user, has_permission
-from clients.service import ServiceClient
-from drivers.service import ServiceTransport, ServiceDriver
+from drivers.service import ServiceTransport
 from notifications import schemas, logic, enums, service
+from common.schemas import UpdateBase
 
 router = APIRouter()
 
@@ -18,20 +18,14 @@ async def create_transport_offer(request: schemas.NotificationBase, account: Acc
     if not await has_permission(account.id, Permissions.public_api_access):
         raise HTTPException(status_code=400, detail="User is not have permission")
 
-    driver = await ServiceDriver.get_by_account_id(account.id)
-    if not driver:
-        raise HTTPException(status_code=400, detail="Driver is not found")
-
-    driver_transports = await ServiceTransport.get_driver_transports(driver['id'])
-    if len(driver_transports) == 0:
-        raise HTTPException(status_code=400, detail="Driver is not have transports")
-
     transport = await ServiceTransport.get(request.transport_id)
     if not transport:
         raise HTTPException(status_code=400, detail="Transport is not found")
 
-    if transport not in driver_transports:
-        raise HTTPException(status_code=400, detail="Driver is not have transport this id")
+    try:
+        await logic.checking_driver(account.id, transport)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"{str(e)}")
 
     application = await ServiceApplication.get(request.application_id)
     if not application:
@@ -69,16 +63,10 @@ async def create_transport_offer(request: schemas.NotificationBase, account: Acc
     if not application:
         raise HTTPException(status_code=400, detail="Application is not found")
 
-    client = await ServiceClient.get(account.id)
-    if not client:
-        raise HTTPException(status_code=400, detail="Client is not found")
-
-    actual_applications = await ServiceApplication.get_actual_applications(client['id'])
-    if len(actual_applications) == 0:
-        raise HTTPException(status_code=400, detail="Client is not have actual applications")
-
-    if application not in actual_applications:
-        raise HTTPException(status_code=400, detail="Client is not have application this id")
+    try:
+        await logic.checking_client(account.id, application)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"{str(e)}")
 
     schema = schemas.NotificationCreate(
         notification_type=enums.NotificationTypes.client.value,
@@ -86,3 +74,44 @@ async def create_transport_offer(request: schemas.NotificationBase, account: Acc
     )
 
     return await logic.create_notification(schema)
+
+
+@router.post('/decision')
+async def notification_decision(request: schemas.NotificationDecision, account: AccountData = Depends(get_current_user)):
+    """Решение по уведомелению."""
+    if not await has_permission(account.id, Permissions.public_api_access):
+        raise HTTPException(status_code=400, detail="User is not have permission")
+
+    notification = await service.ServiceNotifications.get(request.id)
+    if not notification:
+        raise HTTPException(status_code=400, detail="Notification is not found")
+
+    if notification['decision'] is not None:
+        raise HTTPException(status_code=400, detail="Notification is have ended decision")
+
+    transport = await ServiceTransport.get(request.transport_id)
+    if not transport:
+        raise HTTPException(status_code=400, detail="Transport is not found")
+
+    application = await ServiceApplication.get(request.application_id)
+    if not application:
+        raise HTTPException(status_code=400, detail="Application is not found")
+
+    if request.notification_type == enums.NotificationTypes.driver.value:
+        try:
+            await logic.checking_driver(account.id, transport)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=f"{str(e)}")
+
+    elif request.notification_type == enums.NotificationTypes.client.value:
+        try:
+            await logic.checking_client(account.id, application)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=f"{str(e)}")
+
+    else:
+        raise HTTPException(status_code=400, detail="Notification type is wrong format")
+
+    #TODO доделать проставку в application driver_id и confirmed_at
+    data = UpdateBase(id=notification['id'], updated_fields=dict(decision=request.decision))
+    return await service.ServiceNotifications(data).update()

@@ -1,7 +1,8 @@
 from sqlalchemy import select
 from typing import Optional
 from common.service import BaseService
-from common.crud import create_object_model
+from common.crud import create_object_model, get_object_model, update_object_model
+from common.schemas import UpdateBase
 from notifications import models, schemas
 from db.database import database
 
@@ -11,6 +12,14 @@ class ServiceNotifications(BaseService):
     async def create(self) -> int:
         assert isinstance(self.schema, schemas.NotificationCreate), 'Schema is wrong format'
         return await create_object_model(models.notifications, self.schema.dict())
+
+    async def update(self) -> None:
+        assert isinstance(self.schema, UpdateBase), "Schema is wrong format"
+        return await update_object_model(models.notifications, self.schema.id, self.schema.updated_fields)
+
+    @staticmethod
+    async def get(notification_id: int) -> Optional[dict]:
+        return await get_object_model(models.notifications, notification_id)
 
     @staticmethod
     async def get_notifications_by_application_and_transport(

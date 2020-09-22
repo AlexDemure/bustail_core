@@ -15,3 +15,16 @@ class NotificationCreate(NotificationBase):
     def check_notification_enum(cls, value):
         assert NotificationTypes(value), 'Value is not enum'
         return value
+
+
+class NotificationDecision(BaseModel):
+    id: int
+    application_id: int
+    transport_id: int
+    decision: bool
+    notification_type: constr(min_length=1, max_length=64)
+
+    @validator('notification_type')
+    def check_notification_enum(cls, value):
+        assert NotificationTypes(value), 'Value is not enum'
+        return value
