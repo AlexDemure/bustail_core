@@ -27,3 +27,33 @@ class ServiceApplication(BaseService):
         )
         applications = await database.fetch_all(query)
         return [dict(x) for x in applications]
+
+    async def get_all_applications(self):
+        assert isinstance(self.schema, schemas.ApplicationFilters), 'Schema is wrong format'
+
+        order_by_query = getattr(models.applications.c, self.schema.order_by)
+
+        if self.schema.order_type == 'asc':
+            order_by_query = order_by_query.asc()
+        elif self.schema.order_type == 'desc':
+            order_by_query = order_by_query.desc()
+        else:
+            raise ValueError("Order tyep wrong format")
+
+        filter_query = (
+            (
+                    (models.applications.c.to_go_from.like(f"%{self.schema.city}%")) |
+                    (models.applications.c.to_go_to.like(f"%{self.schema.city}%"))
+            ) & (models.applications.c.application_status == enums.ApplicationStatus.waiting.value)
+        )
+
+        query = (
+            select([models.applications])
+            .where(filter_query)
+            .order_by(order_by_query)
+            .offset(self.schema.offset)
+            .limit(self.schema.limit)
+        )
+        applications = await database.fetch_all(query)
+        return [dict(x) for x in applications]
+

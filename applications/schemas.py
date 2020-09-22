@@ -44,3 +44,11 @@ class Application(ApplicationCreate):
 
     class Config:
         orm_mode = True
+
+
+class ApplicationFilters(BaseModel):
+    limit: int = 10
+    offset: int = 0
+    city: str = ""
+    order_by: str = 'to_go_when'
+    order_type: str = 'asc'
