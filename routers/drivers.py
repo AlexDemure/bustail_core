@@ -61,3 +61,13 @@ async def get_driver_transports(driver_id: int, account: AccountData = Depends(g
         raise HTTPException(status_code=400, detail="Access is denied")
 
     return await logic.get_transports(driver['id'])
+
+
+@router.post("/get_all_transports")
+async def get_all_applications(request: schemas.TransportFilters, account: AccountData = Depends(get_current_user)):
+    """Получение списка всех заявок для водителей с фильтрами поиска."""
+    if not await has_permission(account.id, Permissions.public_api_access):
+        raise HTTPException(status_code=400, detail="User is not have permission")
+
+    return await service.ServiceTransport(request).get_all_transports()
+

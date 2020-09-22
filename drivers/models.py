@@ -24,6 +24,7 @@ class Transport(Base):
     model = Column(String(255))
     count_seats = Column(Integer)
     price = Column(Integer, default=0)
+    city = Column(String(128))
     state_number = Column(String(64), nullable=True)
 
 
