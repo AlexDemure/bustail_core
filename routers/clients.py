@@ -32,8 +32,8 @@ async def get_client(account: AccountData = Depends(get_current_user)):
     return client
 
 
-@router.get('/get_applications', response_model=ClientApplications)
-async def get_applications(account: AccountData = Depends(get_current_user)):
+@router.get('/{client_id}/get_applications', response_model=ClientApplications)
+async def get_applications(client_id: int, account: AccountData = Depends(get_current_user)):
     """Получение списка заявок клиента."""
     if not await has_permission(account.id, Permissions.public_api_access):
         raise HTTPException(status_code=400, detail="User is not have permission")
@@ -41,5 +41,8 @@ async def get_applications(account: AccountData = Depends(get_current_user)):
     client = await service.ServiceClient.get(account.id)
     if not client:
         raise HTTPException(status_code=400, detail="Client is not found")
+
+    if client_id != client['id']:
+        raise HTTPException(status_code=400, detail="User is not have permission")
 
     return await get_client_applications(client['id'])

@@ -38,3 +38,15 @@ async def get_client_applications(client_id: int) -> schemas.ClientApplications:
         actual_applications=actual_applications_data,
         completed_applications=completed_applications_data
     )
+
+
+async def get_driver_applications(driver_id: int) -> schemas.DriverApplications:
+    """Получение списка всех заявок водителя."""
+    applications = await service.ServiceApplication.get_driver_applications(driver_id)
+
+    data = list()
+    if len(applications) > 0:
+        for application in applications:
+            data.append(serializer.prepare_application(application))
+
+    return schemas.DriverApplications(applications=data)

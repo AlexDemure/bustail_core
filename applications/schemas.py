@@ -66,3 +66,8 @@ class ApplicationWithNotifications(Application):
 class ClientApplications(BaseModel):
     actual_applications: List[ApplicationWithNotifications]
     completed_applications: List[Application]
+
+
+class DriverApplications(BaseModel):
+    applications: List[Application]
+
