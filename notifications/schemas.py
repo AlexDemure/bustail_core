@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel, constr, validator
 from notifications.enums import NotificationTypes
 
@@ -15,6 +16,14 @@ class NotificationCreate(NotificationBase):
     def check_notification_enum(cls, value):
         assert NotificationTypes(value), 'Value is not enum'
         return value
+
+
+class Notification(NotificationBase):
+    id: int
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
 
 
 class NotificationDecision(BaseModel):

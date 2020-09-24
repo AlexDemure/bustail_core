@@ -1,5 +1,7 @@
 from datetime import datetime
+from typing import List
 from pydantic import BaseModel, constr, validator
+from notifications.schemas import Notification
 from applications.enums import ApplicationStatus, ApplicationTypes
 
 
@@ -41,6 +43,9 @@ class ApplicationCreate(ApplicationBase):
 
 class Application(ApplicationCreate):
     id: int
+    driver_id: int = None
+    created_at: datetime
+    confirmed_at: datetime = None
 
     class Config:
         orm_mode = True
@@ -52,3 +57,12 @@ class ApplicationFilters(BaseModel):
     city: str = ""
     order_by: str = 'to_go_when'
     order_type: str = 'asc'
+
+
+class ApplicationWithNotifications(Application):
+    notifications: List[Notification]
+
+
+class ClientApplications(BaseModel):
+    actual_applications: List[ApplicationWithNotifications]
+    completed_applications: List[Application]

@@ -37,6 +37,15 @@ class ServiceApplication(BaseService):
         applications = await database.fetch_all(query)
         return [dict(x) for x in applications]
 
+    @staticmethod
+    async def get_client_applications(client_id: int) -> list:
+        query = (
+            select([models.applications])
+            .where(models.applications.c.client_id == client_id)
+        )
+        applications = await database.fetch_all(query)
+        return [dict(x) for x in applications]
+
     async def get_all_applications(self):
         assert isinstance(self.schema, schemas.ApplicationFilters), 'Schema is wrong format'
 
