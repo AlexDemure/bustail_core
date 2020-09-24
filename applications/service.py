@@ -1,7 +1,8 @@
 from sqlalchemy import select
 from typing import Optional
 from common.service import BaseService
-from common.crud import create_object_model, get_object_model
+from common.crud import create_object_model, get_object_model, update_object_model
+from common.schemas import UpdateBase
 from applications import schemas, models, enums
 from db.database import database
 
@@ -11,6 +12,14 @@ class ServiceApplication(BaseService):
     async def create(self) -> int:
         assert isinstance(self.schema, schemas.ApplicationCreate), 'Schema is wrong format'
         return await create_object_model(models.applications, self.schema.dict())
+
+    async def update(self):
+        assert isinstance(self.schema, UpdateBase), 'Schema is wrong format'
+        return await update_object_model(
+            models.applications,
+            object_id=self.schema.id,
+            updated_fields=self.schema.updated_fields
+        )
 
     @staticmethod
     async def get(application_id: int) -> Optional[dict]:

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
-
+from datetime import datetime
 from accounts.enums import Permissions
 from accounts.schemas import AccountData
 from applications.enums import ApplicationStatus
@@ -112,6 +112,15 @@ async def notification_decision(request: schemas.NotificationDecision, account: 
     else:
         raise HTTPException(status_code=400, detail="Notification type is wrong format")
 
-    #TODO доделать проставку в application driver_id и confirmed_at
     data = UpdateBase(id=notification['id'], updated_fields=dict(decision=request.decision))
-    return await service.ServiceNotifications(data).update()
+    await service.ServiceNotifications(data).update()
+
+    if request.decision is True:
+        data = UpdateBase(
+            id=application['id'],
+            updated_fields=dict(
+                driver_id=transport['driver_id'],
+                confirmed_at=datetime.utcnow()
+            )
+        )
+        await ServiceApplication(data).update()
