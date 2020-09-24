@@ -38,7 +38,7 @@ async def create_transport_offer(request: schemas.NotificationBase, account: Acc
         application_id=application['id'],
         transport_id=transport['id'],
     )
-    if notification:
+    if notification and notification['notification_type'] == enums.NotificationTypes.driver.value:
         raise HTTPException(status_code=400, detail="Notification early is created")
 
     schema = schemas.NotificationCreate(

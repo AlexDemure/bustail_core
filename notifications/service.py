@@ -27,6 +27,19 @@ class ServiceNotifications(BaseService):
             select([models.notifications])
             .where(
                 (models.notifications.c.application_id == application_id) &
+                (models.notifications.c.notification_type == enums.NotificationTypes.driver.value) &
+                (models.notifications.c.decision.is_(None))
+            )
+        )
+        notification = await database.fetch_all(query)
+        return [dict(x) for x in notification]
+
+    @staticmethod
+    async def get_actual_by_transport_id(transport_id: int) -> List[dict]:
+        query = (
+            select([models.notifications])
+            .where(
+                (models.notifications.c.transport_id == transport_id) &
                 (models.notifications.c.notification_type == enums.NotificationTypes.client.value) &
                 (models.notifications.c.decision.is_(None))
             )

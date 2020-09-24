@@ -1,5 +1,8 @@
+from typing import List
+from datetime import datetime
 from pydantic import BaseModel, constr, validator, conint
 from drivers.enum import TransportType
+from notifications.schemas import Notification
 
 
 class DriverDataCreate(BaseModel):
@@ -23,6 +26,22 @@ class TransportBase(BaseModel):
 
 class TransportCreate(TransportBase):
     driver_id: int
+
+
+class Transport(TransportBase):
+    id: int
+    driver_id: int
+
+    class Config:
+        orm_mode = True
+
+
+class TransportWithNotifications(Transport):
+    notifications: List[Notification]
+
+
+class TransportsWithNotifications(BaseModel):
+    transports: List[TransportWithNotifications]
 
 
 class TransportFilters(BaseModel):

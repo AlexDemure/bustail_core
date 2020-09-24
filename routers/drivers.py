@@ -49,7 +49,7 @@ async def create_transport(request: schemas.TransportBase, account: AccountData 
     return await logic.create_transport(schema)
 
 
-@router.get("/{driver_id}/transports")
+@router.get("/{driver_id}/transports", response_model=schemas.TransportsWithNotifications)
 async def get_driver_transports(driver_id: int, account: AccountData = Depends(get_current_user)):
     """Получение списка транспортов водителя."""
     if not await has_permission(account.id, Permissions.public_api_access):
