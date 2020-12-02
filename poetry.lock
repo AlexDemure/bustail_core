@@ -78,6 +78,20 @@ doc = ["mkdocs (>=1.1.2,<2.0.0)", "mkdocs-material (>=5.5.0,<6.0.0)", "markdown-
 test = ["pytest (5.4.3)", "pytest-cov (2.10.0)", "pytest-asyncio (>=0.14.0,<0.15.0)", "mypy (0.782)", "black (19.10b0)", "isort (>=5.0.6,<6.0.0)", "requests (>=2.24.0,<3.0.0)", "httpx (>=0.14.0,<0.15.0)", "email_validator (>=1.1.1,<2.0.0)", "sqlalchemy (>=1.3.18,<2.0.0)", "peewee (>=3.13.3,<4.0.0)", "databases[sqlite] (>=0.3.2,<0.4.0)", "orjson (>=3.2.1,<4.0.0)", "async_exit_stack (>=1.0.1,<2.0.0)", "async_generator (>=1.10,<2.0.0)", "python-multipart (>=0.0.5,<0.0.6)", "aiofiles (>=0.5.0,<0.6.0)", "flask (>=1.1.2,<2.0.0)"]
 
 [[package]]
+name = "fastapi-auth"
+version = "0.0.2"
+description = "Default fastapi auth"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+passlib = ">=1.7.2"
+pydantic = ">=1.4"
+python-jose = ">=3.1.0"
+python-multipart = ">=0.0.5"
+
+[[package]]
 name = "flake8"
 version = "3.8.4"
 description = "the modular source code checker: pep8 pyflakes and co"
@@ -342,7 +356,7 @@ python-versions = ">=3.6.1"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "c0d957561d918e2c023ae6618f9280e39e70cd803190382ff80cee5490cbd1bd"
+content-hash = "283603a33d479b51ca7344aaaa337933aeda690377374a63bfd00f0e5b036a0b"
 
 [metadata.files]
 appdirs = [
@@ -368,6 +382,9 @@ ecdsa = [
 fastapi = [
     {file = "fastapi-0.60.2-py3-none-any.whl", hash = "sha256:579c194f78ed3cff1a4e62bbaea79fc1bef05e35294147e41a807f4105a77885"},
     {file = "fastapi-0.60.2.tar.gz", hash = "sha256:7dd1e4380976741a71dec2a7f9035b69268881ca25001cc99f25ca89d2d38ad9"},
+]
+fastapi-auth = [
+    {file = "fastapi_auth-0.0.2.tar.gz", hash = "sha256:dbf882f56e4368ecbc1ac82982d3802cc6f9be1fa01ed8c8f882fac20bc6f97e"},
 ]
 flake8 = [
     {file = "flake8-3.8.4-py2.py3-none-any.whl", hash = "sha256:749dbbd6bfd0cf1318af27bf97a14e28e5ff548ef8e5b1566ccfb25a11e7c839"},
