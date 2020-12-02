@@ -1,0 +1,11 @@
+version: "3.8"
+
+services:
+
+  core:
+      build: .
+      container_name: core
+      hostname: core
+      network_mode: bridge
+      ports:
+        - "8000:8000"
