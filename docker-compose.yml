@@ -1,11 +1,29 @@
 version: "3.8"
 
 services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    network_mode: bridge
+    hostname: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    env_file: ./env_files/postgres.env
 
   core:
-      build: .
-      container_name: core
-      hostname: core
-      network_mode: bridge
-      ports:
-        - "8000:8000"
+    build: .
+    container_name: core
+    hostname: core
+    network_mode: bridge
+    ports:
+      - "8000:8000"
+    depends_on:
+      - "postgres"
+    links:
+      - postgres
+    env_file:
+      - ./env_files/postgres.env
+
