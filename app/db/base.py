@@ -3,5 +3,5 @@
 
 from app.db.base_class import Base
 from app.models.account import Account
-from app.sqlalchemy_roles_and_permissions.models import Role, RolePermission, AccountRole
+from alchemy_permissions.models import Role, RolePermission, AccountRole
 
