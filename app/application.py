@@ -1,11 +1,10 @@
 import uvicorn
-
+from alchemy_permissions.fixtures import setup_permissions_and_roles
 from fastapi import FastAPI
 
 from app.api.api import api_router
 from app.core.config import settings
 from app.db.database import database
-from app.sqlalchemy_roles_and_permissions.fixtures import setup_permissions_and_roles
 
 app = FastAPI()
 

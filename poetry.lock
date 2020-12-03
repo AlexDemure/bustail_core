@@ -1,4 +1,12 @@
 [[package]]
+name = "alchemy-permissions"
+version = "0.0.2"
+description = "Custom system of roles and permissions"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "alembic"
 version = "1.4.3"
 description = "A database migration tool for SQLAlchemy."
@@ -517,9 +525,12 @@ python-versions = ">=3.6.1"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "399baaca5e621a2739fb347d745c265d478ff2aa555e13ad5b60e824d082488d"
+content-hash = "25900161f216e8a00d21163baf5fa7119a06a4f61c11ca6437477041aab814ca"
 
 [metadata.files]
+alchemy-permissions = [
+    {file = "alchemy_permissions-0.0.2.tar.gz", hash = "sha256:dcc36f54cc95d6d21830eb887e30b0cc32446d85289468fe3e3da1baad606d4f"},
+]
 alembic = [
     {file = "alembic-1.4.3-py2.py3-none-any.whl", hash = "sha256:4e02ed2aa796bd179965041afa092c55b51fb077de19d61835673cc80672c01c"},
     {file = "alembic-1.4.3.tar.gz", hash = "sha256:5334f32314fb2a56d86b4c4dd1ae34b08c03cae4cb888bc699942104d66bc245"},

@@ -1,5 +1,6 @@
 from typing import Any
 
+from alchemy_permissions.utils import account_role, is_have_permission, create_account_role
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi_auth.deps import get_current_subject
 
@@ -7,8 +8,6 @@ from app import crud
 from app.core.config import Roles, Permissions
 from app.core.security import get_password_hash
 from app.schemas.account import AccountCreate, AccountData, AccountBase
-from app.sqlalchemy_roles_and_permissions.crud import account_role
-from app.sqlalchemy_roles_and_permissions.utils import account_role, is_have_permission, create_account_role
 
 router = APIRouter()
 
