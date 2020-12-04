@@ -1,5 +1,5 @@
 from typing import Optional
-from app.core.config import Roles
+from app.enums import EnumRoles
 from pydantic import BaseModel
 
 
@@ -25,4 +25,4 @@ class AccountUpdate(BaseModel):
 class AccountData(BaseModel):
     full_name: str
     email: str
-    role: Roles
+    role: EnumRoles

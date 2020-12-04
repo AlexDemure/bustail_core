@@ -29,5 +29,6 @@ services:
       - postgres
     env_file:
       - ./env_files/postgres.env
+      - ./env_files/global.env
     volumes:
       - ./app/alembic/versions:/app/app/alembic/versions
