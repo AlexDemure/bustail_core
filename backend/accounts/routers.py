@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_auth.deps import get_subject_from_cookie
 from fastapi_auth.security import create_access_token, create_cookie, get_password_hash
 
-from backend.settings import settings
+from backend.core.config import settings
 from backend.accounts.schemas import AccountCreate, AccountData, AccountBase
 from backend.common.enums import Roles, Permissions
 
@@ -54,8 +54,7 @@ async def create_account(account_in: AccountBase) -> Any:
         status.HTTP_404_NOT_FOUND: {"description": "Account not found or Role not found"}
     }
 )
-async def read_user_me(current_account_id: int = Depends(get_subject_from_cookie),
-) -> Any:
+async def read_user_me(current_account_id: int = Depends(get_subject_from_cookie)) -> Any:
     """
     Get current user.
     """

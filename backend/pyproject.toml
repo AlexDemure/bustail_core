@@ -13,8 +13,8 @@ structlog = "^20.1.0"
 tenacity = "^6.2.0"
 
 
-fastapi-auth = "^0.1.0"
-alchemy-permissions = "^0.0.4"
+fastapi-auth = "^0.1.1"
+alchemy-permissions = "^0.0.5"
 
 fastapi-sqlalchemy = "^0.1.4"
 psycopg2 = "^2.8.5"

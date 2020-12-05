@@ -1,6 +1,6 @@
 [[package]]
 name = "alchemy-permissions"
-version = "0.0.4"
+version = "0.0.5"
 description = "Custom system of roles and permissions"
 category = "main"
 optional = false
@@ -158,7 +158,7 @@ test = ["pytest (5.4.3)", "pytest-cov (2.10.0)", "pytest-asyncio (>=0.14.0,<0.15
 
 [[package]]
 name = "fastapi-auth"
-version = "0.1.0"
+version = "0.1.1"
 description = "Standard authorization method from fastapi documentation"
 category = "main"
 optional = false
@@ -526,11 +526,11 @@ python-versions = ">=3.6.1"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "454c74fb4c9400af3247e8dbb34b826c9ca022d7bcae02a79a3e60d28de25405"
+content-hash = "f5e345c6d213b2900d2e4e71126e99f0368a4f5f8fdbf7366b2ba38aebc07dc9"
 
 [metadata.files]
 alchemy-permissions = [
-    {file = "alchemy_permissions-0.0.4.tar.gz", hash = "sha256:dd183ee9f4b42b4ea2f94eddcbb6bb3780a0855611fb7ff305a2a75bae63b62b"},
+    {file = "alchemy_permissions-0.0.5.tar.gz", hash = "sha256:5278ace5867ad570c1411e0212fa1d975baa2f0172ee7e20f4ad9dff67e7cfa7"},
 ]
 alembic = [
     {file = "alembic-1.4.3-py2.py3-none-any.whl", hash = "sha256:4e02ed2aa796bd179965041afa092c55b51fb077de19d61835673cc80672c01c"},
@@ -633,7 +633,7 @@ fastapi = [
     {file = "fastapi-0.60.2.tar.gz", hash = "sha256:7dd1e4380976741a71dec2a7f9035b69268881ca25001cc99f25ca89d2d38ad9"},
 ]
 fastapi-auth = [
-    {file = "fastapi_auth-0.1.0.tar.gz", hash = "sha256:f9b8cd6d2c8d0279a8382f95cf150a928ab2b319460cae345098d918f16dd04d"},
+    {file = "fastapi_auth-0.1.1.tar.gz", hash = "sha256:93fb0e8caee2d873fea10c0c8c86819c4d161bb4098f9e2289053c7aec0260d5"},
 ]
 fastapi-sqlalchemy = [
     {file = "FastAPI-SQLAlchemy-0.1.6.tar.gz", hash = "sha256:b88606ba0295f8245fe79a0989d8b4c63bc42aca81feb5503cfa51d8d5088952"},

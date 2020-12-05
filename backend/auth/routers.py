@@ -6,7 +6,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from fastapi_auth.security import create_access_token, create_cookie
 
-from backend.settings import settings
+from backend.core.config import settings
 from backend.accounts.crud import account as account_crud
 
 

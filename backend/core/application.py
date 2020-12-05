@@ -2,8 +2,8 @@ import uvicorn
 from permissions.fixtures import setup_permissions_and_roles
 from fastapi import FastAPI
 
-from backend.urls import api_router
-from backend.settings import settings
+from backend.core.urls import api_router
+from backend.core.config import settings
 from backend.db.database import database
 
 app = FastAPI()
