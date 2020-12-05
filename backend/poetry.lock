@@ -1,6 +1,6 @@
 [[package]]
 name = "alchemy-permissions"
-version = "0.0.3"
+version = "0.0.4"
 description = "Custom system of roles and permissions"
 category = "main"
 optional = false
@@ -526,11 +526,11 @@ python-versions = ">=3.6.1"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "d66c092f02a94dd9c08c1169d1606b470925e47e2ff1cfe8a2a6f3716a1946a2"
+content-hash = "454c74fb4c9400af3247e8dbb34b826c9ca022d7bcae02a79a3e60d28de25405"
 
 [metadata.files]
 alchemy-permissions = [
-    {file = "alchemy_permissions-0.0.3.tar.gz", hash = "sha256:2d32f34bd5826f9a27ab77a6a89a907aedc297fe7c34d6cf67f6709c393d371e"},
+    {file = "alchemy_permissions-0.0.4.tar.gz", hash = "sha256:dd183ee9f4b42b4ea2f94eddcbb6bb3780a0855611fb7ff305a2a75bae63b62b"},
 ]
 alembic = [
     {file = "alembic-1.4.3-py2.py3-none-any.whl", hash = "sha256:4e02ed2aa796bd179965041afa092c55b51fb077de19d61835673cc80672c01c"},

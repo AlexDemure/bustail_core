@@ -1,5 +1,5 @@
 import uvicorn
-
+from permissions.fixtures import setup_permissions_and_roles
 from fastapi import FastAPI
 
 from backend.urls import api_router
@@ -12,6 +12,7 @@ app = FastAPI()
 @app.on_event("startup")
 async def startup():
     await database.connect()
+    await setup_permissions_and_roles()
 
 
 @app.on_event("shutdown")
