@@ -6,8 +6,9 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from fastapi_auth.security import create_access_token, create_cookie
 
-from app import crud
-from app.core.config import settings
+from backend.settings import settings
+from backend.accounts.crud import account as account_crud
+
 
 router = APIRouter()
 
@@ -24,7 +25,7 @@ async def login_access_cookie(form_data: OAuth2PasswordRequestForm = Depends()) 
     OAuth2 compatible token login, get an access token for future requests
     """
 
-    account = await crud.account.authenticate(form_data.username, form_data.password)
+    account = await account_crud.authenticate(form_data.username, form_data.password)
     if not account:
         raise HTTPException(status_code=404, detail="Account is not found")
 

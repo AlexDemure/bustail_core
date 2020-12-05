@@ -3,8 +3,8 @@ from typing import Generic, Optional, Type, TypeVar
 from pydantic import BaseModel
 from sqlalchemy import select, update, insert
 
-from app.db.base_class import Base
-from app.db.database import database
+from backend.db.base_class import Base
+from backend.db.database import database
 
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)

@@ -3,7 +3,7 @@ import secrets
 from typing import Any, Optional
 from pydantic import BaseSettings, PostgresDsn, validator
 from enum import Enum
-from app.enums import EnumRoles, EnumPermissions
+from backend.common.enums import Roles, Permissions
 
 
 class Settings(BaseSettings):
@@ -13,8 +13,8 @@ class Settings(BaseSettings):
     SECRET_KEY: str = secrets.token_urlsafe(32)
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # # 60 minutes * 12 hours = 0.5day
 
-    roles: Enum = EnumRoles
-    permissions: Enum = EnumPermissions
+    roles: Enum = Roles
+    permissions: Enum = Permissions
 
     SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
 

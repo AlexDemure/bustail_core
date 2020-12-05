@@ -1,10 +1,10 @@
 import uvicorn
-from alchemy_permissions.fixtures import setup_permissions_and_roles
+
 from fastapi import FastAPI
 
-from app.api.api import api_router
-from app.core.config import settings
-from app.db.database import database
+from backend.urls import api_router
+from backend.settings import settings
+from backend.db.database import database
 
 app = FastAPI()
 
@@ -12,7 +12,6 @@ app = FastAPI()
 @app.on_event("startup")
 async def startup():
     await database.connect()
-    await setup_permissions_and_roles()
 
 
 @app.on_event("shutdown")

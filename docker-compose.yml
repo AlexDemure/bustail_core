@@ -17,7 +17,7 @@ services:
     env_file: ./env_files/postgres.env
 
   core:
-    build: .
+    build: backend
     container_name: core
     hostname: core
     network_mode: bridge
@@ -31,4 +31,4 @@ services:
       - ./env_files/postgres.env
       - ./env_files/global.env
     volumes:
-      - ./app/alembic/versions:/app/app/alembic/versions
+      - ./backend/alembic/versions:/backend/backend/alembic/versions

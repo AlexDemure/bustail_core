@@ -158,13 +158,14 @@ test = ["pytest (5.4.3)", "pytest-cov (2.10.0)", "pytest-asyncio (>=0.14.0,<0.15
 
 [[package]]
 name = "fastapi-auth"
-version = "0.0.7"
+version = "0.1.0"
 description = "Standard authorization method from fastapi documentation"
 category = "main"
 optional = false
 python-versions = "*"
 
 [package.dependencies]
+bcrypt = ">=3.1.7"
 passlib = ">=1.7.2"
 pydantic = ">=1.4"
 python-jose = ">=3.1.0"
@@ -525,7 +526,7 @@ python-versions = ">=3.6.1"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "1373930a5822ee3d74533fcca3d402789dc0026dcecceba610ded3c7bdd28f5b"
+content-hash = "d66c092f02a94dd9c08c1169d1606b470925e47e2ff1cfe8a2a6f3716a1946a2"
 
 [metadata.files]
 alchemy-permissions = [
@@ -632,7 +633,7 @@ fastapi = [
     {file = "fastapi-0.60.2.tar.gz", hash = "sha256:7dd1e4380976741a71dec2a7f9035b69268881ca25001cc99f25ca89d2d38ad9"},
 ]
 fastapi-auth = [
-    {file = "fastapi_auth-0.0.7.tar.gz", hash = "sha256:f46d6f95393ddd343e89555ff2cfa13622d7451b23e10636c861b8218911b533"},
+    {file = "fastapi_auth-0.1.0.tar.gz", hash = "sha256:f9b8cd6d2c8d0279a8382f95cf150a928ab2b319460cae345098d918f16dd04d"},
 ]
 fastapi-sqlalchemy = [
     {file = "FastAPI-SQLAlchemy-0.1.6.tar.gz", hash = "sha256:b88606ba0295f8245fe79a0989d8b4c63bc42aca81feb5503cfa51d8d5088952"},

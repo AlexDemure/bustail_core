@@ -11,9 +11,9 @@ fastapi = "^0.60.1"
 uvicorn = "^0.11.5"
 structlog = "^20.1.0"
 tenacity = "^6.2.0"
-bcrypt = "^3.1.7"
 
-fastapi-auth = "^0.0.7"
+
+fastapi-auth = "^0.1.0"
 alchemy-permissions = "^0.0.3"
 
 fastapi-sqlalchemy = "^0.1.4"

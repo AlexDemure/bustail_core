@@ -1,5 +1,4 @@
-from typing import Optional
-from app.enums import EnumRoles
+from backend.common.enums import Roles
 from pydantic import BaseModel
 
 
@@ -25,4 +24,4 @@ class AccountUpdate(BaseModel):
 class AccountData(BaseModel):
     full_name: str
     email: str
-    role: EnumRoles
+    role: Roles

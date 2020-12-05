@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String
 
-from app.db.base_class import Base
+# Автоматический импорт
+from backend.db.base_class import Base
 
 
 class Account(Base):

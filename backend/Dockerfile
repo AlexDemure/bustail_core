@@ -46,12 +46,14 @@ RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 
-ADD poetry.lock pyproject.toml /app/
+ADD poetry.lock pyproject.toml /app/backend/
+
+WORKDIR /app/backend
 
 RUN poetry install --no-dev
 
-COPY . /app
+COPY . /app/backend
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.application:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "application:app", "--host", "0.0.0.0", "--port", "8000"]

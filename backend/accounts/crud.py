@@ -1,11 +1,11 @@
 from typing import Optional
-from sqlalchemy import select, update
+from sqlalchemy import select
 
-from app.crud.base import CRUDBase
-from app.models.account import Account
-from app.schemas.account import AccountCreate, AccountUpdate
-from app.db.database import database
-from app.core.security import verify_password
+from backend.common.crud import CRUDBase
+from backend.accounts.models import Account
+from backend.accounts.schemas import AccountCreate, AccountUpdate
+from backend.db.database import database
+from fastapi_auth.security import verify_password
 
 
 class CRUDAccount(CRUDBase[Account, AccountCreate, AccountUpdate]):
