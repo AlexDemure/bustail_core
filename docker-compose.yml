@@ -31,4 +31,4 @@ services:
       - ./env_files/postgres.env
       - ./env_files/global.env
     volumes:
-      - ./backend/alembic/versions:/backend/backend/alembic/versions
+      - ./backend/alembic/versions:/app/backend/alembic/versions

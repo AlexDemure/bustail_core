@@ -1,11 +1,13 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy.sql import func
+from sqlalchemy import Column, Integer, String, DateTime
 
-# Автоматический импорт
 from backend.db.base_class import Base
 
 
 class Account(Base):
     id = Column(Integer, primary_key=True, index=True)
-    full_name = Column(String, index=True)
-    email = Column(String, unique=True, index=True, nullable=False)
-    hashed_password = Column(String, nullable=False)
+    fullname = Column(String(128), nullable=False)
+    phone = Column(String(16), nullable=False)
+    city = Column(String(64), nullable=False)
+    hashed_password = Column(String(128), nullable=False)
+    created_at = Column(DateTime, server_default=func.now())

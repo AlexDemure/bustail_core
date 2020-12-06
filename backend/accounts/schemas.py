@@ -1,27 +1,20 @@
-from backend.common.enums import Roles
 from pydantic import BaseModel
 
 
-# Shared properties
 class AccountBase(BaseModel):
-    full_name: str
-    email: str
-    password: str
+    fullname: str
+    phone: str
+    city: str
 
 
-# Properties to receive on item creation
-class AccountCreate(BaseModel):
-    full_name: str
-    email: str
+class AccountCreate(AccountBase):
     hashed_password: str
 
 
-# Properties to receive on item creation
-class AccountUpdate(BaseModel):
-    full_name: str
+class AccountUpdate(AccountBase):
+    pass
 
 
-class AccountData(BaseModel):
-    full_name: str
-    email: str
-    role: Roles
+class AccountData(AccountBase):
+    id: int
+

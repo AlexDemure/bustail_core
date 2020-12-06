@@ -1,14 +1,10 @@
-from typing import Generic, Optional, Type, TypeVar
+from typing import Generic, Optional, Type
 
-from pydantic import BaseModel
 from sqlalchemy import select, update, insert
 
-from backend.db.base_class import Base
 from backend.db.database import database
-
-ModelType = TypeVar("ModelType", bound=Base)
-CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
-UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
+from backend.common.schemas import CreateSchemaType, UpdateSchemaType
+from backend.common.models import ModelType
 
 
 class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):

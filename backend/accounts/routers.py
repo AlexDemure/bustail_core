@@ -1,16 +1,13 @@
-from datetime import timedelta
 from typing import Any
 
-from permissions.utils import account_role, is_have_permission, create_account_role
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_auth.deps import get_subject_from_cookie
-from fastapi_auth.security import create_access_token, create_cookie, get_password_hash
 
-from backend.core.config import settings
-from backend.accounts.schemas import AccountCreate, AccountData, AccountBase
-from backend.common.enums import Roles, Permissions
-
+from backend.accounts import views, schemas, enums
 from backend.accounts.crud import account as account_crud
+from backend.common.utils import response_with_token, get_cities
+from backend.common.deps import current_account
+
 
 router = APIRouter()
 
@@ -19,59 +16,45 @@ router = APIRouter()
     "/",
     responses={
         status.HTTP_204_NO_CONTENT: {"description": "Create auth token"},
-        status.HTTP_400_BAD_REQUEST: {"description": "The user with this username already exists in the system."}
+        status.HTTP_400_BAD_REQUEST: {"description": enums.AccountErrors.phone_already_exist.value},
+        status.HTTP_404_NOT_FOUND: {"description": enums.AccountErrors.city_not_found.value}
     }
 )
-async def create_account(account_in: AccountBase) -> Any:
+async def create_account(account_in: schemas.AccountCreate) -> Any:
     """
     Create new user.
     """
-    account = await account_crud.find_by_email(email=account_in.email)
+    account = await account_crud.find_by_phone(phone=account_in.phone)
     if account:
         raise HTTPException(
             status_code=400,
-            detail="The user with this username already exists in the system.",
+            detail=enums.AccountErrors.phone_already_exist.value,
         )
 
-    schema = AccountCreate(
-        full_name=account_in.full_name,
-        email=account_in.email,
-        hashed_password=get_password_hash(account_in.password)
-    )
-    account_id = await account_crud.create(schema)
-    await create_account_role(account_id, Roles.customer)
+    if account_in.city not in get_cities():
+        raise HTTPException(
+            status_code=404,
+            detail=enums.AccountErrors.city_not_found.value,
+        )
 
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    token = create_access_token(account_id, expires_delta=access_token_expires)
-    return create_cookie(token)
+    account_id = await views.create_account(account_in)
+    return response_with_token(account_id)
 
 
 @router.get(
     "/me",
-    response_model=AccountData,
+    response_model=schemas.AccountData,
     responses={
-        status.HTTP_403_FORBIDDEN: {"description": "Forbidden."},
-        status.HTTP_404_NOT_FOUND: {"description": "Account not found or Role not found"}
+        status.HTTP_403_FORBIDDEN: {"description": enums.AccountErrors.forbidden.value},
+        status.HTTP_404_NOT_FOUND: {"description": enums.AccountErrors.account_not_found.value}
     }
 )
-async def read_user_me(current_account_id: int = Depends(get_subject_from_cookie)) -> Any:
-    """
-    Get current user.
-    """
-    account = await account_crud.get(current_account_id)
-    if not account:
-        raise HTTPException(status_code=404, detail="Account is not found")
+async def read_user_me(account: dict = Depends(current_account)) -> Any:
+    """Get current user."""
 
-    role = await account_role(current_account_id)
-    if not role:
-        raise HTTPException(status_code=404, detail="Role is not found")
-
-    is_permission = await is_have_permission(current_account_id, [Permissions.public_api_access])
-    if not is_permission:
-        raise HTTPException(status_code=403, detail="Forbidden")
-
-    return AccountData(
-        full_name=account['full_name'],
-        email=account['email'],
-        role=role.description
+    return schemas.AccountData(
+        id=account['id'],
+        fullname=account['fullname'],
+        phone=account['phone'],
+        city=account['city'],
     )

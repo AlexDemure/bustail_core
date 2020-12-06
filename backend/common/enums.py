@@ -35,3 +35,7 @@ class Roles(Enum):
             return [x for x in Permissions if x != Permissions.admin_api_access]
         elif self is self.admin:
             return [x for x in Permissions if x != Permissions.public_api_access]
+
+
+class BaseSystemErrors(Enum):
+    schema_wrong_format = "Schema is wrong format"
