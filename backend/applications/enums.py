@@ -38,3 +38,7 @@ class ApplicationTypes(Enum):
             return "Междугородние"
         elif self is self.other:
             return "Другое"
+
+
+class ApplicationErrors(Enum):
+    to_go_when_wrong_format = "Дата назначения поездки должна быть больше текущей."

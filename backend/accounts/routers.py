@@ -4,9 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from backend.accounts import views, schemas, enums
 from backend.accounts.crud import account as account_crud
-from backend.common.utils import response_with_token, get_cities
+from backend.auth.utils import response_with_token
+from backend.common.utils import get_cities
 from backend.common.deps import current_account
-
+from backend.common.responses import auth_responses
 
 router = APIRouter()
 
@@ -43,10 +44,7 @@ async def create_account(account_in: schemas.AccountCreate) -> Any:
 @router.get(
     "/me",
     response_model=schemas.AccountData,
-    responses={
-        status.HTTP_403_FORBIDDEN: {"description": enums.AccountErrors.forbidden.value},
-        status.HTTP_404_NOT_FOUND: {"description": enums.AccountErrors.account_not_found.value}
-    }
+    responses=auth_responses
 )
 async def read_user_me(account: dict = Depends(current_account)) -> Any:
     """Get current user."""

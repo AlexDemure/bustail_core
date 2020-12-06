@@ -1,24 +1,4 @@
 import csv
-from datetime import timedelta
-
-from fastapi import status
-from fastapi_auth.security import create_access_token, create_cookie
-from starlette.responses import Response
-
-from backend.core.config import settings
-
-
-def response_with_token(account_id: int) -> Response:
-    """Получение респонса с токеном-авторизации"""
-    token = create_access_token(
-        subject=str(account_id),
-        expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    )
-
-    response = create_cookie(token)
-    response.status_code = status.HTTP_204_NO_CONTENT
-
-    return response
 
 
 def read_csv_file(file_path: str, ignore_first_line: bool = True) -> list:

@@ -4,9 +4,8 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from fastapi_auth.security import create_access_token, create_cookie
 
-from backend.core.config import settings
+from backend.auth.utils import response_with_token
 from backend.accounts.crud import account as account_crud
 
 
@@ -29,6 +28,5 @@ async def login_access_cookie(form_data: OAuth2PasswordRequestForm = Depends()) 
     if not account:
         raise HTTPException(status_code=404, detail="Account is not found")
 
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    token = create_access_token(account['id'], expires_delta=access_token_expires)
-    return create_cookie(token)
+    return response_with_token(account['id'])
+
