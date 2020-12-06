@@ -1,7 +1,6 @@
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi_auth.deps import get_subject_from_cookie
 
 from backend.accounts import views, schemas, enums
 from backend.accounts.crud import account as account_crud
