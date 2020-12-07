@@ -1,7 +1,9 @@
 from datetime import datetime
+from typing import List
+
+from pydantic import BaseModel, constr, validator
 
 from backend.applications.enums import ApplicationStatus, ApplicationTypes, ApplicationErrors
-from pydantic import BaseModel, constr, validator
 
 
 class ApplicationBase(BaseModel):
@@ -33,3 +35,5 @@ class ApplicationData(ApplicationBase):
     confirmed_at: str = None
 
 
+class ListApplications(BaseModel):
+    applications: List[ApplicationData]

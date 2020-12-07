@@ -1,6 +1,6 @@
 from typing import Generic, Optional, Type
 
-from sqlalchemy import select, update, insert
+from sqlalchemy import select, update, insert, delete
 
 from backend.db.database import database
 from backend.common.schemas import CreateSchemaType, UpdateSchemaType
@@ -25,5 +25,12 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             update(self.model)
             .where(self.model.id == data.id)
             .values(**data.updated_fields)
+        )
+        await database.execute(query)
+
+    async def remove(self, object_id: int) -> None:
+        query = (
+            delete(self.model).
+            where(self.model.id == object_id)
         )
         await database.execute(query)

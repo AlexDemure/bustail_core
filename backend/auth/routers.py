@@ -13,7 +13,7 @@ router = APIRouter()
 
 
 @router.post(
-    "/login/access-token",
+    "/login/access-token/",
     responses={
         status.HTTP_204_NO_CONTENT: {"description": "Create auth token"},
         status.HTTP_404_NOT_FOUND: {"description": "Account not found"}

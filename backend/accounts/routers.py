@@ -42,7 +42,7 @@ async def create_account(account_in: schemas.AccountCreate) -> Any:
 
 
 @router.get(
-    "/me",
+    "/me/",
     response_model=schemas.AccountData,
     responses=auth_responses
 )

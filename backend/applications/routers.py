@@ -1,10 +1,28 @@
 from fastapi import APIRouter, Depends, status, HTTPException
+from typing import Optional
 
 from backend.applications import schemas, enums, views
 from backend.common.deps import current_account
 from backend.common.responses import auth_responses
 
 router = APIRouter()
+
+
+@router.get(
+    "/client/",
+    response_model=schemas.ListApplications,
+    responses={
+        status.HTTP_200_OK: {"description": "Application list"},
+        **auth_responses
+    }
+)
+async def get_account_applications(account: dict = Depends(current_account)) -> schemas.ListApplications:
+    """
+    Получение списка заявок клиента.
+
+    Не относится к заявкам водителя.
+    """
+    return await views.get_account_applications(account)
 
 
 @router.post(
@@ -24,22 +42,36 @@ async def create_application(application_in: schemas.ApplicationBase, account: d
         raise HTTPException(status_code=400, detail=str(e))
 
 
-# @router.get("/{client_id}/actual_applications")
-# async def get_actual_applications(client_id: int, account: AccountData = Depends(get_current_user)):
-#     """Получение актуальных заявок клиента."""
-#     if not await has_permission(account.id, Permissions.public_api_access):
-#         raise HTTPException(status_code=400, detail="User is not have permission")
-#
-#     client = await ServiceClient.get(account.id)
-#     if not client:
-#         raise HTTPException(status_code=400, detail="Client is not found")
-#
-#     if client['id'] != client_id:
-#         raise HTTPException(status_code=400, detail="Access is denied")
-#
-#     return await logic.get_actual_applications(client['id'])
-#
-#
+@router.get(
+    "/{application_id}/",
+    responses={
+        status.HTTP_200_OK: {"description": "Application"},
+        **auth_responses
+    }
+)
+async def get_application(application_id: int, account: dict = Depends(current_account)):
+    """Получение заявки клиента."""
+    return await views.get_application(application_id)
+
+
+@router.delete(
+    "/{application_id}/",
+    responses={
+        status.HTTP_200_OK: {"description": "Application deleted"},
+        status.HTTP_400_BAD_REQUEST: {"description": enums.ApplicationErrors.application_does_not_belong_this_user.value},
+        **auth_responses
+    }
+)
+async def delete_application(application_id: int, account: dict = Depends(current_account)):
+    """Получение заявки клиента."""
+    try:
+        await views.delete_application(account, application_id)
+    except AssertionError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    return {"description": "Application deleted"}
+
+
 # @router.post("/get_all_applications")
 # async def get_all_applications(request: schemas.ApplicationFilters, account: AccountData = Depends(get_current_user)):
 #     """Получение списка всех заявок для водителей с фильтрами поиска."""
