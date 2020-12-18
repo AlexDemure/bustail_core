@@ -1,13 +1,11 @@
-from datetime import timedelta
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-
-from backend.auth.utils import response_with_token
 from backend.accounts.crud import account as account_crud
-
+from backend.accounts.enums import AccountErrors
+from backend.auth.utils import response_auth_cookie
 
 router = APIRouter()
 
@@ -26,7 +24,10 @@ async def login_access_cookie(form_data: OAuth2PasswordRequestForm = Depends()) 
 
     account = await account_crud.authenticate(form_data.username, form_data.password)
     if not account:
-        raise HTTPException(status_code=404, detail="Account is not found")
+        raise HTTPException(status_code=404, detail=AccountErrors.account_not_found.value)
 
-    return response_with_token(account['id'])
+    if account.get("verify_at", None) is None:
+        raise HTTPException(status_code=404, detail=AccountErrors.account_not_found.value)
+
+    return response_auth_cookie(account['id'])
 

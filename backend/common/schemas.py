@@ -9,3 +9,7 @@ UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 class UpdatedBase(BaseModel):
     id: int
     updated_fields: dict
+
+
+class Message(BaseModel):
+    msg: str

@@ -7,7 +7,7 @@ from starlette.responses import Response
 from backend.core.config import settings
 
 
-def response_with_token(account_id: int) -> Response:
+def response_auth_cookie(account_id: int) -> Response:
     """Получение респонса с токеном-авторизации"""
     token = security.create_access_token(
         subject=str(account_id),

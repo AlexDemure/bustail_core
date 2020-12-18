@@ -12,9 +12,15 @@ uvicorn = "^0.11.5"
 structlog = "^20.1.0"
 tenacity = "^6.2.0"
 
+httpx = "^0.16.1"
+
+email-validator = "^1.1.1"
+jinja2 ="^2.11.2"
 
 fastapi-auth = "^0.1.1"
 alchemy-permissions = "^0.0.5"
+security-utils = "^0.0.1"
+
 
 fastapi-sqlalchemy = "^0.1.4"
 psycopg2 = "^2.8.5"

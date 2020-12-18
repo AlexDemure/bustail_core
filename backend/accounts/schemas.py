@@ -4,7 +4,8 @@ from pydantic import BaseModel
 class AccountBase(BaseModel):
     fullname: str
     phone: str
-    city: str
+    email: str
+    city: str = None
 
 
 class AccountCreate(AccountBase):
@@ -18,3 +19,6 @@ class AccountUpdate(AccountBase):
 class AccountData(AccountBase):
     id: int
 
+
+class ConfirmAccount(BaseModel):
+    code: str
