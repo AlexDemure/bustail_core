@@ -2,18 +2,19 @@ from typing import Optional
 from security_utils.security import generate_random_code, generate_security_token, verify_security_token
 
 from backend.mailing import schemas, sender, crud
+from backend.common.utils import get_current_domain
 
 
 async def send_verify_code(account_id: int, email) -> None:
     """Отправка кода подтверждения аккаунта."""
     verify_code = generate_random_code()
 
-    send_schema = schemas.SendVerifyCodeEvent(email=email, verify_code=verify_code)
+    send_schema = schemas.SendVerifyCodeEvent(email=email, message=verify_code)
     await sender.SendVerifyCodeMessage(send_schema).send_email()
 
     create_schema = schemas.SendVerifyCodeEventCreate(
         account_id=account_id,
-        verify_code=verify_code
+        message=verify_code
     )
     await crud.send_verify_code_event.create(create_schema)
 
@@ -32,10 +33,26 @@ async def send_welcome_message(email: str) -> None:
 
 async def send_change_password_message(account: dict) -> None:
     """Отправка письма со сменой пароля."""
-    params = dict(account_id=account['id'], email=account['email'])
+    security_data = dict(account_id=account['id'], email=account['email'])
+    security_token = generate_security_token(security_data)
 
-    send_schema = schemas.ChanePassword(
-        security_token=generate_security_token(**params),
+    # Ссылка на страницу со сменой пароля.
+    confirm_url = f"{get_current_domain()}/change_password/?token={security_token}"
+
+    send_schema = schemas.ChangePassword(
+        message=confirm_url,
         email=account['email']
     )
     await sender.ChangePasswordMessage(send_schema).send_email()
+
+    create_schema = schemas.ChangePasswordEventCreate(
+        email=account['email'],
+        message=security_token
+    )
+    await crud.change_password_event.create(create_schema)
+
+
+async def is_verify_token(email: str, security_token: str) -> bool:
+    """Проверка наличие токена."""
+    token = await crud.change_password_event.find_token(email, security_token)
+    return True if token else False

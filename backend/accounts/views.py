@@ -1,12 +1,13 @@
 from fastapi_auth.security import get_password_hash
 from permissions.utils import create_account_role
 from datetime import datetime
-
+from security_utils.security import verify_security_token
 from backend.accounts.crud import account as account_crud
 from backend.accounts.schemas import AccountCreate
+from backend.accounts.enums import AccountErrors
 from backend.common.enums import BaseSystemErrors, Roles
 from backend.common.schemas import UpdatedBase
-from backend.mailing.views import send_verify_code, send_welcome_message
+from backend.mailing.views import send_verify_code, send_welcome_message, is_verify_token
 
 
 async def create_account(account_in: AccountCreate, account: dict = None) -> int:
@@ -49,3 +50,24 @@ async def confirmed_account(account: dict) -> None:
     await account_crud.update(updated_schema)
 
     await send_welcome_message(account['email'])
+
+
+async def change_password(password: str, security_token: str) -> None:
+    """Изменение пароля через токен подтверждения."""
+
+    context = verify_security_token(security_token)  # Получение данных токена.
+    if context is None:
+        raise ValueError(AccountErrors.url_change_password_is_wrong.value)
+
+    if await is_verify_token(context['email'], security_token) is False:  # Чтение события о смене пароля.
+        raise ValueError(AccountErrors.url_change_password_is_wrong.value)
+
+    account = await account_crud.get(object_id=context['account_id'])
+    if not account:
+        raise ValueError(AccountErrors.account_not_found.value)
+
+    update_schema = UpdatedBase(
+        id=account['id'],
+        updated_fields=dict(hashed_password=get_password_hash(password))
+    )
+    await account_crud.update(update_schema)

@@ -6,13 +6,17 @@ class BaseEmail(BaseModel):
 
 
 class SendVerifyCodeEvent(BaseEmail):
-    verify_code: str
+    message: str
 
 
 class SendVerifyCodeEventCreate(BaseModel):
     account_id: int
-    verify_code: str
+    message: str
 
 
-class ChanePassword(BaseEmail):
-    security_token: str
+class ChangePassword(BaseEmail):
+    message: str
+
+
+class ChangePasswordEventCreate(BaseEmail):
+    message: str

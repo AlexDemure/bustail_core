@@ -14,15 +14,12 @@ class BaseConfig(BaseSettings):
 
 class FastApiAuthSettings(BaseConfig):
 
-    DOMAIN: str = os.environ.get("DOMAIN")
-    API_URL: str = "/api/v1"
-
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 12  # 60 minutes * 12 hours = 0.5day
 
 
 class SecuritySettings(BaseConfig):
 
-    SECURITY_TOKEN_EXPIRE_MINUTES = 24 * 60  # 1 day
+    SECURITY_TOKEN_EXPIRE_MINUTES: int = 60 * 60 * 24  # 1 day
 
 
 class MailingMandrillSettings(BaseConfig):
@@ -64,6 +61,10 @@ applications = [
 
 
 class Settings(*applications):
+    ENV: str = os.environ.get("ENV", "DEV")
+    SERVER: str = os.environ.get("SERVER", "http")
+    DOMAIN: str = os.environ.get("DOMAIN", "localhost")
+    API_URL: str = "/api/v1"
 
     SECRET_KEY: str = secrets.token_urlsafe(32)
 

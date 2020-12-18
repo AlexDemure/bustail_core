@@ -7,7 +7,7 @@ from backend.drivers.models import Transport, Driver, TransportPhoto
 from backend.applications.models import Application
 from backend.notifications.models import Notification
 from permissions.models import Permission, Role, RolePermission, AccountRole
-from backend.mailing.models import SendVerifyCodeEvent
+from backend.mailing.models import SendVerifyCodeEvent, ChangePasswordEvent
 
 
 #alembic revision --autogenerate -m ""

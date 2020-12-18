@@ -517,7 +517,7 @@ pyasn1 = ">=0.1.3"
 
 [[package]]
 name = "security-utils"
-version = "0.0.1"
+version = "0.0.2"
 description = "Security utils"
 category = "main"
 optional = false
@@ -657,7 +657,7 @@ python-versions = ">=3.6.1"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "963a79f922ece1bdcba17219dd99a69845e8fc0587e7fd47f88bae74e00f6242"
+content-hash = "84d8b770c76152b199842878e0a60555a8d05c9cc4ab88bdaaf51273e4f7ff22"
 
 [metadata.files]
 alchemy-permissions = [
@@ -1015,7 +1015,7 @@ rsa = [
     {file = "rsa-4.6.tar.gz", hash = "sha256:109ea5a66744dd859bf16fe904b8d8b627adafb9408753161e766a92e7d681fa"},
 ]
 security-utils = [
-    {file = "security_utils-0.0.1.tar.gz", hash = "sha256:de8bc96afab5ca2bc883acfe2e7f7238bbdcdd4992ed4b57c0d591f9fe27f90c"},
+    {file = "security_utils-0.0.2.tar.gz", hash = "sha256:58e020951ae145e95210ef92ad05486c2ae44f56dc17dcbd2843bb06366f41e9"},
 ]
 six = [
     {file = "six-1.15.0-py2.py3-none-any.whl", hash = "sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced"},

@@ -81,7 +81,7 @@ class SendVerifyCodeMessage(SenderBase):
         return await self.send_html(subject, html)
 
     def get_context(self) -> dict:
-        return dict(verify_code=self.schema.verify_code)
+        return dict(verify_code=self.schema.message)
 
 
 class SendWelcomeMessage(SenderBase):
@@ -103,7 +103,7 @@ class SendWelcomeMessage(SenderBase):
 class ChangePasswordMessage(SenderBase):
     template_name = 'change_password.html'
 
-    validation_schema = schemas.ChanePassword
+    validation_schema = schemas.ChangePassword
 
     async def send_email(self):
         self.validate_data()
@@ -115,4 +115,4 @@ class ChangePasswordMessage(SenderBase):
         return await self.send_html(subject, html)
 
     def get_context(self) -> dict:
-        return dict(url=self.schema.security_token)
+        return dict(url=self.schema.message)

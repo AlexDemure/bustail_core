@@ -19,7 +19,7 @@ jinja2 ="^2.11.2"
 
 fastapi-auth = "^0.1.1"
 alchemy-permissions = "^0.0.5"
-security-utils = "^0.0.1"
+security-utils = "^0.0.2"
 
 
 fastapi-sqlalchemy = "^0.1.4"

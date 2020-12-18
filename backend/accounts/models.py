@@ -6,7 +6,7 @@ from backend.db.base_class import Base
 
 class Account(Base):
     id = Column(Integer, primary_key=True, index=True)
-    fullname = Column(String(128), nullable=False)
+    fullname = Column(String(128), nullable=True)
     email = Column(String(128), nullable=False, unique=True)
     phone = Column(String(16), nullable=True)
     city = Column(String(64), nullable=False)
