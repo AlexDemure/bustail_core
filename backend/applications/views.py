@@ -33,6 +33,18 @@ async def create_application(account: dict, application_in: schemas.ApplicationB
     return serializer.prepare_application(application)
 
 
+async def get_all_applications(**kwargs) -> schemas.ListApplications:
+    """
+    Получение списка заявок клиента.
+
+    Не относится к заявкам водителя.
+    """
+    applications = await application_crud.get_all_applications(**kwargs)
+    return schemas.ListApplications(
+        applications=[serializer.prepare_application(x) for x in applications]
+    )
+
+
 async def get_account_applications(account: dict) -> schemas.ListApplications:
     """
     Получение списка заявок клиента.

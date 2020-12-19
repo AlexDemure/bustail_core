@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends, status, HTTPException
-from typing import Optional
 
 from backend.applications import schemas, enums, views
-from backend.common.deps import current_account
+from backend.common.deps import confirmed_account
 from backend.common.responses import auth_responses
 
 router = APIRouter()
@@ -16,13 +15,30 @@ router = APIRouter()
         **auth_responses
     }
 )
-async def get_account_applications(account: dict = Depends(current_account)) -> schemas.ListApplications:
+async def get_account_applications(account: dict = Depends(confirmed_account)) -> schemas.ListApplications:
     """
     Получение списка заявок клиента.
 
     Не относится к заявкам водителя.
     """
     return await views.get_account_applications(account)
+
+
+@router.get(
+    "/driver/",
+    response_model=schemas.ListApplications,
+    responses={
+        status.HTTP_200_OK: {"description": "Application list"},
+        **auth_responses
+    }
+)
+async def get_driver_applications(account: dict = Depends(confirmed_account)) -> schemas.ListApplications:
+    """
+    Получение списка заявок водителя.
+
+    Не относится к заявкам клиента.
+    """
+    pass
 
 
 @router.post(
@@ -34,7 +50,7 @@ async def get_account_applications(account: dict = Depends(current_account)) -> 
         **auth_responses
     }
 )
-async def create_application(application_in: schemas.ApplicationBase, account: dict = Depends(current_account)):
+async def create_application(application_in: schemas.ApplicationBase, account: dict = Depends(confirmed_account)):
     """Создание заявки."""
     try:
         return await views.create_application(account, application_in)
@@ -49,7 +65,7 @@ async def create_application(application_in: schemas.ApplicationBase, account: d
         **auth_responses
     }
 )
-async def get_application(application_id: int, account: dict = Depends(current_account)):
+async def get_application(application_id: int, account: dict = Depends(confirmed_account)):
     """Получение заявки клиента."""
     return await views.get_application(application_id)
 
@@ -62,8 +78,8 @@ async def get_application(application_id: int, account: dict = Depends(current_a
         **auth_responses
     }
 )
-async def delete_application(application_id: int, account: dict = Depends(current_account)):
-    """Получение заявки клиента."""
+async def delete_application(application_id: int, account: dict = Depends(confirmed_account)):
+    """Удаление собственной заявки."""
     try:
         await views.delete_application(account, application_id)
     except AssertionError as e:
@@ -72,10 +88,20 @@ async def delete_application(application_id: int, account: dict = Depends(curren
     return {"description": "Application deleted"}
 
 
-# @router.post("/get_all_applications")
-# async def get_all_applications(request: schemas.ApplicationFilters, account: AccountData = Depends(get_current_user)):
-#     """Получение списка всех заявок для водителей с фильтрами поиска."""
-#     if not await has_permission(account.id, Permissions.public_api_access):
-#         raise HTTPException(status_code=400, detail="User is not have permission")
-#
-#     return await service.ServiceApplication(request).get_all_applications()
+@router.get(
+    "/",
+    response_model=schemas.ListApplications,
+    responses={
+        status.HTTP_200_OK: {"description": "Application list"},
+        **auth_responses
+    }
+)
+async def get_account_applications(
+        limit: int = 10, offset: int = 0, city: str = "", order_by: str = 'to_go_when', order_type: str = 'asc'
+) -> schemas.ListApplications:
+    """Получение списка всех заявок."""
+
+    query_params = dict(
+        limit=limit, offset=offset, city=city, order_by=order_by, order_type=order_type
+    )
+    return await views.get_all_applications(**query_params)
