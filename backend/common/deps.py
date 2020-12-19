@@ -3,7 +3,7 @@ from fastapi import Depends, HTTPException
 from permissions.utils import is_have_permission
 from backend.accounts.crud import account as account_crud
 from backend.accounts.enums import AccountErrors
-from backend.common.enums import Permissions
+from backend.core.enums import Permissions
 
 
 async def current_account(current_account_id: int = Depends(get_subject_from_cookie)) -> dict:

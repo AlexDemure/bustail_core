@@ -3,7 +3,7 @@ import secrets
 from typing import Any, Optional
 from pydantic import BaseSettings, PostgresDsn, validator
 from enum import Enum
-from backend.common.enums import Roles, Permissions
+from .enums import Roles, Permissions
 
 
 class BaseConfig(BaseSettings):

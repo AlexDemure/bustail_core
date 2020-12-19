@@ -5,9 +5,10 @@ from security_utils.security import verify_security_token
 from backend.accounts.crud import account as account_crud
 from backend.accounts.schemas import AccountCreate
 from backend.accounts.enums import AccountErrors
-from backend.common.enums import BaseSystemErrors, Roles
+from backend.common.enums import BaseSystemErrors
 from backend.common.schemas import UpdatedBase
 from backend.mailing.views import send_verify_code, send_welcome_message, is_verify_token
+from backend.core.enums import Roles
 
 
 async def create_account(account_in: AccountCreate, account: dict = None) -> int:
