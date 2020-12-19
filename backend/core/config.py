@@ -66,7 +66,8 @@ class Settings(*applications):
     DOMAIN: str = os.environ.get("DOMAIN", "localhost")
     API_URL: str = "/api/v1"
 
-    SECRET_KEY: str = secrets.token_urlsafe(32)
+    # SECRET_KEY: str = secrets.token_urlsafe(32)
+    SECRET_KEY: str = "4671d6a1-bfae-4132-a4b1-415f0920a91c"
 
 
 settings = Settings()

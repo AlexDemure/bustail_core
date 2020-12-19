@@ -4,11 +4,11 @@ from sqlalchemy import select
 from backend.common.crud import CRUDBase
 from backend.drivers.models import Driver
 from backend.drivers.schemas import DriverCreate
-from common.schemas import UpdateBase
+from backend.common.schemas import UpdatedBase
 from backend.db.database import database
 
 
-class CRUDDriver(CRUDBase[Driver, DriverCreate, UpdateBase]):
+class CRUDDriver(CRUDBase[Driver, DriverCreate, UpdatedBase]):
 
     async def find_by_account_id(self, account_id: int) -> Optional[dict]:
         query = select([self.model]).where(self.model.account_id == account_id)

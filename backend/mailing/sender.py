@@ -6,6 +6,7 @@ from structlog import get_logger
 
 from backend.core.config import settings
 from backend.mailing import schemas
+from backend.common.enums import BaseSystemErrors
 
 
 class SenderBase:
@@ -39,7 +40,7 @@ class SenderBase:
         return template.render(**context)
 
     def validate_data(self):
-        assert isinstance(self.schema, self.validation_schema), 'Schema is wrong format'
+        assert isinstance(self.schema, self.validation_schema), BaseSystemErrors.schema_wrong_format.value
 
     async def send_html(self, subject: str, html: str):
         async with httpx.AsyncClient(auth=(settings.MAILING_API_KEY, settings.MAILING_SECRET_KEY)) as client:

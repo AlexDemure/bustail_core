@@ -17,4 +17,5 @@ class TransportType(Enum):
 
 
 class DriverErrors(Enum):
-    pass
+    driver_already_exist = "Карточка водителя была ранее создана."
+

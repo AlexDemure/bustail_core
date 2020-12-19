@@ -11,8 +11,8 @@ class Driver(Base):
     id = Column(Integer, primary_key=True, index=True)
     account_id = Column(Integer, ForeignKey("account.id"), unique=True)
     created_at = Column(DateTime, server_default=func.now())
-    license_number = Column(String(64), nullable=True, unique=True)
-    debt = Column(Numeric, default=Decimal("0"))
+    license_number = Column(String(64), nullable=True)
+    debt = Column(Numeric)
 
 
 class Transport(Base):

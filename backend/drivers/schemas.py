@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from decimal import Decimal
 
 
 class DriverBase(BaseModel):
@@ -6,7 +7,8 @@ class DriverBase(BaseModel):
 
 
 class DriverCreate(DriverBase):
-    pass
+    account_id: int
+    debt: Decimal = Decimal("0")
 
 
 class DriverData(DriverBase):
