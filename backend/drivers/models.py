@@ -1,5 +1,5 @@
-
-from sqlalchemy import DateTime, Column, Integer, ForeignKey, String, Enum
+from decimal import Decimal
+from sqlalchemy import DateTime, Column, Integer, ForeignKey, String, Enum, Numeric
 from sqlalchemy.sql import func
 
 from backend.drivers.enums import TransportType
@@ -12,6 +12,7 @@ class Driver(Base):
     account_id = Column(Integer, ForeignKey("account.id"), unique=True)
     created_at = Column(DateTime, server_default=func.now())
     license_number = Column(String(64), nullable=True, unique=True)
+    debt = Column(Numeric, default=Decimal("0"))
 
 
 class Transport(Base):

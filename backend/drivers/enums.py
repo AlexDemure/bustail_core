@@ -14,3 +14,7 @@ class TransportType(Enum):
             return "Транспорт свыше 8 и не более 20 мест."
         elif self is self.bus:
             return "Транспорт свыше 20 мест."
+
+
+class DriverErrors(Enum):
+    pass
