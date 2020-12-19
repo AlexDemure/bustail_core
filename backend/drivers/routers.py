@@ -51,9 +51,9 @@ async def change_driver_data(request: schemas.DriverBase, account: dict = Depend
     """Смена данных в карточки водителя."""
     driver = await views.get_driver_by_account_id(account['id'])
     if not driver:
-        return JSONResponse(
+        return HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            content=Message(msg="Driver is not found")
+            detail="Driver is not found"
         )
 
     update_schema = UpdatedBase(id=driver.id, updated_fields=request.dict())
@@ -75,9 +75,9 @@ async def read_driver_me(account: dict = Depends(confirmed_account)):
     """Карточка водителя."""
     driver = await views.get_driver_by_account_id(account['id'])
     if not driver:
-        return JSONResponse(
+        return HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            content=Message(msg="Driver is not found")
+            detail="Driver is not found"
         )
 
     return driver
