@@ -1,8 +1,7 @@
-from typing import Optional
-from security_utils.security import generate_random_code, generate_security_token, verify_security_token
+from security_utils.security import generate_random_code, generate_security_token
 
-from backend.mailing import schemas, sender, crud
 from backend.common.utils import get_current_domain
+from backend.mailing import schemas, sender, crud
 
 
 async def send_verify_code(account_id: int, email) -> None:

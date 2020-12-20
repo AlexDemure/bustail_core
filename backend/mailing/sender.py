@@ -10,7 +10,7 @@ from backend.common.enums import BaseSystemErrors
 
 
 class SenderBase:
-    loader_path = "../mailing/templates"  # Откуда брать HTML
+    loader_path = "mailing/templates"  # Откуда брать HTML
 
     sender_email = settings.MAILING_EMAIL
     sender_name = settings.MAILING_NAME
@@ -63,7 +63,11 @@ class SenderBase:
                         ]
                     }
                 )
-            response = await client.post('https://api.mailjet.com/v3.1/send', json=data)
+
+            if settings.ENV == "DEV":
+                response = {"Is send": False}
+            else:
+                response = await client.post('https://api.mailjet.com/v3.1/send', json=data)
             self.logger.info(f'Message: {response}')
 
 

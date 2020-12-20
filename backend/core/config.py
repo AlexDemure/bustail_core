@@ -54,10 +54,22 @@ class DBSettings(BaseConfig):
         )
 
 
+class TestDBSettings(BaseConfig):
+
+    SQLALCHEMY_DATABASE_URI = "sqlite:///../test.db"
+
+
+# DEFAULT SETTINGS
 applications = [
-    FastApiAuthSettings, SecuritySettings, MailingMandrillSettings,
-    RolesAndPermissionsSettings, DBSettings
+    FastApiAuthSettings, SecuritySettings,
+    MailingMandrillSettings, RolesAndPermissionsSettings
 ]
+
+
+if os.environ.get('ENV', "DEV") == "DEV":
+    applications.append(TestDBSettings)
+else:
+    applications.append(DBSettings)
 
 
 class Settings(*applications):

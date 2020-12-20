@@ -4,7 +4,7 @@ from fastapi import FastAPI
 
 from backend.core.urls import api_router
 from backend.core.config import settings
-from backend.db.database import database
+from backend.db.database import database, init_db
 
 app = FastAPI()
 
@@ -12,6 +12,10 @@ app = FastAPI()
 @app.on_event("startup")
 async def startup():
     await database.connect()
+
+    if settings.ENV == "DEV":
+        init_db()
+
     await setup_permissions_and_roles()
 
 

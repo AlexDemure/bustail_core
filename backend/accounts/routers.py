@@ -1,10 +1,12 @@
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import Response
 
 from backend.accounts import views, schemas, enums
 from backend.accounts.crud import account as account_crud
-from backend.auth.utils import response_auth_cookie
+from backend.auth.utils import get_token
+from backend.auth.schemas import Token
 from backend.common.deps import current_account, confirmed_account
 from backend.common.enums import BaseMessage
 from backend.common.responses import auth_responses
@@ -16,13 +18,14 @@ router = APIRouter()
 
 @router.post(
     "/",
+    response_model=Token,
     responses={
-        status.HTTP_204_NO_CONTENT: {"description": "Create auth token"},
+        status.HTTP_201_CREATED: {"description": BaseMessage.obj_is_created.value},
         status.HTTP_400_BAD_REQUEST: {"description": enums.AccountErrors.phone_already_exist.value},
         status.HTTP_404_NOT_FOUND: {"description": enums.AccountErrors.city_not_found.value}
     }
 )
-async def create_account(request: schemas.AccountCreate) -> Any:
+async def create_account(request: schemas.AccountCreate, response: Response) -> Any:
     """Создание нового пользователя."""
     account = await account_crud.find_by_email(email=request.email)
     if account:
@@ -33,7 +36,9 @@ async def create_account(request: schemas.AccountCreate) -> Any:
             )
 
     account_id = await views.create_account(request, account)
-    return response_auth_cookie(account_id)
+
+    response.status_code = 201
+    return Token(token=get_token(account_id))
 
 
 @router.put(
@@ -68,7 +73,7 @@ async def update_account(request: schemas.AccountUpdate, account: dict = Depends
     response_model=schemas.AccountData,
     responses=auth_responses
 )
-async def read_user_me(account: dict = Depends(confirmed_account)) -> Any:
+async def read_user_me(account: dict = Depends(current_account)) -> Any:
     """Получение данных текущего пользователя."""
 
     return schemas.AccountData(

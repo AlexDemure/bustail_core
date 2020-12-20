@@ -1,4 +1,4 @@
-from fastapi_auth.deps import get_subject_from_cookie
+from fastapi_auth.deps import get_subject_from_token
 from fastapi import Depends, HTTPException
 from permissions.utils import is_have_permission
 from backend.accounts.crud import account as account_crud
@@ -6,7 +6,7 @@ from backend.accounts.enums import AccountErrors
 from backend.core.enums import Permissions
 
 
-async def current_account(current_account_id: int = Depends(get_subject_from_cookie)) -> dict:
+async def current_account(current_account_id: int = Depends(get_subject_from_token)) -> dict:
     """Получение текущего аккаунта без проверки на подтвержденность."""
     account = await account_crud.get(current_account_id)
     if not account:
@@ -19,7 +19,7 @@ async def current_account(current_account_id: int = Depends(get_subject_from_coo
     return account
 
 
-async def confirmed_account(current_account_id: int = Depends(get_subject_from_cookie)) -> dict:
+async def confirmed_account(current_account_id: int = Depends(get_subject_from_token)) -> dict:
     """Получение подтвежденного аккаунта."""
     account = await current_account(current_account_id)
 
