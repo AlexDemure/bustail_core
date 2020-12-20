@@ -54,6 +54,7 @@ RUN poetry install --no-dev
 
 COPY . /app/backend
 
+RUN touch test.db
 
 EXPOSE 8000
 

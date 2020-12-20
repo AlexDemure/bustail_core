@@ -32,5 +32,5 @@ services:
       - ./env_files/global.env
     volumes:
       - ./backend/alembic/versions:/app/backend/alembic/versions
-      - ./backend/test.db:/app/backend/test.db
+      - ./backend:/app/backend/
 

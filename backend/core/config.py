@@ -56,7 +56,7 @@ class DBSettings(BaseConfig):
 
 class TestDBSettings(BaseConfig):
 
-    SQLALCHEMY_DATABASE_URI = "sqlite:///../test.db"
+    SQLALCHEMY_DATABASE_URI = "sqlite:///./test.db"
 
 
 # DEFAULT SETTINGS
