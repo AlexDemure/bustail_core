@@ -19,13 +19,13 @@ class Transport(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     driver_id = Column(Integer, ForeignKey("driver.id"))
-    type_transport = Column(String(128), Enum(TransportType))
     brand = Column(String(255))
     model = Column(String(255))
     count_seats = Column(Integer, default=1)
     price = Column(Integer, default=0)
     city = Column(String(128))
     state_number = Column(String(16))
+    transport_type = Column(Enum(TransportType), default=TransportType.other)
 
 
 class TransportPhoto(Base):

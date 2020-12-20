@@ -5,12 +5,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from backend.accounts import views, schemas, enums
 from backend.accounts.crud import account as account_crud
 from backend.auth.utils import response_auth_cookie
-from backend.mailing.views import is_verify_code
-from backend.common.utils import get_cities
 from backend.common.deps import current_account, confirmed_account
+from backend.common.enums import BaseMessage
 from backend.common.responses import auth_responses
 from backend.common.schemas import Message, UpdatedBase
-
+from backend.mailing.views import is_verify_code
 
 router = APIRouter()
 
@@ -24,9 +23,7 @@ router = APIRouter()
     }
 )
 async def create_account(request: schemas.AccountCreate) -> Any:
-    """
-    Create new user.
-    """
+    """Создание нового пользователя."""
     account = await account_crud.find_by_email(email=request.email)
     if account:
         if account.get("verify_at", None):
@@ -34,12 +31,6 @@ async def create_account(request: schemas.AccountCreate) -> Any:
                 status_code=400,
                 detail=enums.AccountErrors.phone_already_exist.value,
             )
-
-    if request.city not in get_cities():
-        raise HTTPException(
-            status_code=404,
-            detail=enums.AccountErrors.city_not_found.value,
-        )
 
     account_id = await views.create_account(request, account)
     return response_auth_cookie(account_id)
@@ -49,21 +40,13 @@ async def create_account(request: schemas.AccountCreate) -> Any:
     "/",
     response_model=Message,
     responses={
-        status.HTTP_200_OK: {"description": "Accounts is updated"},
+        status.HTTP_200_OK: {"description": BaseMessage.obj_is_changed.value},
         status.HTTP_400_BAD_REQUEST: {"description": enums.AccountErrors.phone_already_exist.value},
         **auth_responses
     }
 )
 async def update_account(request: schemas.AccountUpdate, account: dict = Depends(confirmed_account)) -> Any:
-    """
-    Create new user.
-    """
-    if request.city not in get_cities():
-        raise HTTPException(
-            status_code=404,
-            detail=enums.AccountErrors.city_not_found.value,
-        )
-
+    """Обновление данных аккаунта."""
     if request.phone:
         other_account = await account_crud.find_by_phone(phone=request.phone)
         if other_account:
@@ -77,7 +60,7 @@ async def update_account(request: schemas.AccountUpdate, account: dict = Depends
         updated_fields=request.dict()
     )
     await account_crud.update(update_schema)
-    return Message(msg="Accounts is updated")
+    return Message(msg=BaseMessage.obj_is_changed.value)
 
 
 @router.get(
@@ -86,7 +69,7 @@ async def update_account(request: schemas.AccountUpdate, account: dict = Depends
     responses=auth_responses
 )
 async def read_user_me(account: dict = Depends(confirmed_account)) -> Any:
-    """Get current user."""
+    """Получение данных текущего пользователя."""
 
     return schemas.AccountData(
         id=account['id'],
@@ -101,7 +84,7 @@ async def read_user_me(account: dict = Depends(confirmed_account)) -> Any:
     "/confirm/",
     response_model=Message,
     responses={
-        status.HTTP_200_OK: {"description": "Account confirmed"},
+        status.HTTP_200_OK: {"description": BaseMessage.obj_is_changed.value},
         status.HTTP_400_BAD_REQUEST: {"description": enums.AccountErrors.account_is_confirmed.value},
         status.HTTP_404_NOT_FOUND: {"description": enums.AccountErrors.confirmed_code_is_not_found.value}
     }
@@ -122,14 +105,14 @@ async def confirmed_account(request: schemas.ConfirmAccount, account: dict = Dep
         )
 
     await views.confirmed_account(account)
-    return Message(msg="Account is confirmed")
+    return Message(msg=BaseMessage.obj_is_changed.value)
 
 
 @router.put(
     "/change_password/",
     response_model=Message,
     responses={
-        status.HTTP_200_OK: {"description": "Password is changed"},
+        status.HTTP_200_OK: {"description": BaseMessage.obj_is_changed.value},
         status.HTTP_400_BAD_REQUEST: {"description": enums.AccountErrors.url_change_password_is_wrong.value},
         status.HTTP_404_NOT_FOUND: {"description": enums.AccountErrors.confirmed_code_is_not_found.value}
     }
@@ -141,4 +124,4 @@ async def change_password(request: schemas.ChangePassword, security_token: str) 
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    return Message(msg="Password is changed")
+    return Message(msg=BaseMessage.obj_is_changed.value)

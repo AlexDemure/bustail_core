@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, status, HTTPException
 
 from backend.applications import schemas, enums, views
 from backend.common.deps import confirmed_account
+from backend.common.schemas import Message
+from backend.common.enums import BaseMessage
 from backend.common.responses import auth_responses
 
 router = APIRouter()
@@ -11,7 +13,7 @@ router = APIRouter()
     "/client/",
     response_model=schemas.ListApplications,
     responses={
-        status.HTTP_200_OK: {"description": "Application list"},
+        status.HTTP_200_OK: {"description": BaseMessage.obj_data.value},
         **auth_responses
     }
 )
@@ -28,7 +30,7 @@ async def get_account_applications(account: dict = Depends(confirmed_account)) -
     "/driver/",
     response_model=schemas.ListApplications,
     responses={
-        status.HTTP_200_OK: {"description": "Application list"},
+        status.HTTP_200_OK: {"description": BaseMessage.obj_data.value},
         **auth_responses
     }
 )
@@ -45,8 +47,8 @@ async def get_driver_applications(account: dict = Depends(confirmed_account)) ->
     "/",
     response_model=schemas.ApplicationData,
     responses={
-        status.HTTP_201_CREATED: {"description": "Application is created"},
-        status.HTTP_400_BAD_REQUEST: {"description": enums.ApplicationErrors.to_go_when_wrong_format.value},
+        status.HTTP_201_CREATED: {"description": BaseMessage.obj_is_created.value},
+        status.HTTP_400_BAD_REQUEST: {"description": BaseMessage.obj_is_not_created.value},
         **auth_responses
     }
 )
@@ -61,7 +63,7 @@ async def create_application(application_in: schemas.ApplicationBase, account: d
 @router.get(
     "/{application_id}/",
     responses={
-        status.HTTP_200_OK: {"description": "Application"},
+        status.HTTP_200_OK: {"description": BaseMessage.obj_data.value},
         **auth_responses
     }
 )
@@ -72,8 +74,9 @@ async def get_application(application_id: int, account: dict = Depends(confirmed
 
 @router.delete(
     "/{application_id}/",
+    response_model=Message,
     responses={
-        status.HTTP_200_OK: {"description": "Application deleted"},
+        status.HTTP_200_OK: {"description": BaseMessage.obj_is_deleted.value},
         status.HTTP_400_BAD_REQUEST: {"description": enums.ApplicationErrors.application_does_not_belong_this_user.value},
         **auth_responses
     }
@@ -85,14 +88,14 @@ async def delete_application(application_id: int, account: dict = Depends(confir
     except AssertionError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    return {"description": "Application deleted"}
+    return Message(msg=BaseMessage.obj_is_deleted.value)
 
 
 @router.get(
     "/",
     response_model=schemas.ListApplications,
     responses={
-        status.HTTP_200_OK: {"description": "Application list"},
+        status.HTTP_200_OK: {"description": BaseMessage.obj_data.value},
         **auth_responses
     }
 )

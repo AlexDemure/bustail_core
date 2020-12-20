@@ -8,7 +8,7 @@ router = APIRouter()
     "/cities/",
     responses={
         status.HTTP_200_OK: {
-            "description": "Получение списка городов в системе.",
+            "description": "Getting a list of cities in the system.",
             "content": {
                 "application/json": {
                     "example": ['Москва', 'Челябинск', '...']
