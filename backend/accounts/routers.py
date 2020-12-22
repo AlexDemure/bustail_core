@@ -38,7 +38,7 @@ async def create_account(request: schemas.AccountCreate, response: Response) -> 
     account_id = await views.create_account(request, account)
 
     response.status_code = 201
-    return Token(token=get_token(account_id))
+    return Token(access_token=get_token(account_id))
 
 
 @router.put(
@@ -73,7 +73,7 @@ async def update_account(request: schemas.AccountUpdate, account: dict = Depends
     response_model=schemas.AccountData,
     responses=auth_responses
 )
-async def read_user_me(account: dict = Depends(current_account)) -> Any:
+async def read_user_me(account: dict = Depends(confirmed_account)) -> Any:
     """Получение данных текущего пользователя."""
 
     return schemas.AccountData(

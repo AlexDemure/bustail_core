@@ -47,7 +47,7 @@ class TestAccount:
             response = await ac.post("/accounts/", json=self.account_data.get_personal_data())
 
         assert response.status_code == 201
-        self.headers = {"Authorization": f"Bearer {response.json()['token']}"}
+        self.headers = {"Authorization": f"Bearer {response.json()['access_token']}"}
 
         await self.confirm_account()
 
