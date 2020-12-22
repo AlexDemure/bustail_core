@@ -11,6 +11,7 @@ fastapi = "^0.60.1"
 uvicorn = "^0.11.5"
 structlog = "^20.1.0"
 tenacity = "^6.2.0"
+aiofiles = "^0.5.0"
 
 httpx = "^0.16.1"
 pytest-asyncio = "^0.14.0"
@@ -21,6 +22,7 @@ jinja2 ="^2.11.2"
 fastapi-auth = "^0.1.1"
 alchemy-permissions = "^0.0.5"
 security-utils = "^0.0.2"
+yandex-object-storage = "^0.0.1"
 
 
 fastapi-sqlalchemy = "^0.1.4"

@@ -1,6 +1,7 @@
 from decimal import Decimal
 from typing import List
 
+from object_storage.enums import FileMimetypes
 from pydantic import BaseModel, root_validator
 
 from backend.common.utils import get_cities
@@ -53,3 +54,18 @@ class TransportData(TransportBase):
 
 class ListTransports(BaseModel):
     transports: List[TransportData]
+
+
+class TransportPhotoBase(BaseModel):
+    transport_id: int
+    file_uri: str
+    file_hash: str
+    media_type: FileMimetypes
+
+
+class TransportPhotoCreate(TransportPhotoBase):
+    pass
+
+
+class TransportPhotoData(TransportPhotoBase):
+    id: int

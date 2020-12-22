@@ -1,6 +1,8 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException, File, UploadFile
 from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
+from object_storage.enums import UploadErrors
+from object_storage.utils import check_file_type, check_file_size
 
 from backend.common.deps import confirmed_account
 from backend.common.enums import BaseMessage
@@ -54,7 +56,7 @@ async def change_driver_data(request: schemas.DriverBase, account: dict = Depend
     """Смена данных в карточки водителя."""
     driver = await views.get_driver_by_account_id(account['id'])
     if not driver:
-        return HTTPException(
+        raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=BaseMessage.obj_is_not_found.value
         )
@@ -78,7 +80,7 @@ async def read_driver_me(account: dict = Depends(confirmed_account)):
     """Карточка водителя."""
     driver = await views.get_driver_by_account_id(account['id'])
     if not driver:
-        return HTTPException(
+        raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=BaseMessage.obj_is_not_found.value
         )
@@ -100,7 +102,7 @@ async def create_transport(request: schemas.TransportBase, account: dict = Depen
     """Создание карточки транспорта."""
     driver = await views.get_driver_by_account_id(account['id'])
     if not driver:
-        return HTTPException(
+        raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=BaseMessage.obj_is_not_created.value
         )
@@ -153,7 +155,7 @@ async def get_transport(transport_id: int):
     """Карточка транспорта."""
     transport = await views.get_transport(transport_id)
     if not transport:
-        return HTTPException(
+        raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=BaseMessage.obj_is_not_found.value
         )
@@ -177,26 +179,7 @@ async def change_transport_data(
         account: dict = Depends(confirmed_account)
 ):
     """Изменение данных в карточке транспорта."""
-    driver = await views.get_driver_by_account_id(account['id'])
-    if not driver:
-        return HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=BaseMessage.obj_is_not_found.value
-        )
-
-    transport = await views.get_transport(transport_id)
-    if not transport:
-        return HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=BaseMessage.obj_is_not_found.value
-        )
-
-    # Если транспорт не принадлежит данному водителю.
-    if transport.driver_id != driver.id:
-        return HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=DriverErrors.car_not_belong_to_driver.value
-        )
+    driver, transport = await views.is_transport_belongs_driver(account['id'], transport_id)
 
     transport_up = schemas.TransportUpdate(driver_id=driver.id, **request.dict())
     await views.change_transport_data(transport, transport_up)
@@ -215,26 +198,7 @@ async def change_transport_data(
 async def delete_application(transport_id: int, account: dict = Depends(confirmed_account)):
     """Удаление собственного транспорта."""
 
-    driver = await views.get_driver_by_account_id(account['id'])
-    if not driver:
-        return HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=BaseMessage.obj_is_not_found.value
-        )
-
-    transport = await views.get_transport(transport_id)
-    if not transport:
-        return HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=BaseMessage.obj_is_not_found.value
-        )
-
-    # Если транспорт не принадлежит данному водителю.
-    if transport.driver_id != driver.id:
-        return HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=DriverErrors.car_not_belong_to_driver.value
-        )
+    driver, transport = await views.is_transport_belongs_driver(account['id'], transport_id)
 
     try:
         await views.delete_transport(transport.id)
@@ -242,3 +206,71 @@ async def delete_application(transport_id: int, account: dict = Depends(confirme
         raise HTTPException(status_code=400, detail=str(e))
 
     return Message(msg=BaseMessage.obj_is_deleted.value)
+
+
+@router.post(
+    "/transports/{transport_id}/covers/",
+    response_model=schemas.TransportPhotoData,
+    responses={
+        status.HTTP_201_CREATED: {"description": BaseMessage.obj_is_created.value},
+        status.HTTP_400_BAD_REQUEST: {
+            "description": f"{UploadErrors.file_is_large.value} or {UploadErrors.mime_type_is_wrong_format.value}"
+        },
+        status.HTTP_404_NOT_FOUND: {"description": BaseMessage.obj_is_not_found},
+        **auth_responses
+    }
+)
+async def create_cover_transport(
+        transport_id: int,
+        file: UploadFile = File(...),
+        account: dict = Depends(confirmed_account)
+):
+    """Загрузка обложки к транспорту."""
+
+    if check_file_type(file.content_type) is False:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=UploadErrors.mime_type_is_wrong_format.value
+        )
+
+    if check_file_size(file.file) is False:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=UploadErrors.file_is_large.value
+        )
+
+    driver, transport = await views.is_transport_belongs_driver(account['id'], transport_id)
+
+    cover = await views.upload_transport_cover(transport, file)
+
+    return JSONResponse(
+        status_code=status.HTTP_201_CREATED,
+        content=jsonable_encoder(cover)
+    )
+
+
+@router.get(
+    "/transports/{transport_id}/covers/{cover_id}",
+    responses={
+        status.HTTP_200_OK: {"description": BaseMessage.obj_data.value},
+        status.HTTP_400_BAD_REQUEST: {
+            "description": f"{UploadErrors.file_is_large.value} or {UploadErrors.mime_type_is_wrong_format.value}"
+        },
+        status.HTTP_404_NOT_FOUND: {"description": BaseMessage.obj_is_not_found},
+        **auth_responses
+    }
+)
+async def get_cover_transport(transport_id: int, cover_id: int):
+    """Получение обложки к транспорту."""
+
+    transport = await get_transport(transport_id)
+    if not transport:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=BaseMessage.obj_is_not_found.value
+        )
+
+    file_to_bytes, media_type = await views.get_transport_cover(cover_id)
+
+    return Response(content=file_to_bytes, status_code=status.HTTP_200_OK, media_type=media_type)
+

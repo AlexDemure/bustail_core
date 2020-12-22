@@ -2,8 +2,8 @@ from typing import Optional
 from sqlalchemy import select
 
 from backend.common.crud import CRUDBase
-from backend.drivers.models import Driver, Transport
-from backend.drivers.schemas import DriverCreate, TransportCreate
+from backend.drivers.models import Driver, Transport, TransportPhoto
+from backend.drivers.schemas import DriverCreate, TransportCreate, TransportPhotoCreate
 from backend.common.schemas import UpdatedBase
 from backend.db.database import database
 
@@ -61,3 +61,16 @@ class CRUDTransport(CRUDBase[Transport, TransportCreate, UpdatedBase]):
 
 
 transport = CRUDTransport(Transport)
+
+
+class CRUDTransportCovers(CRUDBase[TransportPhoto, TransportPhotoCreate, UpdatedBase]):
+
+    async def find_transport_by_hash(self, transport_id: int, file_hash: str) -> Optional[dict]:
+        query = select([self.model]).where(
+            (self.model.transport_id == transport_id) &
+            (self.model.file_hash == file_hash)
+        )
+        object_model = await database.fetch_one(query)
+        return dict(object_model) if object_model else None
+
+transport_covers = CRUDTransportCovers(TransportPhoto)

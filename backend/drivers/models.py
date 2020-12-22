@@ -1,10 +1,9 @@
-from decimal import Decimal
+from object_storage.enums import FileMimetypes
 from sqlalchemy import DateTime, Column, Integer, ForeignKey, String, Enum, Numeric
 from sqlalchemy.sql import func
 
-from backend.drivers.enums import TransportType
-
 from backend.db.base_class import Base
+from backend.drivers.enums import TransportType
 
 
 class Driver(Base):
@@ -33,4 +32,5 @@ class TransportPhoto(Base):
     transport_id = Column(Integer, ForeignKey("transport.id"))
     file_uri = Column(String(256))
     file_hash = Column(String(128))
+    media_type = Column(Enum(FileMimetypes))
     created_at = Column(DateTime, server_default=func.now())

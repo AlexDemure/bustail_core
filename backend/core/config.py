@@ -59,9 +59,18 @@ class TestDBSettings(BaseConfig):
     SQLALCHEMY_DATABASE_URI = "sqlite:///./test.db"
 
 
+class YandexObjectStorage(BaseConfig):
+
+    YANDEX_ACCESS_KEY_ID: str = os.environ["YANDEX_ACCESS_KEY_ID"]
+    YANDEX_SECRET_ACCESS_KEY: str = os.environ["YANDEX_SECRET_ACCESS_KEY"]
+    YANDEX_BUCKET_NAME: str = os.environ["YANDEX_BUCKET_NAME"]
+
+    MAX_FILE_SIZE_MB: int = 100
+
+
 # DEFAULT SETTINGS
 applications = [
-    FastApiAuthSettings, SecuritySettings,
+    FastApiAuthSettings, SecuritySettings, YandexObjectStorage,
     MailingMandrillSettings, RolesAndPermissionsSettings
 ]
 

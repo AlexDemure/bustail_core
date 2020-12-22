@@ -1,13 +1,27 @@
-from typing import Optional
+from typing import Optional, Tuple
+from uuid import uuid4
 
+from fastapi import HTTPException, status
+from fastapi import UploadFile
 from fastapi.encoders import jsonable_encoder
+from object_storage.enums import FileStorages, FileMimetypes
+from object_storage.uploader import ObjectStorage
+from object_storage.utils import get_file_hash
 
+from backend.common.enums import BaseMessage
 from backend.common.enums import BaseSystemErrors
 from backend.common.schemas import UpdatedBase
+from backend.core.config import settings
 from backend.drivers import schemas
 from backend.drivers.crud import driver as driver_crud
 from backend.drivers.crud import transport as transport_crud
+from backend.drivers.crud import transport_covers as transport_covers_crud
 from backend.drivers.enums import DriverErrors
+
+
+object_storage = ObjectStorage(
+    settings.YANDEX_ACCESS_KEY_ID, settings.YANDEX_SECRET_ACCESS_KEY, settings.YANDEX_BUCKET_NAME
+)
 
 
 async def create_driver(driver_in: schemas.DriverCreate, account: dict) -> schemas.DriverData:
@@ -26,7 +40,7 @@ async def create_driver(driver_in: schemas.DriverCreate, account: dict) -> schem
 
 async def get_driver_by_account_id(account_id: int) -> Optional[schemas.DriverData]:
     driver = await driver_crud.find_by_account_id(account_id)
-    return jsonable_encoder(schemas.DriverData(**driver)) if driver else None
+    return schemas.DriverData(**driver) if driver else None
 
 
 async def update_driver(driver_up: UpdatedBase) -> None:
@@ -55,7 +69,7 @@ async def create_transport(transport_in: schemas.TransportCreate) -> schemas.Tra
 
 async def get_transport(transport_id: int) -> Optional[schemas.TransportData]:
     transport = await transport_crud.get(transport_id)
-    return jsonable_encoder(schemas.TransportData(**transport)) if transport else None
+    return schemas.TransportData(**transport) if transport else None
 
 
 async def change_transport_data(transport: schemas.TransportData, transport_up: schemas.TransportUpdate) -> None:
@@ -90,3 +104,74 @@ async def delete_transport(transport_id: int) -> None:
 
     transport = await transport_crud.get(transport_id)
     assert transport is None, "Transport is not deleted"
+
+
+async def upload_transport_cover(transport: schemas.TransportData, file: UploadFile) -> schemas.TransportPhotoData:
+    """Загрузка обложки к транспорту через бакет."""
+
+    file_hash = get_file_hash(file.file)  # Получение хеша файла с передачей SpooledTempFile.
+
+    # Попытка найти файл в БД по хешу и айди транспорта
+    file_object = await transport_covers_crud.find_transport_by_hash(transport.id, file_hash)
+    if file_object:
+        return schemas.TransportPhotoData(**file_object)
+
+    file_media_type = FileMimetypes(file.content_type)
+
+    # Путь где файл будет храниться covers/uuid.file_format
+    file_uri = f"{FileStorages.covers.path}{str(uuid4())}{file_media_type.file_format}"
+
+    # Загрузка файла в облако.
+    object_storage.upload(
+        file=file.file,
+        content_type=file.content_type,
+        file_url=file_uri
+    )
+
+    transport_cover_in = schemas.TransportPhotoCreate(
+        transport_id=transport.id,
+        file_uri=file_uri,
+        file_hash=file_hash,
+        media_type=file_media_type
+    )
+
+    transport_cover_id = await transport_covers_crud.create(transport_cover_in)
+
+    transport_cover = await transport_covers_crud.get(transport_cover_id)
+    return schemas.TransportPhotoData(**transport_cover)
+
+
+async def get_transport_cover(transport_cover_id: int) -> Tuple[bytes, str]:
+    """Получение облокжи транспорта со скачиванием обложки из бакета."""
+    transport_cover = await transport_covers_crud.get(transport_cover_id)
+
+    file_content = object_storage.download(transport_cover['file_uri'])
+
+    return file_content, transport_cover['media_type'].value
+
+
+async def is_transport_belongs_driver(account_id: int, transport_id: int) -> tuple:
+    """Проверка принадлежности водителя к транспорту."""
+
+    driver = await get_driver_by_account_id(account_id)
+    if not driver:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=BaseMessage.obj_is_not_created.value
+        )
+
+    transport = await get_transport(transport_id)
+    if not transport:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=BaseMessage.obj_is_not_found.value
+        )
+
+    # Если транспорт не принадлежит данному водителю.
+    if transport.driver_id != driver.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=DriverErrors.car_not_belong_to_driver.value
+        )
+
+    return driver, transport
