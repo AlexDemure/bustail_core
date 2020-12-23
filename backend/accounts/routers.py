@@ -21,7 +21,7 @@ router = APIRouter()
     response_model=Token,
     responses={
         status.HTTP_201_CREATED: {"description": BaseMessage.obj_is_created.value},
-        status.HTTP_400_BAD_REQUEST: {"description": enums.AccountErrors.phone_already_exist.value},
+        status.HTTP_400_BAD_REQUEST: {"description": enums.AccountErrors.email_already_exist.value},
         status.HTTP_404_NOT_FOUND: {"description": enums.AccountErrors.city_not_found.value}
     }
 )
@@ -32,7 +32,7 @@ async def create_account(request: schemas.AccountCreate, response: Response) -> 
         if account.get("verify_at", None):
             raise HTTPException(
                 status_code=400,
-                detail=enums.AccountErrors.phone_already_exist.value,
+                detail=enums.AccountErrors.email_already_exist.value,
             )
 
     account_id = await views.create_account(request, account)
