@@ -11,17 +11,7 @@ pytestmark = pytest.mark.asyncio
 class TestDriver(BaseTest):
 
     async def test_driver_account(self):
-        init_db()
-        await setup_permissions_and_roles()
-
-        try:
-            await self.create_account()
-        except AssertionError:
-            await self.login()
-
-        async with self.client as ac:
-            response = await ac.get("/accounts/me/", headers=self.headers)
-        assert response.status_code == 200
+        await self.get_user()
 
         async with self.client as ac:
             response = await ac.post(

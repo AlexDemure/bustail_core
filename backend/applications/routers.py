@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi.responses import Response
 
 from backend.applications import schemas, enums, views
 from backend.common.deps import confirmed_account
@@ -52,10 +53,17 @@ async def get_driver_applications(account: dict = Depends(confirmed_account)) ->
         **auth_responses
     }
 )
-async def create_application(application_in: schemas.ApplicationBase, account: dict = Depends(confirmed_account)):
+async def create_application(
+        application_in: schemas.ApplicationBase,
+        response: Response,
+        account: dict = Depends(confirmed_account),
+):
     """Создание заявки."""
     try:
-        return await views.create_application(account, application_in)
+        app = await views.create_application(account, application_in)
+        response.status_code = status.HTTP_201_CREATED
+        return app
+
     except AssertionError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

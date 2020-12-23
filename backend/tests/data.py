@@ -1,6 +1,7 @@
 import random
 
 from httpx import AsyncClient
+from permissions.fixtures import setup_permissions_and_roles
 from security_utils.security import generate_random_code
 from sqlalchemy import select
 
@@ -8,9 +9,10 @@ from backend.accounts.models import Account
 from backend.common.utils import get_cities
 from backend.core.application import app
 from backend.db.database import database
+from backend.db.database import init_db
 from backend.drivers.enums import TransportType
 from backend.mailing.models import SendVerifyCodeEvent
-
+from backend.applications.enums import ApplicationTypes
 
 ASYNC_CLIENT = AsyncClient(app=app, base_url="http://localhost/api/v1")
 
@@ -62,8 +64,28 @@ class TestDriverData:
         return transports
 
 
-account_data = TestAccountData()
+class TestApplicationData:
 
+    @staticmethod
+    def get_applications() -> list:
+        applications = list()
+        for _ in range(5):
+            app = {
+                "application_type": random.choice([x.value for x in ApplicationTypes]),
+                "to_go_from": random.choice(get_cities()),
+                "to_go_to": random.choice(get_cities()),
+                "to_go_when": "01.10.21 16:00",
+                "count_seats": random.randint(1, 50),
+                "description": "string",
+                "price": random.randint(10000, 50000)
+            }
+            applications.append(app)
+
+        return applications
+
+
+account_data = TestAccountData()
+application_data = TestApplicationData()
 driver_data = TestDriverData()
 
 
@@ -104,10 +126,17 @@ class BaseTest:
 
         assert response.status_code == 200
 
-        await self.get_user()
-
     async def get_user(self):
+        init_db()
+        await setup_permissions_and_roles()
+
+        try:
+            await self.create_account()
+        except AssertionError:
+            await self.login()
+
         async with self.client as ac:
             response = await ac.get("/accounts/me/", headers=self.headers)
         assert response.status_code == 200
+
 
