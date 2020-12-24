@@ -1,5 +1,5 @@
 from fastapi import Depends, HTTPException
-from fastapi_auth.deps import get_subject_from_token
+from backend.auth.deps import get_subject_from_token
 
 from backend.accounts.crud import account as account_crud
 from backend.accounts.enums import AccountErrors

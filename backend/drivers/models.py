@@ -1,4 +1,4 @@
-from object_storage.enums import FileMimetypes
+from backend.object_storage.enums import FileMimetypes
 from tortoise import models, fields
 
 from backend.drivers.enums import TransportType

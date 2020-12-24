@@ -19,10 +19,11 @@ pytest-asyncio = "^0.14.0"
 email-validator = "^1.1.1"
 jinja2 ="^2.11.2"
 
-fastapi-auth = "^0.1.1"
-security-utils = "^0.0.2"
-yandex-object-storage = "^0.0.1"
-
+itsdangerous = "^1.1.0"
+python-jose = "^3.2.0"
+passlib = "^1.7.4"
+python-multipart = "^0.0.5"
+boto3 = "^1.16.25"
 
 tortoise-orm = "^0.16.5"
 psycopg2-binary = "^2.8.5"

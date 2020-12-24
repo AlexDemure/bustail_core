@@ -1,8 +1,8 @@
 from datetime import datetime
 
-from fastapi_auth.security import get_password_hash
+from backend.auth.security import get_password_hash
 from backend.permissions.utils import create_account_role
-from security_utils.security import verify_security_token
+from backend.security.utils import verify_security_token
 
 from backend.accounts.crud import account as account_crud
 from backend.accounts.enums import AccountErrors

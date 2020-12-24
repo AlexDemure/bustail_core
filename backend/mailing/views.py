@@ -1,4 +1,4 @@
-from security_utils.security import generate_random_code, generate_security_token
+from backend.security.utils import generate_random_code, generate_security_token
 
 from backend.common.utils import get_current_domain
 from backend.mailing import schemas, sender, crud

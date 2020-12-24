@@ -1,7 +1,7 @@
 from decimal import Decimal
 from typing import List
 
-from object_storage.enums import FileMimetypes
+from backend.object_storage.enums import FileMimetypes
 from pydantic import BaseModel, root_validator
 
 from backend.common.utils import get_cities

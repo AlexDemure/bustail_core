@@ -1,6 +1,6 @@
 from typing import Optional
 
-from fastapi_auth.security import verify_password
+from backend.auth.security import verify_password
 
 from backend.accounts.models import Account
 from backend.accounts.schemas import AccountCreate, AccountUpdate

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, status, HTTPException, File, UploadFile
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse, Response
-from object_storage.enums import UploadErrors
-from object_storage.utils import check_file_type, check_file_size
+from backend.object_storage.enums import UploadErrors
+from backend.object_storage.utils import check_file_type, check_file_size
 
 from backend.common.deps import confirmed_account
 from backend.common.enums import BaseMessage

@@ -4,9 +4,9 @@ from uuid import uuid4
 from fastapi import HTTPException, status
 from fastapi import UploadFile
 from fastapi.encoders import jsonable_encoder
-from object_storage.enums import FileStorages, FileMimetypes
-from object_storage.uploader import ObjectStorage
-from object_storage.utils import get_file_hash
+from backend.object_storage.enums import FileStorages, FileMimetypes
+from backend.object_storage.uploader import ObjectStorage
+from backend.object_storage.utils import get_file_hash
 
 from backend.common.enums import BaseMessage
 from backend.common.enums import BaseSystemErrors
