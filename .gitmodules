@@ -1,3 +1,6 @@
 [submodule "backend/tortoise_roles_and_permissions"]
 	path = backend/tortoise_roles_and_permissions
 	url = git@github.com:AlexDemure/tortoise_roles_and_permissions.git
+[submodule "backend/permissions"]
+	path = backend/permissions
+	url = git@github.com:AlexDemure/permissions.git

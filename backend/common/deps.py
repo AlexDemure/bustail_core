@@ -1,10 +1,11 @@
-from fastapi_auth.deps import get_subject_from_token
 from fastapi import Depends, HTTPException
-from backend.tortoise_roles_and_permissions.permissions.utils import is_have_permission
+from fastapi_auth.deps import get_subject_from_token
+
 from backend.accounts.crud import account as account_crud
 from backend.accounts.enums import AccountErrors
 from backend.accounts.models import Account
-from backend.core.enums import Permissions
+from backend.permissions.enums import Permissions
+from backend.permissions.utils import is_have_permission
 
 
 async def current_account(current_account_id: int = Depends(get_subject_from_token)) -> Account:

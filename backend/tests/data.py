@@ -12,7 +12,7 @@ from backend.core.application import app
 from backend.db.database import db_init
 from backend.drivers.enums import TransportType
 from backend.mailing.models import SendVerifyCodeEvent
-from backend.tortoise_roles_and_permissions.permissions.fixtures import setup_permissions_and_roles
+from backend.permissions.fixtures import setup_permissions_and_roles
 
 ASYNC_CLIENT = AsyncClient(app=app, base_url="http://localhost/api/v1")
 

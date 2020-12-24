@@ -5,7 +5,7 @@ from backend.core.config import settings
 MODELS_LIST = [
     "backend.accounts.models", "backend.mailing.models", "backend.drivers.models",
     "backend.applications.models",
-    "backend.tortoise_roles_and_permissions.permissions.models", "aerich.models"
+    "backend.permissions.models", "aerich.models"
 ]
 
 

@@ -1,5 +1,5 @@
 import uvicorn
-from backend.tortoise_roles_and_permissions.permissions.fixtures import setup_permissions_and_roles
+from backend.permissions.fixtures import setup_permissions_and_roles
 from fastapi import FastAPI
 
 from backend.core.urls import api_router

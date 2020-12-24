@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from fastapi_auth.security import get_password_hash
-from backend.tortoise_roles_and_permissions.permissions.utils import create_account_role
+from backend.permissions.utils import create_account_role
 from security_utils.security import verify_security_token
 
 from backend.accounts.crud import account as account_crud
@@ -10,7 +10,7 @@ from backend.accounts.models import Account
 from backend.accounts.schemas import AccountCreate
 from backend.common.enums import BaseSystemErrors
 from backend.common.schemas import UpdatedBase
-from backend.core.enums import Roles
+from backend.permissions.enums import Roles
 from backend.mailing.views import send_verify_code, send_welcome_message, is_verify_token
 
 

@@ -1,9 +1,6 @@
 import os
-import secrets
 from typing import Any, Optional
 from pydantic import BaseSettings, PostgresDsn, validator
-from enum import Enum
-from .enums import Roles, Permissions
 
 
 class BaseConfig(BaseSettings):
@@ -28,12 +25,6 @@ class MailingMandrillSettings(BaseConfig):
     MAILING_SECRET_KEY: str = os.environ.get("MAILING_SECRET_KEY")
     MAILING_EMAIL: str = os.environ.get("MAILING_EMAIL")
     MAILING_NAME: str = os.environ.get("MAILING_NAME")
-
-
-class RolesAndPermissionsSettings(BaseConfig):
-
-    roles: Enum = Roles
-    permissions: Enum = Permissions
 
 
 class DBSettings(BaseConfig):
@@ -70,8 +61,8 @@ class YandexObjectStorage(BaseConfig):
 
 # DEFAULT SETTINGS
 applications = [
-    FastApiAuthSettings, SecuritySettings, YandexObjectStorage,
-    MailingMandrillSettings, RolesAndPermissionsSettings
+    FastApiAuthSettings, SecuritySettings,
+    YandexObjectStorage, MailingMandrillSettings,
 ]
 
 
@@ -92,3 +83,4 @@ class Settings(*applications):
 
 
 settings = Settings()
+
