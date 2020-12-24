@@ -1,20 +1,17 @@
-from sqlalchemy import DateTime, Column, Integer, String, ForeignKey
-from sqlalchemy.sql import func
-
-from backend.db.base_class import Base
+from tortoise import models, fields
 
 
-class SendVerifyCodeEvent(Base):
+class SendVerifyCodeEvent(models.Model):
 
-    id = Column(Integer, primary_key=True, index=True)
-    account_id = Column(Integer, ForeignKey("account.id"))
-    message = Column(String(16))
-    created_at = Column(DateTime, server_default=func.now())
+    id = fields.IntField(pk=True)
+    account = fields.ForeignKeyField('models.Account', related_name='verify_codes', on_delete=fields.CASCADE)
+    message = fields.CharField(max_length=255)
+    created_at = fields.DatetimeField(auto_now_add=True)
 
 
-class ChangePasswordEvent(Base):
+class ChangePasswordEvent(models.Model):
 
-    id = Column(Integer, primary_key=True, index=True)
-    email = Column(String(128), nullable=False)
-    message = Column(String(255))
-    created_at = Column(DateTime, server_default=func.now())
+    id = fields.IntField(pk=True)
+    email = fields.CharField(max_length=128)
+    message = fields.CharField(max_length=255)
+    created_at = fields.DatetimeField(auto_now_add=True)

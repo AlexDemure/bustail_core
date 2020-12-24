@@ -1,36 +1,34 @@
 from object_storage.enums import FileMimetypes
-from sqlalchemy import DateTime, Column, Integer, ForeignKey, String, Enum, Numeric
-from sqlalchemy.sql import func
+from tortoise import models, fields
 
-from backend.db.base_class import Base
 from backend.drivers.enums import TransportType
 
 
-class Driver(Base):
-    id = Column(Integer, primary_key=True, index=True)
-    account_id = Column(Integer, ForeignKey("account.id"), unique=True)
-    created_at = Column(DateTime, server_default=func.now())
-    license_number = Column(String(64), nullable=True)
-    debt = Column(Numeric)
+class Driver(models.Model):
+    id = fields.IntField(pk=True)
+    account = fields.ForeignKeyField('models.Account', related_name='drivers', on_delete=fields.CASCADE)
+    created_at = fields.DatetimeField(auto_now_add=True)
+    license_number = fields.CharField(max_length=64, null=True)
+    debt = fields.DecimalField(max_digits=10, decimal_places=3)
 
 
-class Transport(Base):
+class Transport(models.Model):
+    id = fields.IntField(pk=True)
+    driver = fields.ForeignKeyField('models.Driver', related_name='transports', on_delete=fields.CASCADE)
+    brand = fields.CharField(max_length=255)
+    model = fields.CharField(max_length=255)
+    count_seats = fields.IntField(default=1)
+    price = fields.IntField(default=0)
+    city = fields.CharField(max_length=255)
+    state_number = fields.CharField(max_length=16)
+    transport_type = fields.CharEnumField(TransportType, max_length=128)
 
-    id = Column(Integer, primary_key=True, index=True)
-    driver_id = Column(Integer, ForeignKey("driver.id"))
-    brand = Column(String(255))
-    model = Column(String(255))
-    count_seats = Column(Integer, default=1)
-    price = Column(Integer, default=0)
-    city = Column(String(128))
-    state_number = Column(String(16))
-    transport_type = Column(Enum(TransportType), default=TransportType.other)
 
+class TransportPhoto(models.Model):
+    id = fields.IntField(pk=True)
+    transport = fields.ForeignKeyField('models.Transport', related_name='transport_covers', on_delete=fields.CASCADE)
+    file_uri = fields.CharField(max_length=255)
+    file_hash = fields.CharField(max_length=255)
+    media_type = fields.CharEnumField(FileMimetypes, max_length=128)
+    created_at = fields.DatetimeField(auto_now_add=True)
 
-class TransportPhoto(Base):
-    id = Column(Integer, primary_key=True, index=True)
-    transport_id = Column(Integer, ForeignKey("transport.id"))
-    file_uri = Column(String(256))
-    file_hash = Column(String(128))
-    media_type = Column(Enum(FileMimetypes))
-    created_at = Column(DateTime, server_default=func.now())

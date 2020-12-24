@@ -1,18 +1,18 @@
 import random
+from typing import Optional
 
 from httpx import AsyncClient
-from permissions.fixtures import setup_permissions_and_roles
 from security_utils.security import generate_random_code
-from sqlalchemy import select
 
+from backend.accounts.crud import account as account_crud
 from backend.accounts.models import Account
+from backend.applications.enums import ApplicationTypes
 from backend.common.utils import get_cities
 from backend.core.application import app
-from backend.db.database import database
-from backend.db.database import init_db
+from backend.db.database import db_init
 from backend.drivers.enums import TransportType
 from backend.mailing.models import SendVerifyCodeEvent
-from backend.applications.enums import ApplicationTypes
+from backend.tortoise_roles_and_permissions.permissions.fixtures import setup_permissions_and_roles
 
 ASYNC_CLIENT = AsyncClient(app=app, base_url="http://localhost/api/v1")
 
@@ -30,10 +30,8 @@ class TestAccountData:
             city=self.city
         )
 
-    async def get_account_by_email(self) -> dict:
-        query = select([Account]).where(Account.email == self.email)
-        object_model = await database.fetch_one(query)
-        return dict(object_model) if object_model else None
+    async def get_account_by_email(self) -> Optional[Account]:
+        return await account_crud.find_by_email(self.email)
 
     def get_auth_data(self) -> dict:
         return dict(
@@ -112,28 +110,26 @@ class BaseTest:
         await self.confirm_account()
 
     @staticmethod
-    async def get_verify_code(account_id: int) -> dict:
-        query = select([SendVerifyCodeEvent]).where(SendVerifyCodeEvent.account_id == account_id)
-        object_model = await database.fetch_one(query)
-        return dict(object_model) if object_model else None
+    async def get_verify_code(account_id: int) -> Optional[SendVerifyCodeEvent]:
+        return await SendVerifyCodeEvent.get_or_none(account_id=account_id)
 
     async def confirm_account(self):
         account_object = await account_data.get_account_by_email()
-        verify_code = await self.get_verify_code(account_object['id'])
+        verify_code = await self.get_verify_code(account_object.id)
 
         async with self.client as ac:
-            response = await ac.post("/accounts/confirm/", headers=self.headers, json={"code": verify_code['message']})
+            response = await ac.post("/accounts/confirm/", headers=self.headers, json={"code": verify_code.message})
 
         assert response.status_code == 200
 
     async def get_user(self):
-        init_db()
+        await db_init()
         await setup_permissions_and_roles()
 
         try:
-            await self.create_account()
-        except AssertionError:
             await self.login()
+        except AssertionError:
+            await self.create_account()
 
         async with self.client as ac:
             response = await ac.get("/accounts/me/", headers=self.headers)

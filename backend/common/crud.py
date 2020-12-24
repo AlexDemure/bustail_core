@@ -1,36 +1,25 @@
-from typing import Generic, Optional, Type
+from typing import Generic, Type
 
-from sqlalchemy import select, update, insert, delete
-
-from backend.db.database import database
-from backend.common.schemas import CreateSchemaType, UpdateSchemaType
 from backend.common.models import ModelType
+from backend.common.schemas import CreateSchemaType, UpdateSchemaType
 
 
 class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def __init__(self, model: Type[ModelType]):
         self.model = model
 
-    async def create(self, data: CreateSchemaType) -> int:
-        query = insert(self.model, data.dict())
-        return await database.execute(query)
+    async def create(self, data: CreateSchemaType) -> ModelType:
+        return await self.model.create(**data.dict())
 
-    async def get(self, object_id: int) -> Optional[dict]:
-        query = select([self.model]).where(self.model.id == object_id)
-        object_model = await database.fetch_one(query)
-        return dict(object_model) if object_model else None
+    async def get(self, object_id: int):
+        return await self.model.get_or_none(id=object_id)
 
     async def update(self, data: UpdateSchemaType) -> None:
-        query = (
-            update(self.model)
-            .where(self.model.id == data.id)
-            .values(**data.updated_fields)
-        )
-        await database.execute(query)
+        object_model = await self.model.filter(id=data.id).first()
+        for key, value in data.updated_fields.items():
+            setattr(object_model, key, value)
+
+        await object_model.save(update_fields=data.updated_fields.keys())
 
     async def remove(self, object_id: int) -> None:
-        query = (
-            delete(self.model).
-            where(self.model.id == object_id)
-        )
-        await database.execute(query)
+        await self.model.filter(id=object_id).delete()

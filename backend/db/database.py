@@ -1,15 +1,30 @@
-import databases
-from sqlalchemy import create_engine
+from tortoise import Tortoise
+
 from backend.core.config import settings
-from backend.db.base_class import Base
 
-if settings.ENV == "DEV":
-    engine = create_engine(settings.SQLALCHEMY_DATABASE_URI, connect_args={"check_same_thread": False})
-else:
-    engine = create_engine(settings.SQLALCHEMY_DATABASE_URI)
-
-database = databases.Database(settings.SQLALCHEMY_DATABASE_URI)
+MODELS_LIST = [
+    "backend.accounts.models", "backend.mailing.models", "backend.drivers.models",
+    "backend.applications.models",
+    "backend.tortoise_roles_and_permissions.permissions.models", "aerich.models"
+]
 
 
-def init_db():
-    Base.metadata.create_all(engine)
+# Необходимо для мигратора aerich
+TORTOISE_ORM = {
+    "connections": {"default": settings.DATABASE_URI},
+    "apps": {
+        "models": {
+            "models": MODELS_LIST,
+            "default_connection": "default",
+        },
+    },
+}
+
+
+async def db_init():
+    await Tortoise.init(
+        db_url=settings.DATABASE_URI,
+        modules={'models': MODELS_LIST}
+    )
+    # Generate the schema
+    await Tortoise.generate_schemas()

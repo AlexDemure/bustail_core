@@ -1,19 +1,16 @@
-from typing import Optional
-from sqlalchemy import select
+from typing import Optional, List
+from tortoise.query_utils import Q
 
 from backend.common.crud import CRUDBase
 from backend.drivers.models import Driver, Transport, TransportPhoto
 from backend.drivers.schemas import DriverCreate, TransportCreate, TransportPhotoCreate
 from backend.common.schemas import UpdatedBase
-from backend.db.database import database
 
 
 class CRUDDriver(CRUDBase[Driver, DriverCreate, UpdatedBase]):
 
-    async def find_by_account_id(self, account_id: int) -> Optional[dict]:
-        query = select([self.model]).where(self.model.account_id == account_id)
-        object_model = await database.fetch_one(query)
-        return dict(object_model) if object_model else None
+    async def find_by_account_id(self, account_id: int) -> Optional[Driver]:
+        return await self.model.get_or_none(account_id=account_id)
 
 
 driver = CRUDDriver(Driver)
@@ -21,14 +18,12 @@ driver = CRUDDriver(Driver)
 
 class CRUDTransport(CRUDBase[Transport, TransportCreate, UpdatedBase]):
 
-    async def find_by_params(self, brand: str, model: str, state_number: str) -> Optional[dict]:
-        query = select([self.model]).where(
-            (self.model.brand == brand) &
-            (self.model.model == model) &
-            (self.model.state_number == state_number)
+    async def find_by_params(self, brand: str, model: str, state_number: str) -> Optional[Transport]:
+        return await self.model.get_or_none(
+            Q(
+                Q(brand=brand), Q(model=model), Q(state_number=state_number), join_type="AND"
+            )
         )
-        object_model = await database.fetch_one(query)
-        return dict(object_model) if object_model else None
 
     async def get_all_transports(
         self,
@@ -37,27 +32,9 @@ class CRUDTransport(CRUDBase[Transport, TransportCreate, UpdatedBase]):
         city: str = "",
         order_by: str = 'price',
         order_type: str = 'asc',
-    ):
-        order_by_query = getattr(self.model, order_by)
+    ) -> List[Transport]:
 
-        if order_type == 'asc':
-            order_by_query = order_by_query.asc()
-        elif order_type == 'desc':
-            order_by_query = order_by_query.desc()
-        else:
-            raise ValueError("Order type wrong format")
-
-        filter_query = self.model.city.like(f"%{city}%")
-
-        query = (
-            select([self.model])
-            .where(filter_query)
-            .order_by(order_by_query)
-            .offset(offset)
-            .limit(limit)
-        )
-        transports = await database.fetch_all(query)
-        return [dict(x) for x in transports]
+        return await self.model.all()
 
 
 transport = CRUDTransport(Transport)
@@ -65,12 +42,12 @@ transport = CRUDTransport(Transport)
 
 class CRUDTransportCovers(CRUDBase[TransportPhoto, TransportPhotoCreate, UpdatedBase]):
 
-    async def find_transport_by_hash(self, transport_id: int, file_hash: str) -> Optional[dict]:
-        query = select([self.model]).where(
-            (self.model.transport_id == transport_id) &
-            (self.model.file_hash == file_hash)
+    async def find_transport_by_hash(self, transport_id: int, file_hash: str) -> Optional[TransportPhoto]:
+        return await self.model.get_or_none(
+            Q(
+                Q(transport_id=transport_id), Q(file_hash=file_hash), join_type="AND"
+            )
         )
-        object_model = await database.fetch_one(query)
-        return dict(object_model) if object_model else None
+
 
 transport_covers = CRUDTransportCovers(TransportPhoto)

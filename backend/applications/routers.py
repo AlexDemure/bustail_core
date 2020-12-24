@@ -6,6 +6,7 @@ from backend.common.deps import confirmed_account
 from backend.common.schemas import Message
 from backend.common.enums import BaseMessage
 from backend.common.responses import auth_responses
+from backend.accounts.models import Account
 
 router = APIRouter()
 
@@ -18,7 +19,7 @@ router = APIRouter()
         **auth_responses
     }
 )
-async def get_account_applications(account: dict = Depends(confirmed_account)) -> schemas.ListApplications:
+async def get_account_applications(account: Account = Depends(confirmed_account)) -> schemas.ListApplications:
     """
     Получение списка заявок клиента.
 

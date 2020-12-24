@@ -1,5 +1,5 @@
 from typing import TypeVar
 
-from backend.db.base_class import Base
+from tortoise import models
 
-ModelType = TypeVar("ModelType", bound=Base)
+ModelType = TypeVar("ModelType", bound=models.Model)

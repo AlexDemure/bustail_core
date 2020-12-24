@@ -50,6 +50,7 @@ class TransportCreate(TransportBase):
 class TransportData(TransportBase):
     id: int
     driver_id: int
+    transport_covers: List[int] = []
 
 
 class ListTransports(BaseModel):

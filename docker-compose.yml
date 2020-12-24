@@ -1,8 +1,5 @@
 version: "3.8"
 
-volumes:
-  versions:
-
 services:
   postgres:
     image: postgres:latest
@@ -31,6 +28,5 @@ services:
       - ./env_files/postgres.env
       - ./env_files/global.env
     volumes:
-      - ./backend/alembic/versions:/app/backend/alembic/versions
       - ./backend:/app/backend/
 

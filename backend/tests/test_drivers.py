@@ -1,8 +1,7 @@
-import pytest
 import random
-from permissions.fixtures import setup_permissions_and_roles
 
-from backend.db.database import init_db
+import pytest
+
 from backend.tests.data import BaseTest, driver_data
 
 pytestmark = pytest.mark.asyncio
@@ -24,10 +23,7 @@ class TestDriver(BaseTest):
         assert response.status_code == 200
 
     async def test_transport(self):
-        init_db()
-        await setup_permissions_and_roles()
-
-        await self.login()
+        await self.get_user()
 
         async with self.client as ac:
             response = await ac.get("/drivers/me/", headers=self.headers)

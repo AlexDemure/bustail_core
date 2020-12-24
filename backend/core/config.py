@@ -38,9 +38,9 @@ class RolesAndPermissionsSettings(BaseConfig):
 
 class DBSettings(BaseConfig):
 
-    SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
+    DATABASE_URI: Optional[PostgresDsn] = None
 
-    @validator("SQLALCHEMY_DATABASE_URI", pre=True)
+    @validator("DATABASE_URI", pre=True)
     def assemble_db_connection(cls, v: Optional[str]) -> Any:
         if isinstance(v, str):
             return v
@@ -56,7 +56,7 @@ class DBSettings(BaseConfig):
 
 class TestDBSettings(BaseConfig):
 
-    SQLALCHEMY_DATABASE_URI = "sqlite:///./test.db"
+    DATABASE_URI = "sqlite://db.sqlite3"
 
 
 class YandexObjectStorage(BaseConfig):

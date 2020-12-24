@@ -1,15 +1,12 @@
-from sqlalchemy.sql import func
-from sqlalchemy import Column, Integer, String, DateTime
-
-from backend.db.base_class import Base
+from tortoise import models, fields
 
 
-class Account(Base):
-    id = Column(Integer, primary_key=True, index=True)
-    fullname = Column(String(128), nullable=True)
-    email = Column(String(128), nullable=False, unique=True)
-    phone = Column(String(16), nullable=True)
-    city = Column(String(64), nullable=False)
-    hashed_password = Column(String(128), nullable=False)
-    created_at = Column(DateTime, server_default=func.now())
-    verify_at = Column(DateTime, nullable=True)
+class Account(models.Model):
+    id = fields.IntField(pk=True)
+    fullname = fields.CharField(max_length=255, null=True)
+    email = fields.CharField(max_length=128, null=False, unique=True)
+    phone = fields.CharField(max_length=16, null=True)
+    city = fields.CharField(max_length=64, null=False)
+    hashed_password = fields.CharField(max_length=128, null=False)
+    created_at = fields.DatetimeField(auto_now_add=True)
+    verified_at = fields.DatetimeField(null=True)

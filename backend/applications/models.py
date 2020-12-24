@@ -1,22 +1,20 @@
-from sqlalchemy import DateTime, Column, Integer, String, ForeignKey, Enum, Date
-from sqlalchemy.sql import func
+from tortoise import models, fields
 
 from backend.applications.enums import ApplicationStatus, ApplicationTypes
-from backend.db.base_class import Base
 
 
-class Application(Base):
+class Application(models.Model):
 
-    id = Column(Integer, primary_key=True, index=True)
-    account_id = Column(Integer, ForeignKey("account.id"))
-    driver_id = Column(Integer, ForeignKey("driver.id"), nullable=True)
-    to_go_from = Column(String(255))
-    to_go_to = Column(String(255), nullable=True)
-    to_go_when = Column(DateTime)
-    count_seats = Column(Integer)
-    description = Column(String(1024), nullable=True)
-    price = Column(Integer, default=0)
-    application_type = Column(Enum(ApplicationTypes), default=ApplicationTypes.other)
-    application_status = Column(Enum(ApplicationStatus), default=ApplicationStatus.waiting)
-    created_at = Column(DateTime, server_default=func.now())
-    confirmed_at = Column(DateTime, nullable=True)  # Когда заявка была подтверждена
+    id = fields.IntField(pk=True)
+    account = fields.ForeignKeyField('models.Account', related_name='applications', on_delete=fields.CASCADE)
+    driver = fields.ForeignKeyField('models.Driver', related_name='applications', on_delete=fields.CASCADE, null=True)
+    to_go_from = fields.CharField(max_length=255)
+    to_go_to = fields.CharField(max_length=255, null=True)
+    to_go_when = fields.DatetimeField()
+    count_seats = fields.IntField(default=1)
+    description = fields.CharField(max_length=1024, null=True)
+    price = fields.IntField(default=0)
+    application_type = fields.CharEnumField(ApplicationTypes, max_length=128)
+    application_status = fields.CharEnumField(ApplicationStatus, max_length=128)
+    created_at = fields.DatetimeField(auto_now_add=True)
+    confirmed_at = fields.DatetimeField(null=True)  # Когда заявка была подтверждена

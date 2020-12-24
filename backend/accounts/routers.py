@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import Response
 
 from backend.accounts import views, schemas, enums
+from backend.accounts.models import Account
 from backend.accounts.crud import account as account_crud
 from backend.auth.utils import get_token
 from backend.auth.schemas import Token
@@ -29,7 +30,7 @@ async def create_account(request: schemas.AccountCreate, response: Response) -> 
     """Создание нового пользователя."""
     account = await account_crud.find_by_email(email=request.email)
     if account:
-        if account.get("verify_at", None):
+        if account.verified_at is None:
             raise HTTPException(
                 status_code=400,
                 detail=enums.AccountErrors.email_already_exist.value,
@@ -50,7 +51,7 @@ async def create_account(request: schemas.AccountCreate, response: Response) -> 
         **auth_responses
     }
 )
-async def update_account(request: schemas.AccountUpdate, account: dict = Depends(confirmed_account)) -> Any:
+async def update_account(request: schemas.AccountUpdate, account: Account = Depends(confirmed_account)) -> Any:
     """Обновление данных аккаунта."""
     if request.phone:
         other_account = await account_crud.find_by_phone(phone=request.phone)
@@ -61,7 +62,7 @@ async def update_account(request: schemas.AccountUpdate, account: dict = Depends
             )
 
     update_schema = UpdatedBase(
-        id=account['id'],
+        id=account.id,
         updated_fields=request.dict()
     )
     await account_crud.update(update_schema)
@@ -73,15 +74,15 @@ async def update_account(request: schemas.AccountUpdate, account: dict = Depends
     response_model=schemas.AccountData,
     responses=auth_responses
 )
-async def read_user_me(account: dict = Depends(confirmed_account)) -> Any:
+async def read_user_me(account: Account = Depends(confirmed_account)) -> Any:
     """Получение данных текущего пользователя."""
 
     return schemas.AccountData(
-        id=account['id'],
-        fullname=account.get("fullname"),
-        phone=account.get("phone"),
-        email=account['email'],
-        city=account['city'],
+        id=account.id,
+        fullname=account.fullname,
+        phone=account.phone,
+        email=account.email,
+        city=account.city,
     )
 
 
@@ -94,16 +95,16 @@ async def read_user_me(account: dict = Depends(confirmed_account)) -> Any:
         status.HTTP_404_NOT_FOUND: {"description": enums.AccountErrors.confirmed_code_is_not_found.value}
     }
 )
-async def confirmed_account(request: schemas.ConfirmAccount, account: dict = Depends(current_account)) -> Any:
+async def confirmed_account(request: schemas.ConfirmAccount, account: Account = Depends(current_account)) -> Any:
     """Подтверждение аккаунта через почту."""
     if account:
-        if account.get("verify_at", None):
+        if account.verified_at is not None:
             raise HTTPException(
                 status_code=400,
                 detail=enums.AccountErrors.account_is_confirmed.value,
             )
 
-    if await is_verify_code(account['id'], request.code) is False:
+    if await is_verify_code(account.id, request.code) is False:
         raise HTTPException(
             status_code=404,
             detail=enums.AccountErrors.confirmed_code_is_not_found.value,

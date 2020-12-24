@@ -29,8 +29,4 @@ async def login_access_cookie(form_data: OAuth2PasswordRequestForm = Depends()) 
     if not account:
         raise HTTPException(status_code=404, detail=AccountErrors.account_not_found.value)
 
-    if account.get("verify_at", None) is None:
-        raise HTTPException(status_code=404, detail=AccountErrors.account_not_found.value)
-
-    return Token(access_token=get_token(account['id']))
-
+    return Token(access_token=get_token(account.id))

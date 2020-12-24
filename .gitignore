@@ -3,3 +3,5 @@
 pgdata
 migrations
 *.db
+db*
+*.sqlite3

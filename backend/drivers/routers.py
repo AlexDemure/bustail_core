@@ -10,6 +10,7 @@ from backend.common.responses import auth_responses
 from backend.common.schemas import Message, UpdatedBase
 from backend.drivers import schemas, views
 from backend.drivers.enums import DriverErrors
+from backend.accounts.models import Account
 
 router = APIRouter()
 
@@ -23,9 +24,9 @@ router = APIRouter()
         **auth_responses
     }
 )
-async def create_driver(request: schemas.DriverBase, account: dict = Depends(confirmed_account)):
+async def create_driver(request: schemas.DriverBase, account: Account = Depends(confirmed_account)):
     """Создание карточки водителя."""
-    driver = await views.get_driver_by_account_id(account['id'])
+    driver = await views.get_driver_by_account_id(account.id)
     if driver:
         return JSONResponse(
             status_code=status.HTTP_200_OK,
@@ -33,7 +34,7 @@ async def create_driver(request: schemas.DriverBase, account: dict = Depends(con
         )
 
     create_schema = schemas.DriverCreate(
-        account_id=account['id'],
+        account_id=account.id,
         license_number=request.license_number
     )
     driver = await views.create_driver(create_schema, account)
@@ -52,9 +53,9 @@ async def create_driver(request: schemas.DriverBase, account: dict = Depends(con
         **auth_responses
     }
 )
-async def change_driver_data(request: schemas.DriverBase, account: dict = Depends(confirmed_account)):
+async def change_driver_data(request: schemas.DriverBase, account: Account = Depends(confirmed_account)):
     """Смена данных в карточки водителя."""
-    driver = await views.get_driver_by_account_id(account['id'])
+    driver = await views.get_driver_by_account_id(account.id)
     if not driver:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -76,9 +77,9 @@ async def change_driver_data(request: schemas.DriverBase, account: dict = Depend
         **auth_responses
     }
 )
-async def read_driver_me(account: dict = Depends(confirmed_account)):
+async def read_driver_me(account: Account = Depends(confirmed_account)):
     """Карточка водителя."""
-    driver = await views.get_driver_by_account_id(account['id'])
+    driver = await views.get_driver_by_account_id(account.id)
     if not driver:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -98,9 +99,9 @@ async def read_driver_me(account: dict = Depends(confirmed_account)):
         **auth_responses
     }
 )
-async def create_transport(request: schemas.TransportBase, account: dict = Depends(confirmed_account)):
+async def create_transport(request: schemas.TransportBase, account: Account = Depends(confirmed_account)):
     """Создание карточки транспорта."""
-    driver = await views.get_driver_by_account_id(account['id'])
+    driver = await views.get_driver_by_account_id(account.id)
     if not driver:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -176,10 +177,10 @@ async def get_transport(transport_id: int):
 async def change_transport_data(
         transport_id: int,
         request: schemas.TransportBase,
-        account: dict = Depends(confirmed_account)
+        account: Account = Depends(confirmed_account)
 ):
     """Изменение данных в карточке транспорта."""
-    driver, transport = await views.is_transport_belongs_driver(account['id'], transport_id)
+    driver, transport = await views.is_transport_belongs_driver(account.id, transport_id)
 
     transport_up = schemas.TransportUpdate(driver_id=driver.id, **request.dict())
     await views.change_transport_data(transport, transport_up)
@@ -195,10 +196,10 @@ async def change_transport_data(
         **auth_responses
     }
 )
-async def delete_application(transport_id: int, account: dict = Depends(confirmed_account)):
+async def delete_application(transport_id: int, account: Account = Depends(confirmed_account)):
     """Удаление собственного транспорта."""
 
-    driver, transport = await views.is_transport_belongs_driver(account['id'], transport_id)
+    driver, transport = await views.is_transport_belongs_driver(account.id, transport_id)
 
     try:
         await views.delete_transport(transport.id)
@@ -223,7 +224,7 @@ async def delete_application(transport_id: int, account: dict = Depends(confirme
 async def create_cover_transport(
         transport_id: int,
         file: UploadFile = File(...),
-        account: dict = Depends(confirmed_account)
+        account: Account = Depends(confirmed_account)
 ):
     """Загрузка обложки к транспорту."""
 
@@ -239,7 +240,7 @@ async def create_cover_transport(
             detail=UploadErrors.file_is_large.value
         )
 
-    driver, transport = await views.is_transport_belongs_driver(account['id'], transport_id)
+    driver, transport = await views.is_transport_belongs_driver(account.id, transport_id)
 
     cover = await views.upload_transport_cover(transport, file)
 
