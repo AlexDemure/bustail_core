@@ -2,7 +2,7 @@ import random
 from typing import Optional
 
 from httpx import AsyncClient
-from security_utils.security import generate_random_code
+from backend.security.utils import generate_random_code
 
 from backend.accounts.crud import account as account_crud
 from backend.accounts.models import Account
@@ -19,9 +19,12 @@ ASYNC_CLIENT = AsyncClient(app=app, base_url="http://localhost/api/v1")
 
 class TestAccountData:
 
-    email = f"{generate_random_code(only_digits=False)}@gmail.com"
+    email = None
     hashed_password = "string"
     city = "Челябинск"
+
+    def __init__(self):
+        self.email = f"{generate_random_code(only_digits=False)}@gmail.com"
 
     def get_personal_data(self) -> dict:
         return dict(
@@ -82,27 +85,24 @@ class TestApplicationData:
         return applications
 
 
-account_data = TestAccountData()
-application_data = TestApplicationData()
-driver_data = TestDriverData()
-
-
 class BaseTest:
 
     client = ASYNC_CLIENT
 
     headers = None
 
+    account_data = None
+
     async def login(self):
         async with ASYNC_CLIENT as ac:
-            response = await ac.post("/login/access-token/", data=account_data.get_auth_data())
+            response = await ac.post("/login/access-token/", data=self.account_data.get_auth_data())
 
         assert response.status_code == 200
         self.headers = {"Authorization": f"Bearer {response.json()['access_token']}"}
 
     async def create_account(self):
         async with self.client as ac:
-            response = await ac.post("/accounts/", json=account_data.get_personal_data())
+            response = await ac.post("/accounts/", json=self.account_data.get_personal_data())
 
         assert response.status_code == 201
         self.headers = {"Authorization": f"Bearer {response.json()['access_token']}"}
@@ -114,7 +114,7 @@ class BaseTest:
         return await SendVerifyCodeEvent.get_or_none(account_id=account_id)
 
     async def confirm_account(self):
-        account_object = await account_data.get_account_by_email()
+        account_object = await self.account_data.get_account_by_email()
         verify_code = await self.get_verify_code(account_object.id)
 
         async with self.client as ac:

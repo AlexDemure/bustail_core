@@ -2,19 +2,22 @@ import random
 
 import pytest
 
-from backend.tests.data import BaseTest, driver_data
+from backend.tests.data import BaseTest, TestDriverData, TestAccountData
 
 pytestmark = pytest.mark.asyncio
 
 
 class TestDriver(BaseTest):
 
+    driver_data = TestDriverData()
+    account_data = TestAccountData()
+
     async def test_driver_account(self):
         await self.get_user()
 
         async with self.client as ac:
             response = await ac.post(
-                "/drivers/", headers=self.headers, json={"license_number": driver_data.license_number}
+                "/drivers/", headers=self.headers, json={"license_number": self.driver_data.license_number}
             )
         assert response.status_code == 201
 
@@ -29,7 +32,7 @@ class TestDriver(BaseTest):
             response = await ac.get("/drivers/me/", headers=self.headers)
         assert response.status_code == 200
 
-        for transport in driver_data.driver_transports():
+        for transport in self.driver_data.driver_transports():
             async with self.client as ac:
                 response = await ac.post("/drivers/transports/", headers=self.headers, json=transport)
             assert response.status_code == 201

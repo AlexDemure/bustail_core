@@ -57,7 +57,7 @@ async def get_driver_applications(account: dict = Depends(confirmed_account)) ->
 async def create_application(
         application_in: schemas.ApplicationBase,
         response: Response,
-        account: dict = Depends(confirmed_account),
+        account: Account = Depends(confirmed_account),
 ):
     """Создание заявки."""
     try:
@@ -76,7 +76,7 @@ async def create_application(
         **auth_responses
     }
 )
-async def get_application(application_id: int, account: dict = Depends(confirmed_account)):
+async def get_application(application_id: int, account: Account = Depends(confirmed_account)):
     """Получение заявки клиента."""
     return await views.get_application(application_id)
 
@@ -90,7 +90,7 @@ async def get_application(application_id: int, account: dict = Depends(confirmed
         **auth_responses
     }
 )
-async def delete_application(application_id: int, account: dict = Depends(confirmed_account)):
+async def delete_application(application_id: int, account: Account = Depends(confirmed_account)):
     """Удаление собственной заявки."""
     try:
         await views.delete_application(account, application_id)

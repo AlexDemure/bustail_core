@@ -105,7 +105,7 @@ async def create_transport(request: schemas.TransportBase, account: Account = De
     if not driver:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=BaseMessage.obj_is_not_created.value
+            detail=BaseMessage.obj_is_not_found.value
         )
 
     create_schema = schemas.TransportCreate(driver_id=driver.id, **request.dict())

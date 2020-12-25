@@ -1,10 +1,12 @@
 from fastapi import HTTPException
-
+from datetime import datetime
+from typing import Optional
 from backend.applications import schemas, serializer, enums
 from backend.applications.crud import application as application_crud
 from backend.common.serializer import string_to_datetime
-from backend.common.enums import BaseSystemErrors
+from backend.common.enums import BaseSystemErrors, BaseMessage
 from backend.accounts.models import Account
+from backend.common.schemas import UpdatedBase
 
 
 async def create_application(account: Account, application_in: schemas.ApplicationBase) -> schemas.ApplicationData:
@@ -55,16 +57,37 @@ async def get_account_applications(account: Account) -> schemas.ListApplications
     )
 
 
-async def get_application(application_id: int) -> schemas.ApplicationData:
+async def get_application(application_id: int) -> Optional[schemas.ApplicationData]:
     application = await application_crud.get(application_id)
     return serializer.prepare_application(application)
 
 
 async def delete_application(account: Account, application_id: int) -> None:
     application = await application_crud.get(application_id)
+    if not application:
+        raise ValueError(BaseMessage.obj_is_not_found.value)
+
     assert application['account_id'] == account.id, enums.ApplicationErrors.application_does_not_belong_this_user.value
 
     await application_crud.remove(application['id'])
 
     application = await application_crud.get(application_id)
     assert application is None, "Application is not deleted"
+
+
+async def confirmed_application(application_id: int, change_price: int = None) -> schemas.ApplicationData:
+    application = await application_crud.get(application_id)
+    if not application:
+        raise ValueError(BaseMessage.obj_is_not_found.value)
+
+    update_schema = UpdatedBase(
+        id=application.id,
+        updated_fields=dict(
+            confirmed_at=datetime.utcnow(),
+            price=change_price if change_price else application.price
+        )
+    )
+
+    await application_crud.update(update_schema)
+
+    return await application_crud.get(application.id)
