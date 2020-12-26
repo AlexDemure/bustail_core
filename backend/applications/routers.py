@@ -1,13 +1,14 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 from fastapi.responses import Response
-
+from typing import List
 from backend.accounts.models import Account
 from backend.applications.views import (
     get_account_applications as view_get_account_applications,
     create_application as view_create_application,
     get_application as view_get_application,
     delete_application as view_delete_application,
-    get_all_applications as view_get_all_applications
+    get_all_applications as view_get_all_applications,
+    get_driver_applications as view_get_driver_applications,
 )
 from backend.common.deps import confirmed_account
 from backend.common.enums import BaseMessage
@@ -15,6 +16,7 @@ from backend.common.responses import auth_responses
 from backend.common.schemas import Message
 from backend.enums.applications import ApplicationErrors
 from backend.schemas.applications import ListApplications, ApplicationData, ApplicationBase
+from backend.drivers.views import get_driver_by_account_id
 
 router = APIRouter()
 
@@ -38,19 +40,26 @@ async def get_account_applications(account: Account = Depends(confirmed_account)
 
 @router.get(
     "/driver/",
-    response_model=ListApplications,
+    response_model=List[ApplicationData],
     responses={
         status.HTTP_200_OK: {"description": BaseMessage.obj_data.value},
+        status.HTTP_404_NOT_FOUND: {"description": BaseMessage.obj_is_not_found.value},
         **auth_responses
     }
 )
-async def get_driver_applications(account: Account = Depends(confirmed_account)) -> ListApplications:
+async def get_driver_applications(account: Account = Depends(confirmed_account)) -> List[ApplicationData]:
     """
     Получение списка заявок водителя.
 
     Не относится к заявкам клиента.
     """
-    pass
+    driver = await get_driver_by_account_id(account.id)
+    if not driver:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=BaseMessage.obj_is_not_found.value
+        )
+    return await view_get_driver_applications(driver.id)
 
 
 @router.post(

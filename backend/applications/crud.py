@@ -17,21 +17,13 @@ class CRUDApplication(CRUDBase[Application, ApplicationCreate, UpdatedBase]):
             .prefetch_related(
                 Prefetch(
                     'notifications',
-                    queryset=Notification.all()
+                    queryset=Notification.filter(decision__isnull=True).all()
                 ),
             )
         )
 
     async def driver_applications(self, driver_id: int) -> List[Application]:
-        return await (
-            self.model.filter(driver_id=driver_id).all()
-            .prefetch_related(
-                Prefetch(
-                    'notifications',
-                    queryset=Notification.all()
-                ),
-            )
-        )
+        return await self.model.filter(driver_id=driver_id).all()
 
     async def get_all_applications(
         self,

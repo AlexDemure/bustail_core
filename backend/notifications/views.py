@@ -6,6 +6,7 @@ from backend.common.schemas import UpdatedBase
 from backend.notifications.crud import notification as notification_crud
 from backend.enums.notifications import NotificationErrors
 from backend.schemas.notifications import NotificationCreate, NotificationData
+from backend.drivers.views import get_driver_by_transport_id
 
 
 async def create_notification(notification_in: NotificationCreate) -> NotificationData:
@@ -38,6 +39,10 @@ async def set_decision(notification_id: int, decision: bool) -> NotificationData
     await notification_crud.update(update_schema)
 
     if decision is True:
-        await confirmed_application(notification.application_id, notification.price)
+        driver = await get_driver_by_transport_id(notification.transport_id)
+        if not driver:
+            raise ValueError(BaseMessage.obj_is_not_found.value)
+
+        await confirmed_application(notification.application_id, driver.id, notification.price)
 
     return await get_notification(notification.id)

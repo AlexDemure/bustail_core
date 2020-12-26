@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 from fastapi import HTTPException
 
@@ -11,6 +11,7 @@ from backend.common.schemas import UpdatedBase
 from backend.common.serializer import string_to_datetime
 from backend.enums.applications import ApplicationErrors
 from backend.schemas.applications import ApplicationBase, ApplicationData, ApplicationCreate, ListApplications
+from backend.drivers.crud import driver as driver_crud
 
 
 async def create_application(account: Account, application_in: ApplicationBase) -> ApplicationData:
@@ -60,6 +61,17 @@ async def get_account_applications(account: Account) -> ListApplications:
         applications=[prepare_apps_with_notifications(x, x.notifications) for x in applications]
     )
 
+
+async def get_driver_applications(driver_id: int) -> List[ApplicationData]:
+    """
+    Получение списка заявок клиента.
+
+    Не относится к заявкам водителя.
+    """
+    applications = await application_crud.driver_applications(driver_id)
+    return [ApplicationData(**x.__dict__) for x in applications]
+
+
 async def get_application(application_id: int) -> Optional[ApplicationData]:
     application = await application_crud.get(application_id)
     return ApplicationData(**application.__dict__)
@@ -78,15 +90,20 @@ async def delete_application(account: Account, application_id: int) -> None:
     assert application is None, "Application is not deleted"
 
 
-async def confirmed_application(application_id: int, change_price: int = None) -> ApplicationData:
+async def confirmed_application(application_id: int, driver_id: int, change_price: int = None) -> ApplicationData:
     application = await application_crud.get(application_id)
     if not application:
+        raise ValueError(BaseMessage.obj_is_not_found.value)
+
+    driver = await driver_crud.get(driver_id)
+    if not driver:
         raise ValueError(BaseMessage.obj_is_not_found.value)
 
     update_schema = UpdatedBase(
         id=application.id,
         updated_fields=dict(
             confirmed_at=datetime.utcnow(),
+            driver_id=driver_id,
             price=change_price if change_price else application.price
         )
     )

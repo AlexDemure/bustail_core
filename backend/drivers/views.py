@@ -12,7 +12,10 @@ from backend.common.enums import BaseMessage
 from backend.common.enums import BaseSystemErrors
 from backend.common.schemas import UpdatedBase
 from backend.core.config import settings
-from backend.drivers import schemas
+from backend.schemas.drivers import (
+    DriverCreate, DriverData, TransportData, TransportCreate,
+    ListTransports, TransportUpdate, TransportPhotoData, TransportPhotoCreate
+)
 from backend.drivers.crud import driver as driver_crud
 from backend.drivers.crud import transport as transport_crud
 from backend.drivers.crud import transport_covers as transport_covers_crud
@@ -25,21 +28,21 @@ object_storage = ObjectStorage(
 )
 
 
-async def create_driver(driver_in: schemas.DriverCreate, account: Account) -> schemas.DriverData:
+async def create_driver(driver_in: DriverCreate, account: Account) -> DriverData:
     """Создание карточки водителя."""
-    assert isinstance(driver_in, schemas.DriverCreate), BaseSystemErrors.schema_wrong_format.value
+    assert isinstance(driver_in, DriverCreate), BaseSystemErrors.schema_wrong_format.value
 
     driver = await get_driver_by_account_id(account.id)
     if driver:
         return driver
 
     driver = await driver_crud.create(driver_in)
-    return schemas.DriverData(**driver.__dict__)
+    return DriverData(**driver.__dict__)
 
 
-async def get_driver_by_account_id(account_id: int) -> Optional[schemas.DriverData]:
+async def get_driver_by_account_id(account_id: int) -> Optional[DriverData]:
     driver = await driver_crud.find_by_account_id(account_id)
-    return schemas.DriverData(**driver.__dict__) if driver else None
+    return DriverData(**driver.__dict__) if driver else None
 
 
 async def update_driver(driver_up: UpdatedBase) -> None:
@@ -47,9 +50,9 @@ async def update_driver(driver_up: UpdatedBase) -> None:
     await driver_crud.update(driver_up)
 
 
-async def create_transport(transport_in: schemas.TransportCreate) -> schemas.TransportData:
+async def create_transport(transport_in: TransportCreate) -> TransportData:
     """Создание карточки транспорта."""
-    assert isinstance(transport_in, schemas.TransportCreate), BaseSystemErrors.schema_wrong_format.value
+    assert isinstance(transport_in, TransportCreate), BaseSystemErrors.schema_wrong_format.value
 
     transport = await transport_crud.find_by_params(
         brand=transport_in.brand,
@@ -60,17 +63,17 @@ async def create_transport(transport_in: schemas.TransportCreate) -> schemas.Tra
         raise ValueError(DriverErrors.transport_already_exist.value)
 
     transport = await transport_crud.create(transport_in)
-    return schemas.TransportData(**transport.__dict__)
+    return TransportData(**transport.__dict__)
 
 
-async def get_transport(transport_id: int) -> Optional[schemas.TransportData]:
+async def get_transport(transport_id: int) -> Optional[TransportData]:
     transport = await transport_crud.get(transport_id)
-    return schemas.TransportData(**transport.__dict__) if transport else None
+    return TransportData(**transport.__dict__) if transport else None
 
 
-async def change_transport_data(transport: schemas.TransportData, transport_up: schemas.TransportUpdate) -> None:
+async def change_transport_data(transport: TransportData, transport_up: TransportUpdate) -> None:
     """Обновление карточки транспорта."""
-    assert isinstance(transport_up, schemas.TransportUpdate), BaseSystemErrors.schema_wrong_format.value
+    assert isinstance(transport_up, TransportUpdate), BaseSystemErrors.schema_wrong_format.value
 
     transport_data = await transport_crud.find_by_params(
         brand=transport_up.brand,
@@ -87,11 +90,11 @@ async def change_transport_data(transport: schemas.TransportData, transport_up: 
     await transport_crud.update(update_schema)
 
 
-async def get_transports(**kwargs) -> schemas.ListTransports:
+async def get_transports(**kwargs) -> ListTransports:
     """Получение списка всех предложений аренды транспорта."""
     transports = await transport_crud.get_all_transports(**kwargs)
-    return schemas.ListTransports(
-        transports=[jsonable_encoder(schemas.TransportData(**x.__dict__)) for x in transports]
+    return ListTransports(
+        transports=[jsonable_encoder(TransportData(**x.__dict__)) for x in transports]
     )
 
 
@@ -102,7 +105,7 @@ async def delete_transport(transport_id: int) -> None:
     assert transport is None, "Transport is not deleted"
 
 
-async def upload_transport_cover(transport: schemas.TransportData, file: UploadFile) -> schemas.TransportPhotoData:
+async def upload_transport_cover(transport: TransportData, file: UploadFile) -> TransportPhotoData:
     """Загрузка обложки к транспорту через бакет."""
 
     file_hash = get_file_hash(file.file)  # Получение хеша файла с передачей SpooledTempFile.
@@ -110,7 +113,7 @@ async def upload_transport_cover(transport: schemas.TransportData, file: UploadF
     # Попытка найти файл в БД по хешу и айди транспорта
     file_object = await transport_covers_crud.find_transport_by_hash(transport.id, file_hash)
     if file_object:
-        return schemas.TransportPhotoData(**file_object)
+        return TransportPhotoData(**file_object)
 
     file_media_type = FileMimetypes(file.content_type)
 
@@ -125,7 +128,7 @@ async def upload_transport_cover(transport: schemas.TransportData, file: UploadF
             file_url=file_uri
         )
 
-    transport_cover_in = schemas.TransportPhotoCreate(
+    transport_cover_in = TransportPhotoCreate(
         transport_id=transport.id,
         file_uri=file_uri,
         file_hash=file_hash,
@@ -133,7 +136,7 @@ async def upload_transport_cover(transport: schemas.TransportData, file: UploadF
     )
 
     transport_cover = await transport_covers_crud.create(transport_cover_in)
-    return schemas.TransportPhotoData(**transport_cover.__dict__)
+    return TransportPhotoData(**transport_cover.__dict__)
 
 
 async def get_transport_cover(transport_cover_id: int) -> Tuple[bytes, str]:
@@ -170,3 +173,20 @@ async def is_transport_belongs_driver(account_id: int, transport_id: int) -> tup
         )
 
     return driver, transport
+
+
+async def get_driver(driver_id: int) -> Optional[DriverData]:
+    driver = await driver_crud.get(driver_id)
+    return DriverData(**driver.__dict__) if driver else None
+
+
+async def get_driver_by_transport_id(transport_id: int) -> Optional[DriverData]:
+    transport = await transport_crud.get(transport_id)
+    if not transport:
+        raise ValueError(BaseMessage.obj_is_not_found.value)
+
+    driver = await get_driver(transport.driver_id)
+    if not driver:
+        raise ValueError(BaseMessage.obj_is_not_found.value)
+
+    return driver

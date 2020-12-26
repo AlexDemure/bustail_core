@@ -8,7 +8,21 @@ from backend.common.deps import confirmed_account
 from backend.common.enums import BaseMessage
 from backend.common.responses import auth_responses
 from backend.common.schemas import Message, UpdatedBase
-from backend.drivers import schemas, views
+from backend.drivers.views import (
+    get_driver_by_account_id, update_driver, is_transport_belongs_driver, upload_transport_cover,
+    create_driver as view_create_driver,
+    create_transport as view_create_transport,
+    get_transports as view_get_transports,
+    get_transport as view_get_transport,
+    change_transport_data as view_change_transport_data,
+    delete_transport as view_delete_transport,
+    get_transport_cover as view_get_transport_cover,
+)
+from backend.schemas.drivers import (
+    DriverBase, DriverCreate, DriverData,
+    TransportData, TransportBase, TransportCreate, ListTransports, TransportUpdate,
+    TransportPhotoData
+)
 from backend.enums.drivers import DriverErrors
 from backend.accounts.models import Account
 
@@ -17,27 +31,27 @@ router = APIRouter()
 
 @router.post(
     "/",
-    response_model=schemas.DriverData,
+    response_model=DriverData,
     responses={
         status.HTTP_200_OK: {"description": BaseMessage.obj_already_exist.value},
         status.HTTP_201_CREATED: {"description": BaseMessage.obj_is_created.value},
         **auth_responses
     }
 )
-async def create_driver(request: schemas.DriverBase, account: Account = Depends(confirmed_account)):
+async def create_driver(request: DriverBase, account: Account = Depends(confirmed_account)):
     """Создание карточки водителя."""
-    driver = await views.get_driver_by_account_id(account.id)
+    driver = await get_driver_by_account_id(account.id)
     if driver:
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content=jsonable_encoder(driver)
         )
 
-    create_schema = schemas.DriverCreate(
+    create_schema = DriverCreate(
         account_id=account.id,
         license_number=request.license_number
     )
-    driver = await views.create_driver(create_schema, account)
+    driver = await view_create_driver(create_schema, account)
     return JSONResponse(
         status_code=status.HTTP_201_CREATED,
         content=jsonable_encoder(driver)
@@ -53,9 +67,9 @@ async def create_driver(request: schemas.DriverBase, account: Account = Depends(
         **auth_responses
     }
 )
-async def change_driver_data(request: schemas.DriverBase, account: Account = Depends(confirmed_account)):
+async def change_driver_data(request: DriverBase, account: Account = Depends(confirmed_account)):
     """Смена данных в карточки водителя."""
-    driver = await views.get_driver_by_account_id(account.id)
+    driver = await get_driver_by_account_id(account.id)
     if not driver:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -63,14 +77,14 @@ async def change_driver_data(request: schemas.DriverBase, account: Account = Dep
         )
 
     update_schema = UpdatedBase(id=driver.id, updated_fields=request.dict())
-    await views.update_driver(update_schema)
+    await update_driver(update_schema)
 
     return Message(msg=BaseMessage.obj_is_changed.value)
 
 
 @router.get(
     "/me/",
-    response_model=schemas.DriverData,
+    response_model=DriverData,
     responses={
         status.HTTP_200_OK: {"description": BaseMessage.obj_data.value},
         status.HTTP_404_NOT_FOUND: {"description": BaseMessage.obj_is_not_found.value},
@@ -79,7 +93,7 @@ async def change_driver_data(request: schemas.DriverBase, account: Account = Dep
 )
 async def read_driver_me(account: Account = Depends(confirmed_account)):
     """Карточка водителя."""
-    driver = await views.get_driver_by_account_id(account.id)
+    driver = await get_driver_by_account_id(account.id)
     if not driver:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -91,7 +105,7 @@ async def read_driver_me(account: Account = Depends(confirmed_account)):
 
 @router.post(
     "/transports/",
-    response_model=schemas.TransportData,
+    response_model=TransportData,
     responses={
         status.HTTP_201_CREATED: {"description": BaseMessage.obj_is_created.value},
         status.HTTP_400_BAD_REQUEST: {"description": BaseMessage.obj_is_not_created.value},
@@ -99,18 +113,18 @@ async def read_driver_me(account: Account = Depends(confirmed_account)):
         **auth_responses
     }
 )
-async def create_transport(request: schemas.TransportBase, account: Account = Depends(confirmed_account)):
+async def create_transport(request: TransportBase, account: Account = Depends(confirmed_account)):
     """Создание карточки транспорта."""
-    driver = await views.get_driver_by_account_id(account.id)
+    driver = await get_driver_by_account_id(account.id)
     if not driver:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=BaseMessage.obj_is_not_found.value
         )
 
-    create_schema = schemas.TransportCreate(driver_id=driver.id, **request.dict())
+    create_schema = TransportCreate(driver_id=driver.id, **request.dict())
     try:
-        transport = await views.create_transport(create_schema)
+        transport = await view_create_transport(create_schema)
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -125,7 +139,7 @@ async def create_transport(request: schemas.TransportBase, account: Account = De
 
 @router.get(
     "/transports/",
-    response_model=schemas.ListTransports,
+    response_model=ListTransports,
     responses={
         status.HTTP_200_OK: {"description": BaseMessage.obj_data.value},
         **auth_responses
@@ -134,18 +148,18 @@ async def create_transport(request: schemas.TransportBase, account: Account = De
 async def get_transports(
         limit: int = 10, offset: int = 0,
         city: str = "", order_by: str = 'price', order_type: str = 'asc'
-) -> schemas.ListTransports:
+) -> ListTransports:
     """Получение списка всех заявок."""
 
     query_params = dict(
         limit=limit, offset=offset, city=city, order_by=order_by, order_type=order_type
     )
-    return await views.get_transports(**query_params)
+    return await view_get_transports(**query_params)
 
 
 @router.get(
     "/transports/{transport_id}/",
-    response_model=schemas.TransportData,
+    response_model=TransportData,
     responses={
         status.HTTP_200_OK: {"description": BaseMessage.obj_data.value},
         status.HTTP_404_NOT_FOUND: {"description": BaseMessage.obj_is_not_found.value},
@@ -154,7 +168,7 @@ async def get_transports(
 )
 async def get_transport(transport_id: int):
     """Карточка транспорта."""
-    transport = await views.get_transport(transport_id)
+    transport = await view_get_transport(transport_id)
     if not transport:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -176,14 +190,14 @@ async def get_transport(transport_id: int):
 )
 async def change_transport_data(
         transport_id: int,
-        request: schemas.TransportBase,
+        request: TransportBase,
         account: Account = Depends(confirmed_account)
 ):
     """Изменение данных в карточке транспорта."""
-    driver, transport = await views.is_transport_belongs_driver(account.id, transport_id)
+    driver, transport = await is_transport_belongs_driver(account.id, transport_id)
 
-    transport_up = schemas.TransportUpdate(driver_id=driver.id, **request.dict())
-    await views.change_transport_data(transport, transport_up)
+    transport_up = TransportUpdate(driver_id=driver.id, **request.dict())
+    await view_change_transport_data(transport, transport_up)
     return Message(msg=BaseMessage.obj_is_changed.value)
 
 
@@ -196,13 +210,13 @@ async def change_transport_data(
         **auth_responses
     }
 )
-async def delete_application(transport_id: int, account: Account = Depends(confirmed_account)):
+async def delete_transport(transport_id: int, account: Account = Depends(confirmed_account)):
     """Удаление собственного транспорта."""
 
-    driver, transport = await views.is_transport_belongs_driver(account.id, transport_id)
+    driver, transport = await is_transport_belongs_driver(account.id, transport_id)
 
     try:
-        await views.delete_transport(transport.id)
+        await view_delete_transport(transport.id)
     except AssertionError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -211,7 +225,7 @@ async def delete_application(transport_id: int, account: Account = Depends(confi
 
 @router.post(
     "/transports/{transport_id}/covers/",
-    response_model=schemas.TransportPhotoData,
+    response_model=TransportPhotoData,
     responses={
         status.HTTP_201_CREATED: {"description": BaseMessage.obj_is_created.value},
         status.HTTP_400_BAD_REQUEST: {
@@ -240,9 +254,9 @@ async def create_cover_transport(
             detail=UploadErrors.file_is_large.value
         )
 
-    driver, transport = await views.is_transport_belongs_driver(account.id, transport_id)
+    driver, transport = await is_transport_belongs_driver(account.id, transport_id)
 
-    cover = await views.upload_transport_cover(transport, file)
+    cover = await upload_transport_cover(transport, file)
 
     return JSONResponse(
         status_code=status.HTTP_201_CREATED,
@@ -261,7 +275,7 @@ async def create_cover_transport(
         **auth_responses
     }
 )
-async def get_cover_transport(transport_id: int, cover_id: int):
+async def get_transport_cover(transport_id: int, cover_id: int):
     """Получение обложки к транспорту."""
 
     transport = await get_transport(transport_id)
@@ -271,7 +285,7 @@ async def get_cover_transport(transport_id: int, cover_id: int):
             detail=BaseMessage.obj_is_not_found.value
         )
 
-    file_to_bytes, media_type = await views.get_transport_cover(cover_id)
+    file_to_bytes, media_type = await view_get_transport_cover(cover_id)
 
     return Response(content=file_to_bytes, status_code=status.HTTP_200_OK, media_type=media_type)
 

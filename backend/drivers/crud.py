@@ -3,7 +3,7 @@ from tortoise.query_utils import Q
 
 from backend.common.crud import CRUDBase
 from backend.drivers.models import Driver, Transport, TransportPhoto
-from backend.drivers.schemas import DriverCreate, TransportCreate, TransportPhotoCreate
+from backend.schemas.drivers import DriverCreate, TransportCreate, TransportPhotoCreate
 from backend.common.schemas import UpdatedBase
 
 
