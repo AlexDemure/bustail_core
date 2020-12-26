@@ -31,7 +31,8 @@ class ApplicationData(ApplicationBase):
     id: int
     account_id: int
     driver_id: int = None
-    created_at: str
+    to_go_when: datetime = None
+    created_at: datetime
     confirmed_at: datetime = None
 
 
