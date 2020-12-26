@@ -81,6 +81,7 @@ class TestNotification(BaseTest):
         notification_client_to_driver = [(applications_id[i], transports_id[i]) for i in range(5)]
 
         for notification in notification_driver_to_client:
+            # Создание уведомления от водителя к клиенту
             async with self.client as ac:
                 response = await ac.post(
                     "notifications/",
@@ -93,7 +94,21 @@ class TestNotification(BaseTest):
                     )
                 )
             assert response.status_code == 201
+            response_json = response.json()
 
+            # Установка решения по заявке со стороны клиента
+            async with self.client as ac:
+                response = await ac.put(
+                    "notifications/",
+                    headers=client_profile.headers,
+                    json=dict(
+                        notification_id=response_json['id'],
+                        decision=random.choice([True, False])
+                    )
+                )
+            assert response.status_code == 200
+
+        # Создание заявки от клиента водителю
         for notification in notification_client_to_driver:
             async with self.client as ac:
                 response = await ac.post(
@@ -107,3 +122,16 @@ class TestNotification(BaseTest):
                     )
                 )
             assert response.status_code == 201
+            response_json = response.json()
+
+            # Установка решения по заявке со стороны клиента
+            async with self.client as ac:
+                response = await ac.put(
+                    "notifications/",
+                    headers=driver_profile.headers,
+                    json=dict(
+                        notification_id=response_json['id'],
+                        decision=random.choice([True, False])
+                    )
+                )
+            assert response.status_code == 200

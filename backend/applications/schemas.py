@@ -32,7 +32,7 @@ class ApplicationData(ApplicationBase):
     account_id: int
     driver_id: int = None
     created_at: str
-    confirmed_at: str = None
+    confirmed_at: datetime = None
 
 
 class ListApplications(BaseModel):

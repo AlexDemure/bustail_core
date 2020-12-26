@@ -118,11 +118,12 @@ async def upload_transport_cover(transport: schemas.TransportData, file: UploadF
     file_uri = f"{FileStorages.covers.path}{str(uuid4())}{file_media_type.file_format}"
 
     # Загрузка файла в облако.
-    object_storage.upload(
-        file=file.file,
-        content_type=file.content_type,
-        file_url=file_uri
-    )
+    if settings.ENV == "PROD":
+        object_storage.upload(
+            file=file.file,
+            content_type=file.content_type,
+            file_url=file_uri
+        )
 
     transport_cover_in = schemas.TransportPhotoCreate(
         transport_id=transport.id,
