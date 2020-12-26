@@ -1,10 +1,11 @@
-import pytest
 import random
-from backend.permissions.fixtures import setup_permissions_and_roles
+
+import pytest
 
 from backend.db.database import db_init
+from backend.enums.notifications import NotificationTypes
+from backend.permissions.fixtures import setup_permissions_and_roles
 from backend.tests.data import BaseTest, TestAccountData, TestDriverData, TestApplicationData
-from backend.notifications.enums import NotificationTypes
 
 pytestmark = pytest.mark.asyncio
 

@@ -1,17 +1,21 @@
 from backend.security.utils import generate_random_code, generate_security_token
 
 from backend.common.utils import get_current_domain
-from backend.mailing import schemas, sender, crud
+from backend.mailing import sender, crud
+from backend.schemas.mailing import (
+    SendVerifyCodeEvent, SendVerifyCodeEventCreate, BaseEmail,
+    ChangePassword, ChangePasswordEventCreate
+)
 
 
 async def send_verify_code(account_id: int, email) -> None:
     """Отправка кода подтверждения аккаунта."""
     verify_code = generate_random_code()
 
-    send_schema = schemas.SendVerifyCodeEvent(email=email, message=verify_code)
+    send_schema = SendVerifyCodeEvent(email=email, message=verify_code)
     await sender.SendVerifyCodeMessage(send_schema).send_email()
 
-    create_schema = schemas.SendVerifyCodeEventCreate(
+    create_schema = SendVerifyCodeEventCreate(
         account_id=account_id,
         message=verify_code
     )
@@ -26,7 +30,7 @@ async def is_verify_code(account_id: int, code: str) -> bool:
 
 async def send_welcome_message(email: str) -> None:
     """Отправка письма Добро пожаловать."""
-    send_schema = schemas.BaseEmail(email=email)
+    send_schema = BaseEmail(email=email)
     await sender.SendWelcomeMessage(send_schema).send_email()
 
 
@@ -38,13 +42,13 @@ async def send_change_password_message(account: dict) -> None:
     # Ссылка на страницу со сменой пароля.
     confirm_url = f"{get_current_domain()}/change_password/?token={security_token}"
 
-    send_schema = schemas.ChangePassword(
+    send_schema = ChangePassword(
         message=confirm_url,
         email=account['email']
     )
     await sender.ChangePasswordMessage(send_schema).send_email()
 
-    create_schema = schemas.ChangePasswordEventCreate(
+    create_schema = ChangePasswordEventCreate(
         email=account['email'],
         message=security_token
     )

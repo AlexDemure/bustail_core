@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
 
-from backend.notifications.enums import NotificationTypes
+from backend.enums.notifications import NotificationTypes
 
 
 class NotificationBase(BaseModel):

@@ -2,7 +2,7 @@ from fastapi import Depends, HTTPException
 from backend.auth.deps import get_subject_from_token
 
 from backend.accounts.crud import account as account_crud
-from backend.accounts.enums import AccountErrors
+from backend.enums.accounts import AccountErrors
 from backend.accounts.models import Account
 from backend.permissions.enums import Permissions
 from backend.permissions.utils import is_have_permission

@@ -16,7 +16,7 @@ from backend.drivers import schemas
 from backend.drivers.crud import driver as driver_crud
 from backend.drivers.crud import transport as transport_crud
 from backend.drivers.crud import transport_covers as transport_covers_crud
-from backend.drivers.enums import DriverErrors
+from backend.enums.drivers import DriverErrors
 from backend.accounts.models import Account
 
 

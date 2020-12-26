@@ -4,9 +4,9 @@ from tortoise.query_utils import Q
 
 from backend.common.crud import CRUDBase
 from backend.common.schemas import UpdatedBase
+from backend.enums.notifications import NotificationTypes
 from backend.notifications.models import Notification
-from backend.notifications.schemas import NotificationCreate
-from backend.notifications.enums import NotificationTypes
+from backend.schemas.notifications import NotificationCreate
 
 
 class CRUDNotification(CRUDBase[Notification, NotificationCreate, UpdatedBase]):

@@ -1,5 +1,5 @@
 from fastapi import status
-from backend.accounts.enums import AccountErrors
+from backend.enums.accounts import AccountErrors
 
 auth_responses = {
     status.HTTP_403_FORBIDDEN: {"description": AccountErrors.forbidden.value},

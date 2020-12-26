@@ -2,17 +2,17 @@ import random
 from typing import Optional
 
 from httpx import AsyncClient
-from backend.security.utils import generate_random_code
 
 from backend.accounts.crud import account as account_crud
 from backend.accounts.models import Account
-from backend.applications.enums import ApplicationTypes
 from backend.common.utils import get_cities
 from backend.core.application import app
 from backend.db.database import db_init
-from backend.drivers.enums import TransportType
+from backend.enums.applications import ApplicationTypes
+from backend.enums.drivers import TransportType
 from backend.mailing.models import SendVerifyCodeEvent
 from backend.permissions.fixtures import setup_permissions_and_roles
+from backend.security.utils import generate_random_code
 
 ASYNC_CLIENT = AsyncClient(app=app, base_url="http://localhost/api/v1")
 

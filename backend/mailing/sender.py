@@ -5,7 +5,7 @@ import jinja2
 from structlog import get_logger
 
 from backend.core.config import settings
-from backend.mailing import schemas
+from backend.schemas.mailing import BaseEmail, SendVerifyCodeEvent, ChangePassword
 from backend.common.enums import BaseSystemErrors
 
 
@@ -15,7 +15,7 @@ class SenderBase:
     sender_email = settings.MAILING_EMAIL
     sender_name = settings.MAILING_NAME
 
-    validation_schema = schemas.BaseEmail  # Используется для проверки схемы.
+    validation_schema = BaseEmail  # Используется для проверки схемы.
 
     template_name = None  # HTML который будет использоваться при отправке
     schema = None
@@ -74,7 +74,7 @@ class SenderBase:
 class SendVerifyCodeMessage(SenderBase):
     template_name = 'base.html'
 
-    validation_schema = schemas.SendVerifyCodeEvent
+    validation_schema = SendVerifyCodeEvent
 
     async def send_email(self):
         self.validate_data()
@@ -108,7 +108,7 @@ class SendWelcomeMessage(SenderBase):
 class ChangePasswordMessage(SenderBase):
     template_name = 'change_password.html'
 
-    validation_schema = schemas.ChangePassword
+    validation_schema = ChangePassword
 
     async def send_email(self):
         self.validate_data()

@@ -3,7 +3,8 @@ from typing import List
 
 from pydantic import BaseModel, constr, validator
 
-from backend.applications.enums import ApplicationStatus, ApplicationTypes, ApplicationErrors
+from backend.enums.applications import ApplicationStatus, ApplicationTypes, ApplicationErrors
+from backend.schemas.notifications import NotificationData
 
 
 class ApplicationBase(BaseModel):
@@ -34,6 +35,7 @@ class ApplicationData(ApplicationBase):
     to_go_when: datetime = None
     created_at: datetime
     confirmed_at: datetime = None
+    notifications: List[NotificationData] = None
 
 
 class ListApplications(BaseModel):

@@ -1,6 +1,6 @@
 from tortoise import models, fields
 
-from backend.notifications.enums import NotificationTypes
+from backend.enums.notifications import NotificationTypes
 
 
 class Notification(models.Model):

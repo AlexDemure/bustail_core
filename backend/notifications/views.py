@@ -1,10 +1,11 @@
 from typing import Optional
+
+from backend.applications.views import confirmed_application
 from backend.common.enums import BaseSystemErrors, BaseMessage
 from backend.common.schemas import UpdatedBase
 from backend.notifications.crud import notification as notification_crud
-from backend.notifications.enums import NotificationErrors
-from backend.notifications.schemas import NotificationCreate, NotificationData
-from backend.applications.views import confirmed_application
+from backend.enums.notifications import NotificationErrors
+from backend.schemas.notifications import NotificationCreate, NotificationData
 
 
 async def create_notification(notification_in: NotificationCreate) -> NotificationData:

@@ -6,7 +6,7 @@ from backend.common.crud import CRUDBase
 from backend.common.schemas import UpdatedBase
 
 from backend.mailing.models import SendVerifyCodeEvent, ChangePasswordEvent
-from backend.mailing.schemas import SendVerifyCodeEventCreate, ChangePasswordEventCreate
+from backend.schemas.mailing import SendVerifyCodeEventCreate, ChangePasswordEventCreate
 
 
 class CRUDSendVerifyCode(CRUDBase[SendVerifyCodeEvent, SendVerifyCodeEventCreate, UpdatedBase]):

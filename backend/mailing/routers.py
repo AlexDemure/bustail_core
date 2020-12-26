@@ -1,11 +1,9 @@
 from fastapi import APIRouter, HTTPException, status
 
-from fastapi import APIRouter, HTTPException, status
-
-from backend.mailing.schemas import BaseEmail
+from backend.schemas.mailing import BaseEmail
 from backend.mailing.views import send_change_password_message
 from backend.common.schemas import Message
-from backend.accounts.enums import AccountErrors
+from backend.enums.accounts import AccountErrors
 from backend.accounts.crud import account as account_crud
 
 router = APIRouter()

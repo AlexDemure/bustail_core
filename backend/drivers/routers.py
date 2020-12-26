@@ -9,7 +9,7 @@ from backend.common.enums import BaseMessage
 from backend.common.responses import auth_responses
 from backend.common.schemas import Message, UpdatedBase
 from backend.drivers import schemas, views
-from backend.drivers.enums import DriverErrors
+from backend.enums.drivers import DriverErrors
 from backend.accounts.models import Account
 
 router = APIRouter()

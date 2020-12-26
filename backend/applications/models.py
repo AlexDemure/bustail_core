@@ -1,6 +1,6 @@
 from tortoise import models, fields
 
-from backend.applications.enums import ApplicationStatus, ApplicationTypes
+from backend.enums.applications import ApplicationStatus, ApplicationTypes
 
 
 class Application(models.Model):
