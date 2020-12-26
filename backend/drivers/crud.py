@@ -1,10 +1,11 @@
 from typing import Optional, List
-from tortoise.query_utils import Q
+from tortoise.query_utils import Q, Prefetch
 
 from backend.common.crud import CRUDBase
 from backend.drivers.models import Driver, Transport, TransportPhoto
 from backend.schemas.drivers import DriverCreate, TransportCreate, TransportPhotoCreate
 from backend.common.schemas import UpdatedBase
+from backend.notifications.models import Notification
 
 
 class CRUDDriver(CRUDBase[Driver, DriverCreate, UpdatedBase]):
@@ -22,6 +23,17 @@ class CRUDTransport(CRUDBase[Transport, TransportCreate, UpdatedBase]):
         return await self.model.get_or_none(
             Q(
                 Q(brand=brand), Q(model=model), Q(state_number=state_number), join_type="AND"
+            )
+        )
+
+    async def get_transports_with_notifications(self, driver_id: int):
+        return await (
+            self.model.filter(driver_id=driver_id).all()
+                .prefetch_related(
+                Prefetch(
+                    'notifications',
+                    queryset=Notification.filter(decision__isnull=True).all()
+                ),
             )
         )
 

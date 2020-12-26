@@ -1,15 +1,17 @@
+from typing import List
+
 from fastapi import APIRouter, Depends, status, HTTPException, File, UploadFile
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse, Response
-from backend.object_storage.enums import UploadErrors
-from backend.object_storage.utils import check_file_type, check_file_size
 
+from backend.accounts.models import Account
 from backend.common.deps import confirmed_account
 from backend.common.enums import BaseMessage
 from backend.common.responses import auth_responses
 from backend.common.schemas import Message, UpdatedBase
 from backend.drivers.views import (
-    get_driver_by_account_id, update_driver, is_transport_belongs_driver, upload_transport_cover,
+    get_driver_by_account_id, update_driver,
+    is_transport_belongs_driver, upload_transport_cover, get_transport_with_notifications,
     create_driver as view_create_driver,
     create_transport as view_create_transport,
     get_transports as view_get_transports,
@@ -18,13 +20,14 @@ from backend.drivers.views import (
     delete_transport as view_delete_transport,
     get_transport_cover as view_get_transport_cover,
 )
+from backend.enums.drivers import DriverErrors
+from backend.object_storage.enums import UploadErrors
+from backend.object_storage.utils import check_file_type, check_file_size
 from backend.schemas.drivers import (
     DriverBase, DriverCreate, DriverData,
     TransportData, TransportBase, TransportCreate, ListTransports, TransportUpdate,
     TransportPhotoData
 )
-from backend.enums.drivers import DriverErrors
-from backend.accounts.models import Account
 
 router = APIRouter()
 
@@ -101,6 +104,27 @@ async def read_driver_me(account: Account = Depends(confirmed_account)):
         )
 
     return driver
+
+
+@router.get(
+    "/me/transports/",
+    response_model=List[TransportData],
+    responses={
+        status.HTTP_200_OK: {"description": BaseMessage.obj_data.value},
+        status.HTTP_404_NOT_FOUND: {"description": BaseMessage.obj_is_not_found.value},
+        **auth_responses
+    }
+)
+async def get_my_transports(account: Account = Depends(confirmed_account)):
+    """Карточка водителя."""
+    driver = await get_driver_by_account_id(account.id)
+    if not driver:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=BaseMessage.obj_is_not_found.value
+        )
+
+    return await get_transport_with_notifications(driver)
 
 
 @router.post(

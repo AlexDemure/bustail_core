@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 from uuid import uuid4
 
 from fastapi import HTTPException, status
@@ -16,9 +16,12 @@ from backend.schemas.drivers import (
     DriverCreate, DriverData, TransportData, TransportCreate,
     ListTransports, TransportUpdate, TransportPhotoData, TransportPhotoCreate
 )
-from backend.drivers.crud import driver as driver_crud
-from backend.drivers.crud import transport as transport_crud
-from backend.drivers.crud import transport_covers as transport_covers_crud
+from backend.drivers.crud import (
+    driver as driver_crud,
+    transport as transport_crud,
+    transport_covers as transport_covers_crud
+)
+from backend.drivers.serializer import prepare_transports_with_notifications
 from backend.enums.drivers import DriverErrors
 from backend.accounts.models import Account
 
@@ -190,3 +193,8 @@ async def get_driver_by_transport_id(transport_id: int) -> Optional[DriverData]:
         raise ValueError(BaseMessage.obj_is_not_found.value)
 
     return driver
+
+
+async def get_transport_with_notifications(driver: DriverData) -> List[TransportData]:
+    transports = await transport_crud.get_transports_with_notifications(driver.id)
+    return [prepare_transports_with_notifications(x, x.notifications) for x in transports]

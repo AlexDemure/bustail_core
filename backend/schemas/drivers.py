@@ -6,6 +6,7 @@ from pydantic import BaseModel, root_validator
 from backend.common.utils import get_cities
 from backend.enums.drivers import TransportType
 from backend.object_storage.enums import FileMimetypes
+from backend.schemas.notifications import NotificationData
 
 
 class DriverBase(BaseModel):
@@ -51,6 +52,7 @@ class TransportData(TransportBase):
     id: int
     driver_id: int
     transport_covers: List[int] = []
+    notifications: List[NotificationData] = None
 
 
 class ListTransports(BaseModel):
