@@ -1,10 +1,12 @@
 version: "3.8"
 
+volumes:
+  redis_data:
+
 services:
   postgres:
     image: postgres:latest
     container_name: postgres
-    network_mode: bridge
     hostname: postgres
     restart: always
     ports:
@@ -17,16 +19,37 @@ services:
     build: backend
     container_name: core
     hostname: core
-    network_mode: bridge
+    network_mode: "host"
     ports:
       - "8000:8000"
     depends_on:
       - "postgres"
-    links:
-      - postgres
+      - "redis"
     env_file:
       - ./env_files/postgres.env
       - ./env_files/global.env
+      - ./env_files/mailing.env
+      - ./env_files/redis.env
     volumes:
       - ./backend:/app/backend/
 
+
+  redis:
+    image: "redis:alpine"
+    restart: always
+    container_name: redis
+    hostname: redis
+    ports:
+      - "6379:6379"
+    command:
+      - 'redis-server'
+      - '--requirepass foobared'
+      - '--loglevel ${REDIS_LOGLEVEL:-warning}'
+      - '--databases 2'
+      - '--save 900 1'
+      - '--save 300 10'
+      - '--save 60 10000'
+      - '--maxmemory ${REDIS_MAXMEM:-50mb}'
+      - '--maxmemory-policy ${REDIS_POLICY:-noeviction}'
+    volumes:
+      - redis_data:/data

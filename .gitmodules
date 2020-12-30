@@ -13,3 +13,6 @@
 [submodule "backend/object_storage"]
 	path = backend/object_storage
 	url = git@github.com:AlexDemure/object_storage.git
+[submodule "mailing"]
+	path = mailing
+	url = git@github.com:AlexDemure/mailing.git

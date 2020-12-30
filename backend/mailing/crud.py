@@ -1,10 +1,9 @@
 from typing import Optional
+
 from tortoise.query_utils import Q
-from sqlalchemy import select
 
 from backend.common.crud import CRUDBase
 from backend.common.schemas import UpdatedBase
-
 from backend.mailing.models import SendVerifyCodeEvent, ChangePasswordEvent
 from backend.schemas.mailing import SendVerifyCodeEventCreate, ChangePasswordEventCreate
 

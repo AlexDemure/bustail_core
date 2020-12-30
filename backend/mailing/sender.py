@@ -43,32 +43,42 @@ class SenderBase:
         assert isinstance(self.schema, self.validation_schema), BaseSystemErrors.schema_wrong_format.value
 
     async def send_html(self, subject: str, html: str):
-        async with httpx.AsyncClient(auth=(settings.MAILING_API_KEY, settings.MAILING_SECRET_KEY)) as client:
-            data = dict(
-                    {
-                        "Messages": [
-                            {
-                                "From": {
-                                    "Email": self.sender_email,
-                                    "Name": self.sender_name
-                                },
-                                "To": [
-                                    {
-                                        "Email": self.schema.email,
-                                    }
-                                ],
-                                "Subject": subject,
-                                "HTMLPart": html
-                            }
-                        ]
-                    }
-                )
+        data = {
+            "personalizations": [
+                {
+                    "to": [
+                        {
+                            "email": self.schema.email,
+                            "name": self.schema.email,
+                        }
+                    ],
+                    "subject": subject,
+                }
+            ],
+            "content": [
+                {
+                    "type": "text/html",
+                    "value": html
+                }
+            ],
+            "from": {
+                "email": settings.MAILING_EMAIL,
+                "name": settings.MAILING_NAME,
+            }
+        }
 
-            if settings.ENV == "DEV":
-                response = {"Is send": False}
+        async with httpx.AsyncClient() as client:
+            if settings.ENV == "PROD":
+                self.logger.debug("Send mail")
+                response = await client.post(
+                    url='https://api.sendgrid.com/v3/mail/send',
+                    headers={"Authorization": f"Bearer {settings.MAILING_SECRET_KEY}"},
+                    json=data,
+                )
+                assert response.status_code == 202, f"Send mail is failed: {response.text}"
+                self.logger.info(f'Message: {response}')
             else:
-                response = await client.post('https://api.mailjet.com/v3.1/send', json=data)
-            self.logger.info(f'Message: {response}')
+                self.logger.debug("Message is don't send")
 
 
 class SendVerifyCodeMessage(SenderBase):

@@ -21,7 +21,6 @@ class SecuritySettings(BaseConfig):
 
 class MailingMandrillSettings(BaseConfig):
 
-    MAILING_API_KEY: str = os.environ.get("MAILING_API_KEY")
     MAILING_SECRET_KEY: str = os.environ.get("MAILING_SECRET_KEY")
     MAILING_EMAIL: str = os.environ.get("MAILING_EMAIL")
     MAILING_NAME: str = os.environ.get("MAILING_NAME")
@@ -37,7 +36,7 @@ class DBSettings(BaseConfig):
             return v
         # Return URL-connect 'postgresql://postgres:bustail@postgres/bustail'
         return PostgresDsn.build(
-            scheme="postgresql",
+            scheme="postgres",
             user=os.environ.get("POSTGRES_USER"),
             password=os.environ.get("POSTGRES_PASSWORD"),
             host=os.environ.get("POSTGRES_SERVER"),
