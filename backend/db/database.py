@@ -23,13 +23,12 @@ TORTOISE_ORM = {
 
 
 async def sqlite_db_init():
-    if settings.ENV == "DEV":
-        await Tortoise.init(
-            db_url=settings.DATABASE_URI,
-            modules={'models': MODELS_LIST}
-        )
-        # Generate the schema
-        await Tortoise.generate_schemas()
+    await Tortoise.init(
+        db_url=settings.DATABASE_URI,
+        modules={'models': MODELS_LIST}
+    )
+    # Generate the schema
+    await Tortoise.generate_schemas()
 
 
 def postgres_db_init(app):

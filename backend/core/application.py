@@ -1,18 +1,36 @@
 import uvicorn
-from backend.permissions.fixtures import setup_permissions_and_roles
 from fastapi import FastAPI
 
-from backend.core.urls import api_router
 from backend.core.config import settings
-from backend.db.database import db_init
+from backend.core.urls import api_router
+from backend.db.database import sqlite_db_init, postgres_db_init
+from backend.mailing.service import service_mailing
+from backend.permissions.fixtures import setup_permissions_and_roles
+from backend.redis.service import redis
 
 app = FastAPI()
 
 
+if settings.ENV == "PROD":
+    print("Connect to PostgreSQL DB")
+    postgres_db_init(app)
+
+
+@app.on_event("startup")
+async def db_init():
+    if settings.ENV == "DEV":
+       print("Connect to SQLITE DB")
+       await sqlite_db_init()
+
+
+@app.on_event("startup")
+async def redis_init():
+    await redis.redis_init()
+    await redis.register_service(service_mailing)
+
+
 @app.on_event("startup")
 async def fixtures():
-    if settings.ENV == "DEV":
-        await db_init()
     await setup_permissions_and_roles()
 
 
@@ -20,4 +38,4 @@ app.include_router(api_router, prefix=settings.API_URL)
 
 
 if __name__ == '__main__':
-    uvicorn.run("application:app", host="0.0.0.0", port=8000, reload=True, log_level="debug")
+    uvicorn.run("application:app", host="127.0.0.1", port=7040, reload=True, log_level="debug")

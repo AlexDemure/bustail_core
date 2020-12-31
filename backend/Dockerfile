@@ -54,8 +54,7 @@ RUN poetry install --no-dev
 
 COPY . /app/backend
 
-RUN touch test.db
 
-EXPOSE 8000
+EXPOSE 7040
 
-CMD ["uvicorn", "core.application:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "core.application:app", "--host", "127.0.0.1", "--port", "7040"]

@@ -9,28 +9,21 @@ from backend.schemas.mailing import (
     ChangePassword, ChangePasswordEventCreate
 )
 from backend.security.utils import generate_random_code, generate_security_token
-from backend.redis import ques
 
 
-async def send_verify_code(redis, account_id: int, email) -> None:
+async def send_verify_code(account_id: int, email) -> None:
     """Отправка кода подтверждения аккаунта."""
     verify_code = generate_random_code()
 
-    task = {
-        'message': 'САНЯ ГДЕ СТАРТАП?????!!!!!!'
-    }
+    send_schema = SendVerifyCodeEvent(email=email, message=verify_code)
+    task = get_task_template(MailingTypes.send_verify_code.value, send_schema.dict())
+    await redis.append_task(SERVICE_NAME, task)
 
-    await ques.append_task(redis, 'tasks', task)
-
-    # send_schema = SendVerifyCodeEvent(email=email, message=verify_code)
-    # task = get_task_template(MailingTypes.send_verify_code.value, send_schema.dict())
-    # await redis.append_task(SERVICE_NAME, task)
-    #
-    # create_schema = SendVerifyCodeEventCreate(
-    #     account_id=account_id,
-    #     message=verify_code
-    # )
-    # await crud.send_verify_code_event.create(create_schema)
+    create_schema = SendVerifyCodeEventCreate(
+        account_id=account_id,
+        message=verify_code
+    )
+    await crud.send_verify_code_event.create(create_schema)
 
 
 async def is_verify_code(account_id: int, code: str) -> bool:

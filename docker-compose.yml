@@ -2,6 +2,8 @@ version: "3.8"
 
 volumes:
   redis_data:
+  pgdata:
+
 
 services:
   postgres:
@@ -21,7 +23,7 @@ services:
     hostname: core
     network_mode: "host"
     ports:
-      - "8000:8000"
+      - "7040:7040"
     depends_on:
       - "postgres"
       - "redis"

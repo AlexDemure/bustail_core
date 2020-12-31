@@ -7,7 +7,7 @@ from backend.accounts.crud import account as account_crud
 from backend.accounts.models import Account
 from backend.common.utils import get_cities
 from backend.core.application import app
-from backend.db.database import db_init
+from backend.db.database import sqlite_db_init
 from backend.enums.applications import ApplicationTypes
 from backend.enums.drivers import TransportType
 from backend.mailing.models import SendVerifyCodeEvent
@@ -123,7 +123,7 @@ class BaseTest:
         assert response.status_code == 200
 
     async def get_user(self):
-        await db_init()
+        await sqlite_db_init()
         await setup_permissions_and_roles()
 
         try:
