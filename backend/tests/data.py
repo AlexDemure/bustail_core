@@ -13,6 +13,8 @@ from backend.enums.drivers import TransportType
 from backend.mailing.models import SendVerifyCodeEvent
 from backend.permissions.fixtures import setup_permissions_and_roles
 from backend.security.utils import generate_random_code
+from backend.redis.service import redis
+from backend.mailing.service import service_mailing
 
 ASYNC_CLIENT = AsyncClient(app=app, base_url="http://localhost/api/v1")
 
@@ -123,6 +125,9 @@ class BaseTest:
         assert response.status_code == 200
 
     async def get_user(self):
+        await redis.redis_init()
+        await redis.register_service(service_mailing)
+
         await sqlite_db_init()
         await setup_permissions_and_roles()
 

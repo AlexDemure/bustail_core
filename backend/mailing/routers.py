@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status, Request
+from fastapi import APIRouter, HTTPException, status
 
 from backend.schemas.mailing import BaseEmail
 from backend.mailing.views import send_change_password_message
@@ -21,7 +21,10 @@ async def change_password(account_up: BaseEmail):
     """Отправка email-ссылки на изменение пароля аккаунта."""
     account = await account_crud.find_by_email(email=account_up.email)
     if not account:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail=AccountErrors.account_not_found.value)
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND,
+            detail=AccountErrors.account_not_found.value
+        )
 
     await send_change_password_message(account.id, account.email)
 
