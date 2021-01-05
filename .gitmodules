@@ -16,3 +16,6 @@
 [submodule "mailing"]
 	path = mailing
 	url = git@github.com:AlexDemure/mailing.git
+[submodule "backend/redis"]
+	path = backend/redis
+	url = git@github.com:AlexDemure/redis.git
