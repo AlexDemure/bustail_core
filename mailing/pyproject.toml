@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "mailing"
+version = "0.1.0"
+description = ""
+authors = ["AlexDemure <alexanderdemure@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+fastapi = "^0.60.1"
+uvicorn = "^0.11.5"
+structlog = "^20.1.0"
+tenacity = "^6.2.0"
+
+httpx = "^0.16.1"
+
+email-validator = "^1.1.1"
+jinja2 ="^2.11.2"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

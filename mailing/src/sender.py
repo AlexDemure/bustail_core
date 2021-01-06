@@ -3,14 +3,16 @@ from uuid import uuid4
 import httpx
 import jinja2
 from structlog import get_logger
+from tenacity import retry, stop_after_attempt, wait_exponential
 
-from backend.core.config import settings
-from backend.schemas.mailing import BaseEmail, SendVerifyCodeEvent, ChangePassword
-from backend.common.enums import BaseSystemErrors
+from mailing.src.core.config import settings
+from mailing.src.enums import SendGridErrors
+from mailing.src.errors import SendGridError
+from mailing.src.schemas import BaseEmail, SendVerifyCodeEvent, ChangePassword
 
 
 class SenderBase:
-    loader_path = "mailing/templates"  # Откуда брать HTML
+    loader_path = "mailing/src/templates"  # Откуда брать HTML
 
     sender_email = settings.MAILING_EMAIL
     sender_name = settings.MAILING_NAME
@@ -40,9 +42,9 @@ class SenderBase:
         return template.render(**context)
 
     def validate_data(self):
-        assert isinstance(self.schema, self.validation_schema), BaseSystemErrors.schema_wrong_format.value
+        assert isinstance(self.schema, self.validation_schema), "Schema is wrong format"
 
-    async def send_html(self, subject: str, html: str):
+    def get_send_grid_template(self, subject: str, html: str) -> dict:
         data = {
             "personalizations": [
                 {
@@ -67,18 +69,32 @@ class SenderBase:
             }
         }
 
+        return data
+
+    @retry(
+        wait=wait_exponential(multiplier=1),
+        stop=stop_after_attempt(5),
+        reraise=True,
+    )
+    async def send_html(self, subject: str, html: str):
+
+        data = self.get_send_grid_template(subject, html)
+
         async with httpx.AsyncClient() as client:
-            if settings.ENV == "PROD":
-                self.logger.debug("Send mail")
+            if settings.SEND_MAIL == "yes":
+                self.logger.debug("Send request to SendGrid", subject=subject, email=self.schema.email)
+
                 response = await client.post(
                     url='https://api.sendgrid.com/v3/mail/send',
                     headers={"Authorization": f"Bearer {settings.MAILING_SECRET_KEY}"},
                     json=data,
                 )
-                assert response.status_code == 202, f"Send mail is failed: {response.text}"
-                self.logger.info(f'Message: {response}')
+                self.logger.info(f'Confirm response: {response.status_code}')
+                if response.status_code != 202:
+                    raise SendGridError(SendGridErrors(response.status_code))
+
             else:
-                self.logger.debug("Message is don't send")
+                self.logger.debug("Request is don't send", data=data)
 
 
 class SendVerifyCodeMessage(SenderBase):

@@ -8,7 +8,7 @@ from backend.mailing.service import service_mailing
 from backend.permissions.fixtures import setup_permissions_and_roles
 from backend.redis.service import redis
 
-app = FastAPI()
+app = FastAPI(openapi_url=f"{settings.API_URL}/openapi.json", docs_url=f"{settings.API_URL}/docs")
 
 
 if settings.ENV == "PROD":
@@ -38,4 +38,4 @@ app.include_router(api_router, prefix=settings.API_URL)
 
 
 if __name__ == '__main__':
-    uvicorn.run("application:app", host="127.0.0.1", port=7040, reload=True, log_level="debug")
+    uvicorn.run("application:app", host="127.0.0.1", port=8002, reload=True, log_level="debug")

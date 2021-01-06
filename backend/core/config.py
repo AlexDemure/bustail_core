@@ -19,13 +19,6 @@ class SecuritySettings(BaseConfig):
     SECURITY_TOKEN_EXPIRE_MINUTES: int = 60 * 60 * 24  # 1 day
 
 
-class MailingMandrillSettings(BaseConfig):
-
-    MAILING_SECRET_KEY: str = os.environ.get("MAILING_SECRET_KEY")
-    MAILING_EMAIL: str = os.environ.get("MAILING_EMAIL")
-    MAILING_NAME: str = os.environ.get("MAILING_NAME")
-
-
 class DBSettings(BaseConfig):
 
     DATABASE_URI: Optional[PostgresDsn] = None
@@ -59,10 +52,7 @@ class YandexObjectStorage(BaseConfig):
 
 
 # DEFAULT SETTINGS
-applications = [
-    FastApiAuthSettings, SecuritySettings,
-    YandexObjectStorage, MailingMandrillSettings,
-]
+applications = [FastApiAuthSettings, SecuritySettings, YandexObjectStorage]
 
 
 if os.environ.get('ENV', "DEV") == "DEV":
