@@ -46,7 +46,14 @@ class CRUDTransport(CRUDBase[Transport, TransportCreate, UpdatedBase]):
         order_type: str = 'asc',
     ) -> List[Transport]:
 
-        return await self.model.all()
+        return await (
+            self.model.all()
+            .filter(city__icontains=city)
+            .order_by(f'{"-" if order_type == "desc" else ""}{order_by}')
+            .limit(limit=limit)
+            .offset(offset=offset)
+            .prefetch_related(Prefetch('transport_covers', queryset=TransportPhoto.all()))
+        )
 
 
 transport = CRUDTransport(Transport)

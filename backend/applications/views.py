@@ -9,7 +9,7 @@ from backend.applications.serializer import prepare_apps_with_notifications
 from backend.common.enums import BaseSystemErrors, BaseMessage
 from backend.common.schemas import UpdatedBase
 from backend.common.serializer import string_to_datetime
-from backend.enums.applications import ApplicationErrors
+from backend.enums.applications import ApplicationErrors, ApplicationStatus
 from backend.schemas.applications import ApplicationBase, ApplicationData, ApplicationCreate, ListApplications
 from backend.drivers.crud import driver as driver_crud
 
@@ -104,7 +104,8 @@ async def confirmed_application(application_id: int, driver_id: int, change_pric
         updated_fields=dict(
             confirmed_at=datetime.utcnow(),
             driver_id=driver_id,
-            price=change_price if change_price else application.price
+            price=change_price if change_price else application.price,
+            application_status=ApplicationStatus.confirmed
         )
     )
 

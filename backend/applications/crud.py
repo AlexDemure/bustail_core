@@ -1,6 +1,6 @@
 from typing import List
 
-from tortoise.query_utils import Prefetch
+from tortoise.query_utils import Prefetch, Q
 
 from backend.applications.models import Application
 from backend.common.crud import CRUDBase
@@ -33,7 +33,19 @@ class CRUDApplication(CRUDBase[Application, ApplicationCreate, UpdatedBase]):
         order_by: str = 'to_go_when',
         order_type: str = 'asc',
     ) -> List[Application]:
-        return await self.model.all()
+        return await (
+            self.model.all()
+                .filter(
+                Q(
+                    Q(to_go_from__icontains=city),
+                    Q(to_go_to__icontains=city),
+                    join_type="OR"
+                )
+            )
+            .order_by(f'{"-" if order_type == "desc" else ""}{order_by}')
+            .limit(limit=limit)
+            .offset(offset=offset)
+        )
 
 
 application = CRUDApplication(Application)

@@ -3,10 +3,11 @@ from uuid import uuid4
 import httpx
 import jinja2
 from structlog import get_logger
+from tenacity import retry, stop_after_attempt, wait_exponential
 
+from backend.common.enums import BaseSystemErrors
 from backend.core.config import settings
 from backend.schemas.mailing import BaseEmail, SendVerifyCodeEvent, ChangePassword
-from backend.common.enums import BaseSystemErrors
 
 
 class SenderBase:
@@ -42,7 +43,7 @@ class SenderBase:
     def validate_data(self):
         assert isinstance(self.schema, self.validation_schema), BaseSystemErrors.schema_wrong_format.value
 
-    async def send_html(self, subject: str, html: str):
+    def get_send_grid_template(self, subject: str, html: str) -> dict:
         data = {
             "personalizations": [
                 {
@@ -66,6 +67,16 @@ class SenderBase:
                 "name": settings.MAILING_NAME,
             }
         }
+
+        return data
+
+    @retry(
+        wait=wait_exponential(multiplier=1),
+        stop=stop_after_attempt(5),
+        reraise=True,
+    )
+    async def send_html(self, subject: str, html: str):
+        data = self.get_send_grid_template(subject, html)
 
         async with httpx.AsyncClient() as client:
             if settings.ENV == "PROD":

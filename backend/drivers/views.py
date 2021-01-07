@@ -21,7 +21,7 @@ from backend.drivers.crud import (
     transport as transport_crud,
     transport_covers as transport_covers_crud
 )
-from backend.drivers.serializer import prepare_transports_with_notifications
+from backend.drivers.serializer import prepare_transports_with_notifications, prepare_transport_with_photos
 from backend.enums.drivers import DriverErrors
 from backend.accounts.models import Account
 
@@ -97,7 +97,7 @@ async def get_transports(**kwargs) -> ListTransports:
     """Получение списка всех предложений аренды транспорта."""
     transports = await transport_crud.get_all_transports(**kwargs)
     return ListTransports(
-        transports=[jsonable_encoder(TransportData(**x.__dict__)) for x in transports]
+        transports=[prepare_transport_with_photos(x, x.transport_covers.related_objects) for x in transports]
     )
 
 
