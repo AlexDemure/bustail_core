@@ -3,7 +3,6 @@ from uuid import uuid4
 
 from fastapi import HTTPException, status
 from fastapi import UploadFile
-from fastapi.encoders import jsonable_encoder
 from backend.object_storage.enums import FileStorages, FileMimetypes
 from backend.object_storage.uploader import ObjectStorage
 from backend.object_storage.utils import get_file_hash
@@ -21,7 +20,7 @@ from backend.drivers.crud import (
     transport as transport_crud,
     transport_covers as transport_covers_crud
 )
-from backend.drivers.serializer import prepare_transports_with_notifications, prepare_transport_with_photos
+from backend.drivers.serializer import prepare_transport_with_notifications_and_photos, prepare_transport_with_photos
 from backend.enums.drivers import DriverErrors
 from backend.accounts.models import Account
 
@@ -197,4 +196,8 @@ async def get_driver_by_transport_id(transport_id: int) -> Optional[DriverData]:
 
 async def get_transport_with_notifications(driver: DriverData) -> List[TransportData]:
     transports = await transport_crud.get_transports_with_notifications(driver.id)
-    return [prepare_transports_with_notifications(x, x.notifications) for x in transports]
+    return [
+        prepare_transport_with_notifications_and_photos(
+            x, x.transport_covers.related_objects, x.notifications.related_objects
+        ) for x in transports
+    ]

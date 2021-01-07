@@ -77,7 +77,7 @@ class TestApplicationData:
                 "application_type": random.choice([x.value for x in ApplicationTypes]),
                 "to_go_from": random.choice(get_cities()),
                 "to_go_to": random.choice(get_cities()),
-                "to_go_when": "01.10.21 16:00",
+                "to_go_when": "2021-10-01",
                 "count_seats": random.randint(1, 50),
                 "description": "string",
                 "price": random.randint(10000, 50000)

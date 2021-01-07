@@ -34,6 +34,7 @@ services:
       - ./env_files/redis.env
     volumes:
       - ./backend:/app/backend/
+      - ./backend/db.sqlite3:/app/backend/db.sqlite3
 
 
   redis:

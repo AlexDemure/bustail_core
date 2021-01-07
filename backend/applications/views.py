@@ -8,10 +8,9 @@ from backend.applications.crud import application as application_crud
 from backend.applications.serializer import prepare_apps_with_notifications
 from backend.common.enums import BaseSystemErrors, BaseMessage
 from backend.common.schemas import UpdatedBase
-from backend.common.serializer import string_to_datetime
+from backend.drivers.crud import driver as driver_crud
 from backend.enums.applications import ApplicationErrors, ApplicationStatus
 from backend.schemas.applications import ApplicationBase, ApplicationData, ApplicationCreate, ListApplications
-from backend.drivers.crud import driver as driver_crud
 
 
 async def create_application(account: Account, application_in: ApplicationBase) -> ApplicationData:
@@ -20,15 +19,9 @@ async def create_application(account: Account, application_in: ApplicationBase) 
 
     application_data = application_in.dict()
 
-    if application_data.get("to_go_when"):
-        to_go_when = string_to_datetime(application_data.pop("to_go_when"))
-    else:
-        to_go_when = None
-
     try:
         application_in = ApplicationCreate(
             account_id=account.id,
-            to_go_when=to_go_when,
             **application_data
         )
     except AssertionError as e:

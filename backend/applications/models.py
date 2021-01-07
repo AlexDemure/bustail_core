@@ -10,7 +10,7 @@ class Application(models.Model):
     driver = fields.ForeignKeyField('models.Driver', related_name='applications', on_delete=fields.CASCADE, null=True)
     to_go_from = fields.CharField(max_length=255)
     to_go_to = fields.CharField(max_length=255, null=True)
-    to_go_when = fields.DatetimeField()
+    to_go_when = fields.DateField()
     count_seats = fields.IntField(default=1)
     description = fields.CharField(max_length=1024, null=True)
     price = fields.IntField(default=0)

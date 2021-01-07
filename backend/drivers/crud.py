@@ -34,6 +34,10 @@ class CRUDTransport(CRUDBase[Transport, TransportCreate, UpdatedBase]):
                     'notifications',
                     queryset=Notification.filter(decision__isnull=True).all()
                 ),
+                Prefetch(
+                    'transport_covers',
+                    queryset=TransportPhoto.all()
+                )
             )
         )
 
