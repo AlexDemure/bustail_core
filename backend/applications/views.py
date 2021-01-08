@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional
 
 from fastapi import HTTPException
 
@@ -32,11 +32,7 @@ async def create_application(account: Account, application_in: ApplicationBase) 
 
 
 async def get_all_applications(**kwargs) -> ListApplications:
-    """
-    Получение списка заявок клиента.
-
-    Не относится к заявкам водителя.
-    """
+    """Получение списка всех заявок в системе с get-параметрами."""
     applications = await application_crud.get_all_applications(**kwargs)
     return ListApplications(
         applications=[ApplicationData(**x.__dict__) for x in applications]
@@ -55,19 +51,21 @@ async def get_account_applications(account: Account) -> ListApplications:
     )
 
 
-async def get_driver_applications(driver_id: int) -> List[ApplicationData]:
+async def get_driver_applications(driver_id: int) -> ListApplications:
     """
-    Получение списка заявок клиента.
+    Получение списка заявок водителя.
 
-    Не относится к заявкам водителя.
+    Не относится к заявкам клиента.
     """
     applications = await application_crud.driver_applications(driver_id)
-    return [ApplicationData(**x.__dict__) for x in applications]
+    return ListApplications(
+        applications=[prepare_apps_with_notifications(x, []) for x in applications]
+    )
 
 
 async def get_application(application_id: int) -> Optional[ApplicationData]:
     application = await application_crud.get(application_id)
-    return ApplicationData(**application.__dict__)
+    return ApplicationData(**application.__dict__) if application else None
 
 
 async def delete_application(account: Account, application_id: int) -> None:
@@ -85,7 +83,8 @@ async def delete_application(account: Account, application_id: int) -> None:
     assert application is None, "Application is not deleted"
 
 
-async def confirmed_application(application_id: int, driver_id: int, change_price: int = None) -> ApplicationData:
+async def confirm_application(application_id: int, driver_id: int, change_price: int = None) -> None:
+    """Подтверждение заявки, происходит после того когда клиент или водитель приняк заявку."""
     application = await application_crud.get(application_id)
     if not application:
         raise ValueError(BaseMessage.obj_is_not_found.value)
@@ -105,8 +104,6 @@ async def confirmed_application(application_id: int, driver_id: int, change_pric
     )
 
     await application_crud.update(update_schema)
-
-    return await application_crud.get(application.id)
 
 
 async def reject_application(account: Account, application_id: int) -> None:

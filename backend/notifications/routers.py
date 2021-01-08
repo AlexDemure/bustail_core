@@ -6,8 +6,8 @@ from backend.accounts.models import Account
 from backend.applications.views import get_application
 from backend.common.deps import confirmed_account
 from backend.common.enums import BaseMessage
-from backend.common.schemas import Message
 from backend.common.responses import auth_responses
+from backend.common.schemas import Message
 from backend.drivers.views import is_transport_belongs_driver
 from backend.enums.applications import ApplicationErrors
 from backend.enums.drivers import DriverErrors
@@ -31,7 +31,7 @@ router = APIRouter()
         **auth_responses
     }
 )
-async def create_notification_(notification_in: NotificationCreate, account: Account = Depends(confirmed_account)):
+async def create_notification_(notification_in: NotificationCreate, account: Account = Depends(confirmed_account)) -> JSONResponse:
     """Создание предложения об услуги."""
     if notification_in.notification_type == NotificationTypes.driver_to_client:
         if await is_transport_belongs_driver(account.id, notification_in.transport_id) is False:
@@ -58,7 +58,7 @@ async def create_notification_(notification_in: NotificationCreate, account: Acc
 
 @router.put(
     "/",
-    response_model=NotificationData,
+    response_model=Message,
     responses={
         status.HTTP_200_OK: {"description": BaseMessage.obj_is_changed.value},
         status.HTTP_400_BAD_REQUEST: {
@@ -69,7 +69,7 @@ async def create_notification_(notification_in: NotificationCreate, account: Acc
         **auth_responses
     }
 )
-async def notification_decision(request: SetDecision, account: Account = Depends(confirmed_account)):
+async def notification_decision(request: SetDecision, account: Account = Depends(confirmed_account)) -> Message:
     """Решение по предложению."""
 
     notification = await get_notification(request.notification_id)
@@ -108,16 +108,14 @@ async def notification_decision(request: SetDecision, account: Account = Depends
                 detail=DriverErrors.car_not_belong_to_driver.value
             )
 
-    notification = await set_decision(notification.id, request.decision)
+    await set_decision(notification.id, request.decision)
 
-    return JSONResponse(
-        status_code=status.HTTP_200_OK,
-        content=jsonable_encoder(notification)
-    )
+    return Message(msg=BaseMessage.obj_is_changed.value)
 
 
 @router.delete(
     "/",
+    response_model=Message,
     responses={
         status.HTTP_200_OK: {"description": BaseMessage.obj_is_deleted.value},
         status.HTTP_400_BAD_REQUEST: {
@@ -128,7 +126,7 @@ async def notification_decision(request: SetDecision, account: Account = Depends
         **auth_responses
     }
 )
-async def notification_decision(request: SetDecision, account: Account = Depends(confirmed_account)):
+async def notification_decision(request: SetDecision, account: Account = Depends(confirmed_account)) -> Message:
     """Удаление предложения."""
     notification = await get_notification(request.notification_id)
     if not notification:

@@ -1,6 +1,7 @@
 import os
 import secrets
 from typing import Any, Optional
+
 from pydantic import BaseSettings, PostgresDsn, validator
 
 

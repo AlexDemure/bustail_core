@@ -1,7 +1,7 @@
-from backend.object_storage.enums import FileMimetypes
 from tortoise import models, fields
 
 from backend.enums.drivers import TransportType
+from backend.object_storage.enums import FileMimetypes
 
 
 class Driver(models.Model):

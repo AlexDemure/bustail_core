@@ -1,13 +1,14 @@
-from typing import List
 from datetime import datetime
+from typing import List
+
 from tortoise.query_utils import Prefetch, Q
 
 from backend.applications.models import Application
 from backend.common.crud import CRUDBase
 from backend.common.schemas import UpdatedBase
+from backend.enums.applications import ApplicationStatus
 from backend.notifications.models import Notification
 from backend.schemas.applications import ApplicationCreate
-from backend.enums.applications import ApplicationStatus
 
 
 class CRUDApplication(CRUDBase[Application, ApplicationCreate, UpdatedBase]):
@@ -24,6 +25,7 @@ class CRUDApplication(CRUDBase[Application, ApplicationCreate, UpdatedBase]):
         )
 
     async def completed_applications(self) -> List[Application]:
+        """Заявки которые были подтверждены но у них не проставлен статус 'Выполнено'."""
         return await (
             self.model.filter(
                 Q(

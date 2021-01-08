@@ -6,7 +6,6 @@ from backend.mailing.settings import SERVICE_NAME
 from backend.redis.service import redis
 from backend.schemas.mailing import SendVerifyCodeEvent, BaseEmail, ChangePassword
 
-
 logger = get_logger()
 
 

@@ -3,18 +3,12 @@ from uuid import uuid4
 
 from fastapi import HTTPException, status
 from fastapi import UploadFile
-from backend.object_storage.enums import FileStorages, FileMimetypes
-from backend.object_storage.uploader import ObjectStorage
-from backend.object_storage.utils import get_file_hash
 
+from backend.accounts.models import Account
 from backend.common.enums import BaseMessage
 from backend.common.enums import BaseSystemErrors
 from backend.common.schemas import UpdatedBase
 from backend.core.config import settings
-from backend.schemas.drivers import (
-    DriverCreate, DriverData, TransportData, TransportCreate,
-    ListTransports, TransportUpdate, TransportPhotoData, TransportPhotoCreate
-)
 from backend.drivers.crud import (
     driver as driver_crud,
     transport as transport_crud,
@@ -26,8 +20,13 @@ from backend.drivers.serializer import (
     prepare_driver_data
 )
 from backend.enums.drivers import DriverErrors
-from backend.accounts.models import Account
-
+from backend.object_storage.enums import FileStorages, FileMimetypes
+from backend.object_storage.uploader import ObjectStorage
+from backend.object_storage.utils import get_file_hash
+from backend.schemas.drivers import (
+    DriverCreate, DriverData, TransportData, TransportCreate,
+    ListTransports, TransportUpdate, TransportPhotoData, TransportPhotoCreate
+)
 
 object_storage = ObjectStorage(
     settings.YANDEX_ACCESS_KEY_ID, settings.YANDEX_SECRET_ACCESS_KEY, settings.YANDEX_BUCKET_NAME

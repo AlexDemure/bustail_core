@@ -1,11 +1,12 @@
 from typing import Optional, List
+
 from tortoise.query_utils import Q, Prefetch
 
 from backend.common.crud import CRUDBase
-from backend.drivers.models import Driver, Transport, TransportPhoto
-from backend.schemas.drivers import DriverCreate, TransportCreate, TransportPhotoCreate
 from backend.common.schemas import UpdatedBase
+from backend.drivers.models import Driver, Transport, TransportPhoto
 from backend.notifications.models import Notification
+from backend.schemas.drivers import DriverCreate, TransportCreate, TransportPhotoCreate
 
 
 class CRUDDriver(CRUDBase[Driver, DriverCreate, UpdatedBase]):

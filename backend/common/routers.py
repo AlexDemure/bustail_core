@@ -1,4 +1,5 @@
 from fastapi import APIRouter, status
+
 from backend.common.utils import get_cities
 
 router = APIRouter()

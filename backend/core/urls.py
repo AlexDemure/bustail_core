@@ -1,11 +1,11 @@
 from fastapi import APIRouter
 
 from backend.accounts.routers import router as account_router
+from backend.applications.routers import router as application_router
 from backend.auth.routers import router as auth_router
 from backend.common.routers import router as common_router
-from backend.applications.routers import router as application_router
-from backend.mailing.routers import router as mailing_router
 from backend.drivers.routers import router as driver_router
+from backend.mailing.routers import router as mailing_router
 from backend.notifications.routers import router as notification_router
 
 api_router = APIRouter()

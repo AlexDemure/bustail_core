@@ -1,4 +1,5 @@
 from uuid import uuid4
+
 from backend.mailing.settings import SERVICE_NAME
 
 

@@ -48,9 +48,14 @@ router = APIRouter()
 async def create_cover_transport(
         transport_id: int,
         file: UploadFile = File(...),
-        account: Account = Depends(confirmed_account)
-):
-    """Загрузка обложки к транспорту."""
+        account: Account = Depends(confirmed_account),
+) -> JSONResponse:
+    """
+    Загрузка обложки к транспорту.
+
+    - **validation №1**: Если клиент загрузил формат не подходящего типа
+     или размер файла превышает лимит в системе вернется 400.
+    """
 
     if check_file_type(file.content_type) is False:
         raise HTTPException(
@@ -85,9 +90,12 @@ async def create_cover_transport(
         **auth_responses
     }
 )
-async def get_transport_cover(transport_id: int, cover_id: int):
-    """Получение обложки к транспорту."""
+async def get_transport_cover(transport_id: int, cover_id: int) -> Response:
+    """
+    Получение обложки к транспорту.
 
+    - **returned**: Возвращает response с параметрами content, media_type.
+    """
     transport = await get_transport(transport_id)
     if not transport:
         raise HTTPException(
@@ -109,7 +117,7 @@ async def get_transport_cover(transport_id: int, cover_id: int):
         **auth_responses
     }
 )
-async def get_my_transports(account: Account = Depends(confirmed_account)):
+async def get_my_transports(account: Account = Depends(confirmed_account)) -> List[TransportData]:
     """Карточка водителя."""
     driver = await get_driver_by_account_id(account.id)
     if not driver:
@@ -130,7 +138,7 @@ async def get_my_transports(account: Account = Depends(confirmed_account)):
         **auth_responses
     }
 )
-async def get_transport(transport_id: int):
+async def get_transport(transport_id: int) -> TransportData:
     """Карточка транспорта."""
     transport = await view_get_transport(transport_id)
     if not transport:
@@ -154,14 +162,15 @@ async def get_transport(transport_id: int):
 )
 async def change_transport_data(
         transport_id: int,
-        request: TransportBase,
+        payload: TransportBase,
         account: Account = Depends(confirmed_account)
-):
+) -> Message:
     """Изменение данных в карточке транспорта."""
     driver, transport = await is_transport_belongs_driver(account.id, transport_id)
 
-    transport_up = TransportUpdate(driver_id=driver.id, **request.dict())
+    transport_up = TransportUpdate(driver_id=driver.id, **payload.dict())
     await view_change_transport_data(transport, transport_up)
+
     return Message(msg=BaseMessage.obj_is_changed.value)
 
 
@@ -174,7 +183,7 @@ async def change_transport_data(
         **auth_responses
     }
 )
-async def delete_transport(transport_id: int, account: Account = Depends(confirmed_account)):
+async def delete_transport(transport_id: int, account: Account = Depends(confirmed_account)) -> Message:
     """Удаление собственного транспорта."""
 
     driver, transport = await is_transport_belongs_driver(account.id, transport_id)
@@ -197,7 +206,7 @@ async def delete_transport(transport_id: int, account: Account = Depends(confirm
         **auth_responses
     }
 )
-async def create_transport(request: TransportBase, account: Account = Depends(confirmed_account)):
+async def create_transport(payload: TransportBase, account: Account = Depends(confirmed_account)):
     """Создание карточки транспорта."""
     driver = await get_driver_by_account_id(account.id)
     if not driver:
@@ -206,7 +215,7 @@ async def create_transport(request: TransportBase, account: Account = Depends(co
             detail=BaseMessage.obj_is_not_found.value
         )
 
-    create_schema = TransportCreate(driver_id=driver.id, **request.dict())
+    create_schema = TransportCreate(driver_id=driver.id, **payload.dict())
     try:
         transport = await view_create_transport(create_schema)
     except ValueError as e:
@@ -250,7 +259,7 @@ async def get_transports(
         **auth_responses
     }
 )
-async def read_driver_me(account: Account = Depends(confirmed_account)):
+async def read_driver_me(account: Account = Depends(confirmed_account)) -> DriverData:
     """Карточка водителя."""
     driver = await get_driver_by_account_id(account.id)
     if not driver:
@@ -271,14 +280,16 @@ async def read_driver_me(account: Account = Depends(confirmed_account)):
         **auth_responses
     }
 )
-async def get_driver(driver_id: int, account: Account = Depends(confirmed_account)):
+async def get_driver(driver_id: int, account: Account = Depends(confirmed_account)) -> DriverData:
     """Получение карточки водителя."""
     driver = await view_get_driver(driver_id)
-    if driver:
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content=jsonable_encoder(driver)
+    if not driver:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=BaseMessage.obj_is_not_found.value
         )
+
+    return driver
 
 
 @router.put(
@@ -290,7 +301,7 @@ async def get_driver(driver_id: int, account: Account = Depends(confirmed_accoun
         **auth_responses
     }
 )
-async def change_driver_data(request: DriverBase, account: Account = Depends(confirmed_account)):
+async def change_driver_data(payload: DriverBase, account: Account = Depends(confirmed_account)) -> Message:
     """Смена данных в карточки водителя."""
     driver = await get_driver_by_account_id(account.id)
     if not driver:
@@ -299,7 +310,7 @@ async def change_driver_data(request: DriverBase, account: Account = Depends(con
             detail=BaseMessage.obj_is_not_found.value
         )
 
-    update_schema = UpdatedBase(id=driver.id, updated_fields=request.dict())
+    update_schema = UpdatedBase(id=driver.id, updated_fields=payload.dict())
     await update_driver(update_schema)
 
     return Message(msg=BaseMessage.obj_is_changed.value)
@@ -314,7 +325,7 @@ async def change_driver_data(request: DriverBase, account: Account = Depends(con
         **auth_responses
     }
 )
-async def create_driver(request: DriverBase, account: Account = Depends(confirmed_account)):
+async def create_driver(payload: DriverBase, account: Account = Depends(confirmed_account)) -> JSONResponse:
     """Создание карточки водителя."""
     driver = await get_driver_by_account_id(account.id)
     if driver:
@@ -325,7 +336,7 @@ async def create_driver(request: DriverBase, account: Account = Depends(confirme
 
     create_schema = DriverCreate(
         account_id=account.id,
-        license_number=request.license_number
+        license_number=payload.license_number
     )
     driver = await view_create_driver(create_schema, account)
     return JSONResponse(

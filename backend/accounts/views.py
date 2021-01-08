@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from backend.accounts.crud import account as account_crud
 from backend.accounts.models import Account
@@ -10,7 +11,23 @@ from backend.mailing.views import send_verify_code, send_welcome_message, is_ver
 from backend.permissions.enums import Roles
 from backend.permissions.utils import create_account_role
 from backend.schemas.accounts import AccountCreate
+from backend.schemas.accounts import AccountData
+from backend.schemas.accounts import AccountUpdate
 from backend.security.utils import verify_security_token
+
+
+async def get_account(account_id: int) -> Optional[AccountData]:
+    account = await account_crud.get(account_id)
+    if account:
+        return AccountData(
+            id=account.id,
+            fullname=account.fullname,
+            phone=account.phone,
+            email=account.email,
+            city=account.city,
+        )
+    else:
+        return None
 
 
 async def create_account(account_in: AccountCreate, account: Account = None) -> int:
@@ -25,7 +42,6 @@ async def create_account(account_in: AccountCreate, account: Account = None) -> 
 
     # Если аккаунт уже есть в системе но не подтвержден - делаем отправку письма занова.
     if account:
-        account_id = account.id
 
         # Если пароль изменился заменяем на более новый
         if account.hashed_password != account_in.hashed_password:
@@ -42,6 +58,15 @@ async def create_account(account_in: AccountCreate, account: Account = None) -> 
     await send_verify_code(account.id, account_in.email)
 
     return account.id
+
+
+async def update_account(account: Account, account_up: AccountUpdate) -> None:
+    """Обновление данных аккаунта."""
+    update_schema = UpdatedBase(
+        id=account.id,
+        updated_fields=account_up.dict()
+    )
+    await account_crud.update(update_schema)
 
 
 async def confirmed_account(account: Account) -> None:

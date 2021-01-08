@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, status, HTTPException
-from fastapi.responses import Response
-from typing import List
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
+
 from backend.accounts.models import Account
 from backend.applications.views import (
     get_account_applications as view_get_account_applications,
@@ -14,9 +15,9 @@ from backend.common.deps import confirmed_account
 from backend.common.enums import BaseMessage
 from backend.common.responses import auth_responses
 from backend.common.schemas import Message
+from backend.drivers.views import get_driver_by_account_id
 from backend.enums.applications import ApplicationErrors
 from backend.schemas.applications import ListApplications, ApplicationData, ApplicationBase
-from backend.drivers.views import get_driver_by_account_id
 
 router = APIRouter()
 
@@ -33,25 +34,25 @@ async def get_account_applications(account: Account = Depends(confirmed_account)
     """
     Получение списка заявок клиента.
 
-    Не относится к заявкам водителя.
+    - **description**: Не относится к заявкам водителя. Уведомления будут в заявках в статусе "На ожидании".
     """
     return await view_get_account_applications(account)
 
 
 @router.get(
     "/driver/",
-    response_model=List[ApplicationData],
+    response_model=ListApplications,
     responses={
         status.HTTP_200_OK: {"description": BaseMessage.obj_data.value},
         status.HTTP_404_NOT_FOUND: {"description": BaseMessage.obj_is_not_found.value},
         **auth_responses
     }
 )
-async def get_driver_applications(account: Account = Depends(confirmed_account)) -> List[ApplicationData]:
+async def get_driver_applications(account: Account = Depends(confirmed_account)) -> ListApplications:
     """
     Получение списка заявок водителя.
 
-    Не относится к заявкам клиента.
+    - **description**: Не относится к заявкам клиента. Уведомления будут в заявках в статусе "На ожидании".
     """
     driver = await get_driver_by_account_id(account.id)
     if not driver:
@@ -72,40 +73,43 @@ async def get_driver_applications(account: Account = Depends(confirmed_account))
     }
 )
 async def create_application(
-        application_in: ApplicationBase,
-        response: Response,
+        payload: ApplicationBase,
         account: Account = Depends(confirmed_account),
-):
+) -> JSONResponse:
     """Создание заявки."""
     try:
-        app = await view_create_application(account, application_in)
-        response.status_code = status.HTTP_201_CREATED
-        return app
-
+        application = await view_create_application(account, payload)
     except AssertionError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+    return JSONResponse(
+        status_code=status.HTTP_201_CREATED,
+        content=jsonable_encoder(application)
+    )
 
 
 @router.get(
     "/{application_id}/",
+    response_model=ApplicationData,
     responses={
         status.HTTP_200_OK: {"description": BaseMessage.obj_data.value},
         **auth_responses
     }
 )
-async def get_application(application_id: int, account: Account = Depends(confirmed_account)):
-    """Получение заявки клиента."""
+async def get_application(application_id: int, account: Account = Depends(confirmed_account)) -> ApplicationData:
+    """Получение данных о заявке."""
     return await view_get_application(application_id)
 
 
 @router.put(
     "/{application_id}/",
+    response_model=Message,
     responses={
         status.HTTP_200_OK: {"description": BaseMessage.obj_is_changed.value},
         **auth_responses
     }
 )
-async def rejected_application(application_id: int, account: Account = Depends(confirmed_account)):
+async def rejected_application(application_id: int, account: Account = Depends(confirmed_account)) -> Message:
     """Отмена заявки."""
     try:
         await view_delete_application(account, application_id)
@@ -126,7 +130,7 @@ async def rejected_application(application_id: int, account: Account = Depends(c
         **auth_responses
     }
 )
-async def delete_application(application_id: int, account: Account = Depends(confirmed_account)):
+async def delete_application(application_id: int, account: Account = Depends(confirmed_account)) -> Message:
     """Удаление собственной заявки."""
     try:
         await view_delete_application(account, application_id)

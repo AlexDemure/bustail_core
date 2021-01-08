@@ -1,4 +1,5 @@
 from fastapi import status
+
 from backend.enums.accounts import AccountErrors
 
 auth_responses = {

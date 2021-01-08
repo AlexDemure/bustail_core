@@ -1,11 +1,16 @@
 from typing import List
+
 from backend.drivers.models import Transport, TransportPhoto, Driver
 from backend.schemas.drivers import TransportData, DriverData
 from backend.schemas.notifications import NotificationData
 
 
 def prepare_driver_data(driver: Driver, transports: List[Transport]) -> DriverData:
+    """
+    Подготавливае данные о водителе вместе со списком транспорта и их обложек.
 
+    Использовать только если query запрос делает prefetch transport_covers у transport иначе будет AttributeError.
+    """
     serialized_transports = list()
 
     for transport in transports:
