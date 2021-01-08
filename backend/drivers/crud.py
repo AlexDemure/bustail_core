@@ -10,8 +10,37 @@ from backend.notifications.models import Notification
 
 class CRUDDriver(CRUDBase[Driver, DriverCreate, UpdatedBase]):
 
+    async def get(self, driver_id: int) -> Optional[Driver]:
+        return await (
+            self.model.filter(id=driver_id).first()
+                .prefetch_related(
+                Prefetch(
+                    'transports',
+                    queryset=Transport.all().prefetch_related(
+                        Prefetch(
+                            'transport_covers',
+                            queryset=TransportPhoto.all()
+                        )
+                    )
+                )
+            )
+        )
+
     async def find_by_account_id(self, account_id: int) -> Optional[Driver]:
-        return await self.model.get_or_none(account_id=account_id)
+        return await (
+            self.model.filter(account_id=account_id).first()
+            .prefetch_related(
+                Prefetch(
+                    'transports',
+                    queryset=Transport.all().prefetch_related(
+                        Prefetch(
+                            'transport_covers',
+                            queryset=TransportPhoto.all()
+                        )
+                    )
+                )
+            )
+        )
 
 
 driver = CRUDDriver(Driver)

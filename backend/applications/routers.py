@@ -98,12 +98,31 @@ async def get_application(application_id: int, account: Account = Depends(confir
     return await view_get_application(application_id)
 
 
+@router.put(
+    "/{application_id}/",
+    responses={
+        status.HTTP_200_OK: {"description": BaseMessage.obj_is_changed.value},
+        **auth_responses
+    }
+)
+async def rejected_application(application_id: int, account: Account = Depends(confirmed_account)):
+    """Отмена заявки."""
+    try:
+        await view_delete_application(account, application_id)
+    except (AssertionError, ValueError) as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    return Message(msg=BaseMessage.obj_is_changed.value)
+
+
 @router.delete(
     "/{application_id}/",
     response_model=Message,
     responses={
         status.HTTP_200_OK: {"description": BaseMessage.obj_is_deleted.value},
-        status.HTTP_400_BAD_REQUEST: {"description": ApplicationErrors.application_does_not_belong_this_user.value},
+        status.HTTP_400_BAD_REQUEST:
+            {"description": f"{ApplicationErrors.application_does_not_belong_this_user.value} or "
+                            f"{ApplicationErrors.application_has_ended_status.value}"},
         **auth_responses
     }
 )
@@ -111,7 +130,7 @@ async def delete_application(application_id: int, account: Account = Depends(con
     """Удаление собственной заявки."""
     try:
         await view_delete_application(account, application_id)
-    except AssertionError as e:
+    except (AssertionError, ValueError) as e:
         raise HTTPException(status_code=400, detail=str(e))
 
     return Message(msg=BaseMessage.obj_is_deleted.value)

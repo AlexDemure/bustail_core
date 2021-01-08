@@ -71,11 +71,13 @@ async def get_application(application_id: int) -> Optional[ApplicationData]:
 
 
 async def delete_application(account: Account, application_id: int) -> None:
+    """Удаление заявки только в статусе ожидания."""
     application = await application_crud.get(application_id)
     if not application:
         raise ValueError(BaseMessage.obj_is_not_found.value)
 
-    assert application['account_id'] == account.id, ApplicationErrors.application_does_not_belong_this_user.value
+    assert application.account_id == account.id, ApplicationErrors.application_does_not_belong_this_user.value
+    assert application.application_status == ApplicationStatus.waiting, ApplicationErrors.application_has_ended_status.value
 
     await application_crud.remove(application['id'])
 
@@ -105,3 +107,22 @@ async def confirmed_application(application_id: int, driver_id: int, change_pric
     await application_crud.update(update_schema)
 
     return await application_crud.get(application.id)
+
+
+async def reject_application(account: Account, application_id: int) -> None:
+    """Отмена заявки."""
+    application = await application_crud.get(application_id)
+    if not application:
+        raise ValueError(BaseMessage.obj_is_not_found.value)
+
+    assert application.account_id == account.id, ApplicationErrors.application_does_not_belong_this_user.value
+    assert application.application_status != ApplicationStatus.completed, ApplicationErrors.application_has_ended_status.value
+
+    updated_schema = UpdatedBase(
+        id=application.id,
+        updated_fields=dict(application_status=ApplicationStatus.rejected)
+    )
+    await application_crud.update(updated_schema)
+
+    application = await application_crud.get(application_id)
+    assert application.application_status == ApplicationStatus.rejected, "Application is not rejected"

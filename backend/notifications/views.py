@@ -46,3 +46,11 @@ async def set_decision(notification_id: int, decision: bool) -> NotificationData
         await confirmed_application(notification.application_id, driver.id, notification.price)
 
     return await get_notification(notification.id)
+
+
+async def delete_notification(notification_id: int) -> None:
+    """Удаление уведомления."""
+    await notification_crud.remove(notification_id)
+
+    notification = await notification_crud.get(notification_id)
+    assert notification is None, "Notification is not deleted"

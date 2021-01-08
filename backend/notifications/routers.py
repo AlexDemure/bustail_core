@@ -6,12 +6,13 @@ from backend.accounts.models import Account
 from backend.applications.views import get_application
 from backend.common.deps import confirmed_account
 from backend.common.enums import BaseMessage
+from backend.common.schemas import Message
 from backend.common.responses import auth_responses
 from backend.drivers.views import is_transport_belongs_driver
 from backend.enums.applications import ApplicationErrors
 from backend.enums.drivers import DriverErrors
 from backend.enums.notifications import NotificationTypes, NotificationErrors
-from backend.notifications.views import create_notification, get_notification, set_decision
+from backend.notifications.views import create_notification, get_notification, set_decision, delete_notification
 from backend.schemas.notifications import NotificationData, NotificationCreate, SetDecision
 
 router = APIRouter()
@@ -113,3 +114,59 @@ async def notification_decision(request: SetDecision, account: Account = Depends
         status_code=status.HTTP_200_OK,
         content=jsonable_encoder(notification)
     )
+
+
+@router.delete(
+    "/",
+    responses={
+        status.HTTP_200_OK: {"description": BaseMessage.obj_is_deleted.value},
+        status.HTTP_400_BAD_REQUEST: {
+            "description": f"{NotificationErrors.notification_is_have_decision.value} or "
+                           f"{ApplicationErrors.application_does_not_belong_this_user.value}"
+        },
+        status.HTTP_404_NOT_FOUND: {"description": BaseMessage.obj_is_not_found.value},
+        **auth_responses
+    }
+)
+async def notification_decision(request: SetDecision, account: Account = Depends(confirmed_account)):
+    """Удаление предложения."""
+    notification = await get_notification(request.notification_id)
+    if not notification:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=BaseMessage.obj_is_not_found.value
+        )
+
+    if notification.decision is not None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=NotificationErrors.notification_is_have_decision.value
+        )
+
+    # Если уведомление от водителя тогда смотрим принадлежит ли это заявка данному пользователю.
+    if notification.notification_type == NotificationTypes.driver_to_client:
+        application = await get_application(notification.application_id)
+        if not application:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=BaseMessage.obj_is_not_found.value
+            )
+
+        if application.account_id != account.id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=ApplicationErrors.application_does_not_belong_this_user.value
+            )
+
+    # Если уведомление от клиента тогда смотрим принадлежит ли этот транспорт данному пользователю.
+    elif notification.notification_type == NotificationTypes.client_to_driver:
+        if await is_transport_belongs_driver(account.id, notification.transport_id) is False:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=DriverErrors.car_not_belong_to_driver.value
+            )
+
+    await delete_notification(notification.id)
+
+    return Message(msg=BaseMessage.obj_is_deleted.value)
+

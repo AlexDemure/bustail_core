@@ -4,6 +4,7 @@ from enum import Enum
 class ApplicationStatus(Enum):
     waiting = "waiting"
     confirmed = "confirmed"
+    completed = "completed"
     rejected = "rejected"
     expired = "expired"
 
@@ -14,9 +15,11 @@ class ApplicationStatus(Enum):
         elif self is self.confirmed:
             return "Подтверждена"
         elif self is self.rejected:
-            return "Закрыта"
+            return "Отменена"
         elif self is self.expired:
             return "Истекла"
+        elif self is self.completed:
+            return "Выполнена"
 
 
 class ApplicationTypes(Enum):
@@ -43,3 +46,4 @@ class ApplicationTypes(Enum):
 class ApplicationErrors(Enum):
     to_go_when_wrong_format = "Дата назначения поездки должна быть больше текущей."
     application_does_not_belong_this_user = "Заявки не принадлежит данному пользователю."
+    application_has_ended_status = "Заявка переведена в промежуточный или конечный статус."

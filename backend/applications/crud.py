@@ -1,5 +1,5 @@
 from typing import List
-
+from datetime import datetime
 from tortoise.query_utils import Prefetch, Q
 
 from backend.applications.models import Application
@@ -7,6 +7,7 @@ from backend.common.crud import CRUDBase
 from backend.common.schemas import UpdatedBase
 from backend.notifications.models import Notification
 from backend.schemas.applications import ApplicationCreate
+from backend.enums.applications import ApplicationStatus
 
 
 class CRUDApplication(CRUDBase[Application, ApplicationCreate, UpdatedBase]):
@@ -20,6 +21,16 @@ class CRUDApplication(CRUDBase[Application, ApplicationCreate, UpdatedBase]):
                     queryset=Notification.filter(decision__isnull=True).all()
                 ),
             )
+        )
+
+    async def completed_applications(self) -> List[Application]:
+        return await (
+            self.model.filter(
+                Q(
+                    Q(application_status=ApplicationStatus.confirmed),
+                    Q(to_go_when__lt=datetime.utcnow().date())
+                )
+            ).all()
         )
 
     async def driver_applications(self, driver_id: int) -> List[Application]:

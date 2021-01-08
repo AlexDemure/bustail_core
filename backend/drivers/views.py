@@ -20,7 +20,11 @@ from backend.drivers.crud import (
     transport as transport_crud,
     transport_covers as transport_covers_crud
 )
-from backend.drivers.serializer import prepare_transport_with_notifications_and_photos, prepare_transport_with_photos
+from backend.drivers.serializer import (
+    prepare_transport_with_notifications_and_photos,
+    prepare_transport_with_photos,
+    prepare_driver_data
+)
 from backend.enums.drivers import DriverErrors
 from backend.accounts.models import Account
 
@@ -179,7 +183,7 @@ async def is_transport_belongs_driver(account_id: int, transport_id: int) -> tup
 
 async def get_driver(driver_id: int) -> Optional[DriverData]:
     driver = await driver_crud.get(driver_id)
-    return DriverData(**driver.__dict__) if driver else None
+    return prepare_driver_data(driver, driver.transports.related_objects) if driver else None
 
 
 async def get_driver_by_transport_id(transport_id: int) -> Optional[DriverData]:

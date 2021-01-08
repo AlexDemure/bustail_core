@@ -1,7 +1,22 @@
 from typing import List
-from backend.drivers.models import Transport, TransportPhoto
-from backend.schemas.drivers import TransportData
+from backend.drivers.models import Transport, TransportPhoto, Driver
+from backend.schemas.drivers import TransportData, DriverData
 from backend.schemas.notifications import NotificationData
+
+
+def prepare_driver_data(driver: Driver, transports: List[Transport]) -> DriverData:
+
+    serialized_transports = list()
+
+    for transport in transports:
+        serialized_transports.append(
+            prepare_transport_with_photos(transport, transport.transport_covers.related_objects)
+        )
+
+    return DriverData(
+        transports=serialized_transports,
+        **driver.__dict__
+    )
 
 
 def prepare_transport_with_photos(transport: Transport, photos: List[TransportPhoto]) -> TransportData:
