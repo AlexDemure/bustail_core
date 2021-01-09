@@ -52,7 +52,7 @@ async def get_driver_applications(account: Account = Depends(confirmed_account))
     """
     Получение списка заявок водителя.
 
-    - **description**: Не относится к заявкам клиента. Уведомления будут в заявках в статусе "На ожидании".
+    - **description**: Не относится к заявкам клиента. Уведомления в данном API не возвращаются.
     """
     driver = await get_driver_by_account_id(account.id)
     if not driver:

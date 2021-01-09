@@ -19,6 +19,7 @@ from backend.drivers.serializer import (
     prepare_transport_with_photos,
     prepare_driver_data
 )
+from backend.drivers.models import Driver
 from backend.enums.drivers import DriverErrors
 from backend.object_storage.enums import FileStorages, FileMimetypes
 from backend.object_storage.uploader import ObjectStorage
@@ -46,8 +47,13 @@ async def create_driver(driver_in: DriverCreate, account: Account) -> DriverData
 
 
 async def get_driver_by_account_id(account_id: int) -> Optional[DriverData]:
+    """Получение карточки водителя вместе с его транспортами, обложками и уведомлениями."""
     driver = await driver_crud.find_by_account_id(account_id)
-    return DriverData(**driver.__dict__) if driver else None
+    if not driver:
+        return None
+
+    transports = await get_transport_with_notifications_and_covers(driver)
+    return DriverData(**driver.__dict__, transports=transports)
 
 
 async def update_driver(driver_up: UpdatedBase) -> None:
@@ -197,7 +203,8 @@ async def get_driver_by_transport_id(transport_id: int) -> Optional[DriverData]:
     return driver
 
 
-async def get_transport_with_notifications(driver: DriverData) -> List[TransportData]:
+async def get_transport_with_notifications_and_covers(driver: Driver) -> List[TransportData]:
+    """Получение списка транспорта с уведомлениями и обложками."""
     transports = await transport_crud.get_transports_with_notifications(driver.id)
     return [
         prepare_transport_with_notifications_and_photos(

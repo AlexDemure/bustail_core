@@ -12,7 +12,7 @@ from backend.common.schemas import Message, UpdatedBase
 from backend.drivers.views import (
     get_driver_by_account_id, update_driver,
     get_driver as view_get_driver,
-    is_transport_belongs_driver, upload_transport_cover, get_transport_with_notifications,
+    is_transport_belongs_driver, upload_transport_cover,
     create_driver as view_create_driver,
     create_transport as view_create_transport,
     get_transports as view_get_transports,
@@ -109,27 +109,6 @@ async def get_transport_cover(transport_id: int, cover_id: int) -> Response:
 
 
 @router.get(
-    "/transports/me/",
-    response_model=List[TransportData],
-    responses={
-        status.HTTP_200_OK: {"description": BaseMessage.obj_data.value},
-        status.HTTP_404_NOT_FOUND: {"description": BaseMessage.obj_is_not_found.value},
-        **auth_responses
-    }
-)
-async def get_my_transports(account: Account = Depends(confirmed_account)) -> List[TransportData]:
-    """Карточка водителя."""
-    driver = await get_driver_by_account_id(account.id)
-    if not driver:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=BaseMessage.obj_is_not_found.value
-        )
-
-    return await get_transport_with_notifications(driver)
-
-
-@router.get(
     "/transports/{transport_id}/",
     response_model=TransportData,
     responses={
@@ -139,7 +118,11 @@ async def get_my_transports(account: Account = Depends(confirmed_account)) -> Li
     }
 )
 async def get_transport(transport_id: int) -> TransportData:
-    """Карточка транспорта."""
+    """
+    Карточка транспорта.
+
+    - **returned**: Возвращает транспорт без уведомлений т.к. эта картачка доступна для всех пользователей системы.
+    """
     transport = await view_get_transport(transport_id)
     if not transport:
         raise HTTPException(
@@ -242,7 +225,12 @@ async def get_transports(
         limit: int = 10, offset: int = 0,
         city: str = "", order_by: str = 'price', order_type: str = 'asc'
 ) -> ListTransports:
-    """Получение списка всех заявок."""
+    """
+    Получение списка всех предложений аренды транспорта.
+
+    - **returned**: Возвращает список транспорта без уведомлений
+     т.к. эта информация доступна для всех пользователей системы.
+    """
 
     query_params = dict(
         limit=limit, offset=offset, city=city, order_by=order_by, order_type=order_type
@@ -260,7 +248,11 @@ async def get_transports(
     }
 )
 async def read_driver_me(account: Account = Depends(confirmed_account)) -> DriverData:
-    """Карточка водителя."""
+    """
+    Карточка водителя.
+
+    - **returned**: Возвращает карточка водителя со списком транспортов, обложек к ним и уведомлениями.
+    """
     driver = await get_driver_by_account_id(account.id)
     if not driver:
         raise HTTPException(
