@@ -9,7 +9,7 @@ from backend.common.enums import BaseMessage
 from backend.common.responses import auth_responses
 from backend.common.schemas import Message
 from backend.drivers.views import is_transport_belongs_driver
-from backend.enums.applications import ApplicationErrors
+from backend.enums.applications import ApplicationErrors, ApplicationStatus
 from backend.enums.drivers import DriverErrors
 from backend.enums.notifications import NotificationTypes, NotificationErrors
 from backend.notifications.views import create_notification, get_notification, set_decision, delete_notification
@@ -26,13 +26,22 @@ router = APIRouter()
         status.HTTP_201_CREATED: {"description": BaseMessage.obj_is_created.value},
         status.HTTP_400_BAD_REQUEST: {
             "description": f"{DriverErrors.car_not_belong_to_driver.value} or "
-                           f"{ApplicationErrors.application_does_not_belong_this_user.value}"
+                           f"{ApplicationErrors.application_does_not_belong_this_user.value} or"
+                           f"{ApplicationErrors.application_has_ended_status.value}"
         },
         **auth_responses
     }
 )
 async def create_notification_(notification_in: NotificationCreate, account: Account = Depends(confirmed_account)) -> JSONResponse:
     """Создание предложения об услуги."""
+    application = await get_application(notification_in.application_id)
+
+    if application.application_status != ApplicationStatus.waiting:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=ApplicationErrors.application_has_ended_status.value
+        )
+
     if notification_in.notification_type == NotificationTypes.driver_to_client:
         if await is_transport_belongs_driver(account.id, notification_in.transport_id) is False:
             raise HTTPException(
@@ -40,8 +49,6 @@ async def create_notification_(notification_in: NotificationCreate, account: Acc
                 detail=DriverErrors.car_not_belong_to_driver.value
             )
     elif notification_in.notification_type == NotificationTypes.client_to_driver:
-        application = await get_application(notification_in.application_id)
-
         if account.id != application.account_id:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
