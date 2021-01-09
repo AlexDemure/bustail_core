@@ -26,68 +26,6 @@ from backend.schemas.accounts import AccountCreate, AccountUpdate, AccountData, 
 router = APIRouter()
 
 
-@router.post(
-    "/",
-    response_model=Token,
-    responses={
-        status.HTTP_201_CREATED: {"description": BaseMessage.obj_is_created.value},
-        status.HTTP_400_BAD_REQUEST: {"description": AccountErrors.email_already_exist.value},
-        status.HTTP_404_NOT_FOUND: {"description": AccountErrors.city_not_found.value}
-    }
-)
-async def create_account(payload: AccountCreate) -> JSONResponse:
-    """
-    Создание нового пользователя.
-
-    - **returned**: В ответ возвращается токен авторизации который необходимо передавать в каждом запросе в headers.
-    """
-    account = await account_crud.find_by_email(email=payload.email)
-    if account:
-        if account.verified_at is None:
-            raise HTTPException(
-                status_code=400,
-                detail=AccountErrors.email_already_exist.value,
-            )
-
-    account_id = await view_create_account(payload, account)
-
-    return JSONResponse(
-        status_code=status.HTTP_201_CREATED,
-        content=jsonable_encoder(
-            Token(access_token=get_token(account_id))
-        )
-    )
-
-
-@router.put(
-    "/",
-    response_model=Message,
-    responses={
-        status.HTTP_200_OK: {"description": BaseMessage.obj_is_changed.value},
-        status.HTTP_400_BAD_REQUEST: {"description": AccountErrors.phone_already_exist.value},
-        **auth_responses
-    }
-)
-async def update_account(payload: AccountUpdate, account: Account = Depends(confirmed_account)) -> Message:
-    """
-    Обновление данных аккаунта.
-
-    - **validation**: Если клиент указал телефон который уже есть в системе будет отдаваться 400 ошибка.
-    """
-    if payload.phone:
-        other_account = await account_crud.find_by_phone(phone=payload.phone)
-        if other_account:
-            if other_account.id != account.id:
-                raise HTTPException(
-                    status_code=400,
-                    detail=AccountErrors.phone_already_exist.value,
-                )
-
-    await view_update_account(account, payload)
-
-    return Message(msg=BaseMessage.obj_is_changed.value)
-
-
 @router.get(
     "/me/",
     response_model=AccountData,
@@ -154,3 +92,75 @@ async def change_password(payload: ChangePassword, security_token: str) -> Messa
         raise HTTPException(status_code=400, detail=str(e))
 
     return Message(msg=BaseMessage.obj_is_changed.value)
+
+
+@router.post(
+    "/",
+    response_model=Token,
+    responses={
+        status.HTTP_201_CREATED: {"description": BaseMessage.obj_is_created.value},
+        status.HTTP_400_BAD_REQUEST: {"description": AccountErrors.email_already_exist.value},
+        status.HTTP_404_NOT_FOUND: {"description": AccountErrors.city_not_found.value}
+    }
+)
+async def create_account(payload: AccountCreate) -> JSONResponse:
+    """
+    Создание нового пользователя.
+
+    - **returned**: В ответ возвращается токен авторизации который необходимо передавать в каждом запросе в headers.
+    """
+    account = await account_crud.find_by_email(email=payload.email)
+    if account:
+        if account.verified_at is None:
+            raise HTTPException(
+                status_code=400,
+                detail=AccountErrors.email_already_exist.value,
+            )
+
+    account_id = await view_create_account(payload, account)
+
+    return JSONResponse(
+        status_code=status.HTTP_201_CREATED,
+        content=jsonable_encoder(
+            Token(access_token=get_token(account_id))
+        )
+    )
+
+
+@router.put(
+    "/",
+    response_model=Message,
+    responses={
+        status.HTTP_200_OK: {"description": BaseMessage.obj_is_changed.value},
+        status.HTTP_400_BAD_REQUEST: {"description": AccountErrors.phone_already_exist.value},
+        **auth_responses
+    }
+)
+async def update_account(payload: AccountUpdate, account: Account = Depends(confirmed_account)) -> Message:
+    """
+    Обновление данных аккаунта.
+
+    - **validation**: Если клиент указал телефон который уже есть в системе будет отдаваться 400 ошибка.
+    """
+    if payload.phone:
+        other_account = await account_crud.find_by_phone(phone=payload.phone)
+        if other_account:
+            if other_account.id != account.id:
+                raise HTTPException(
+                    status_code=400,
+                    detail=AccountErrors.phone_already_exist.value,
+                )
+
+    await view_update_account(account, payload)
+
+    return Message(msg=BaseMessage.obj_is_changed.value)
+
+
+@router.get(
+    "/{account_id}/",
+    response_model=AccountData,
+    responses=auth_responses
+)
+async def get_user(account_id: int, account: Account = Depends(confirmed_account)) -> Optional[AccountData]:
+    """Получение данных пользователя."""
+    return await get_account(account_id)
