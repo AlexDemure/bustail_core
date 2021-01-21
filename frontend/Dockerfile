@@ -1,0 +1,19 @@
+FROM node:15.6-alpine
+
+WORKDIR /app
+
+COPY package.json /app/package.json
+
+RUN npm install
+
+# Устнановка сервера
+RUN npm install -g serve
+
+COPY . /app
+
+EXPOSE 4000
+
+RUN npm run build
+
+# Запуск сервера на 4000 порту.
+CMD ["serve", "build", "-l", "4000"]
