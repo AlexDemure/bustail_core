@@ -12,7 +12,7 @@ MODELS_LIST = [
 
 # Необходимо для мигратора aerich
 TORTOISE_ORM = {
-    "connections": {"default": settings.DATABASE_URI},
+    "connections": {"default": settings.POSTGRESQL_URI},
     "apps": {
         "models": {
             "models": MODELS_LIST,
@@ -24,18 +24,18 @@ TORTOISE_ORM = {
 
 async def sqlite_db_init():
     await Tortoise.init(
-        db_url=settings.DATABASE_URI,
+        db_url=settings.SQLITE_URI,
         modules={'models': MODELS_LIST}
     )
     # Generate the schema
     await Tortoise.generate_schemas()
 
 
-def postgres_db_init(app):
-    register_tortoise(
-        app,
-        db_url=settings.DATABASE_URI,
-        modules={"models": MODELS_LIST},
-        generate_schemas=True,
-        add_exception_handlers=True,
+async def postgres_db_init():
+    await Tortoise.init(
+        db_url=settings.POSTGRESQL_URI,
+        modules={'models': MODELS_LIST}
     )
+    # Generate the schema
+    await Tortoise.generate_schemas()
+

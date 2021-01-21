@@ -28,11 +28,11 @@ class MailingMandrillSettings(BaseConfig):
     MAILING_NAME: str = os.environ.get("MAILING_NAME")
 
 
-class DBSettings(BaseConfig):
+class PostgresDBSettings(BaseConfig):
 
-    DATABASE_URI: Optional[PostgresDsn] = None
+    POSTGRESQL_URI: Optional[PostgresDsn] = None
 
-    @validator("DATABASE_URI", pre=True)
+    @validator("POSTGRESQL_URI", pre=True)
     def assemble_db_connection(cls, v: Optional[str]) -> Any:
         if isinstance(v, str):
             return v
@@ -46,9 +46,9 @@ class DBSettings(BaseConfig):
         )
 
 
-class TestDBSettings(BaseConfig):
+class SQLiteDBSettings(BaseConfig):
 
-    DATABASE_URI = "sqlite://db.sqlite3"
+    SQLITE_URI = "sqlite://db.sqlite3"
 
 
 class YandexObjectStorage(BaseConfig):
@@ -60,20 +60,15 @@ class YandexObjectStorage(BaseConfig):
     MAX_FILE_SIZE_MB: int = 100
 
 
-# DEFAULT SETTINGS
-applications = [
+# INCLUDE SETTINGS
+configs = [
     FastApiAuthSettings, SecuritySettings,
+    PostgresDBSettings, SQLiteDBSettings,
     YandexObjectStorage, MailingMandrillSettings,
 ]
 
 
-if os.environ.get('ENV', "DEV") == "DEV":
-    applications.append(TestDBSettings)
-else:
-    applications.append(DBSettings)
-
-
-class Settings(*applications):
+class Settings(*configs):
     ENV: str = os.environ.get("ENV", "DEV")
     SERVER: str = os.environ.get("SERVER", "http")
     DOMAIN: str = os.environ.get("DOMAIN", "localhost")

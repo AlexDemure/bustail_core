@@ -5,6 +5,7 @@ from backend.db.database import sqlite_db_init
 from backend.tests.data import BaseTest, TestAccountData
 from backend.redis.service import redis
 from backend.mailing.service import service_mailing
+
 pytestmark = pytest.mark.asyncio
 
 
@@ -20,3 +21,5 @@ class TestAccount(BaseTest):
         await setup_permissions_and_roles()
 
         await self.create_account()
+
+        return 0
