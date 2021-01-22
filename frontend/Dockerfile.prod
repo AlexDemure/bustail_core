@@ -16,4 +16,4 @@ EXPOSE 4000
 RUN npm run build
 
 # Запуск сервера на 4000 порту.
-CMD ["serve", "build", "-l", "4000"]
+CMD ["serve", "-s", "build", "-l", "4000"]
