@@ -1,0 +1,21 @@
+[submodule "backend/tortoise_roles_and_permissions"]
+	path = backend/tortoise_roles_and_permissions
+	url = git@github.com:AlexDemure/tortoise_roles_and_permissions.git
+[submodule "backend/permissions"]
+	path = backend/permissions
+	url = git@github.com:AlexDemure/permissions.git
+[submodule "backend/auth"]
+	path = backend/auth
+	url = git@github.com:AlexDemure/auth.git
+[submodule "backend/security"]
+	path = backend/security
+	url = git@github.com:AlexDemure/security.git
+[submodule "backend/object_storage"]
+	path = backend/object_storage
+	url = git@github.com:AlexDemure/object_storage.git
+[submodule "mailing"]
+	path = mailing
+	url = git@github.com:AlexDemure/mailing.git
+[submodule "backend/redis"]
+	path = backend/redis
+	url = git@github.com:AlexDemure/redis.git

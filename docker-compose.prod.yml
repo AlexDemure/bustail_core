@@ -38,7 +38,7 @@ services:
   frontend:
     build:
       context: frontend
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile.prod
     container_name: frontend
     hostname: frontend
     network_mode: host

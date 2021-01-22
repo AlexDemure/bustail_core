@@ -1,4 +1,11 @@
-# bustail_core
-alembic revision --autogenerate -m ""
+# Bustail Service
+Сервис по пассажирским перевозкам
 
-alembic upgrade head
+## Стек технологий
+- FastApi
+- Aerich
+- React
+- PostgreSQL
+- Docker & Docker-compose
+- Tortoise ORM
+- Pytest
