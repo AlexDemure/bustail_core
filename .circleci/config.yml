@@ -1,0 +1,17 @@
+version: 2.1
+
+jobs:
+  run_tests:
+    docker:
+      - image: alexdemure/bustail:core
+    steps:
+      - checkout
+      - run:
+          name: Hello world
+          command: |
+            touch hello.txt
+
+workflows:
+  build_test:
+    jobs:
+      - run_tests
