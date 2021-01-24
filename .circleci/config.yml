@@ -16,10 +16,7 @@ commands:
       - run:
           name: install requirements for test
           command: |
-            ssh $SSH_USER@$SSH_HOST
-            "cd /home/alex/bustail_core/backend &&
-             pip3 install -r requirements.txt && pip3 install pytest &&
-             pytest --junitxml=test-results/junit.xml"
+            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core/backend && pip3 install -r requirements.txt && pip3 install pytest && pytest --junitxml=test-results/junit.xml"
           environment:
             - ENV: DEV
             - SERVER: https
