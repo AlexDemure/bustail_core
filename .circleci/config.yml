@@ -17,19 +17,19 @@ commands:
           command: |
             ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core/backend && mkdir test-results && pytest --junitxml=test-results/junit.xml"
           environment:
-            - ENV=DEV
-            - SERVER=https
-              DOMAIN=bustail.online
-            - MAILING_SECRET_KEY=test
-            - MAILING_EMAIL=alexanderdemure@gmail.com
-            - MAILING_NAME=Bustail
-            - YANDEX_ACCESS_KEY_ID=test
-            - YANDEX_SECRET_ACCESS_KEY=test
-            - YANDEX_BUCKET_NAME=bustail
-            - REDIS_HOST=localhost
-            - REDIS_DB=0
-            - REDIS_PORT=6379
-            - REDIS_PASSWORD=foobared
+            - ENV: DEV
+            - SERVER: https
+              DOMAIN: bustail.online
+            - MAILING_SECRET_KEY: test
+            - MAILING_EMAIL: alexanderdemure@gmail.com
+            - MAILING_NAME: Bustail
+            - YANDEX_ACCESS_KEY_ID: test
+            - YANDEX_SECRET_ACCESS_KEY: test
+            - YANDEX_BUCKET_NAME: bustail
+            - REDIS_HOST: localhost
+            - REDIS_DB: 0
+            - REDIS_PORT: 6379
+            - REDIS_PASSWORD: foobared
 
       - store_test_results:
           path: test-results
