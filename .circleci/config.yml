@@ -1,17 +1,44 @@
 version: 2.1
 
-jobs:
-  run_tests:
-    docker:
-      - image: alexdemure/bustail:core
+commands:
+  build_app:
     steps:
-      - checkout
+      - add_ssh_keys
       - run:
-          name: Hello world
+          name: Add to known hosts
           command: |
-            touch hello.txt
+            mkdir -p ~/.ssh/
+            ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
+      - run:
+          name: git pull
+          command: |
+            ssh $SSH_USER@$SSH_HOST "sudo grep github ~/.ssh/known_hosts || sudo ssh-keyscan github.com >> ~/.ssh/known_hosts"
+            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core && git pull"
+      - run:
+          name: Docker-compose up
+          command: |
+            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core && docker-compose -f $CFG_NAME up -d --build"
+      - run:
+          name: Docker-compose logs
+          command: |
+            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core && docker-compose -f $CFG_NAME logs"
+
+jobs:
+  build:
+    docker:
+      - image: 'cimg/base:2021.01'
+    steps:
+      - build_app
+
 
 workflows:
-  build_test:
+  version: 2.1
+  build-and-deploy-prod:
     jobs:
-      - run_tests
+      - build:
+          context:
+            - Production
+          filters:
+            branches:
+              only:
+                - master
