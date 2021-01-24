@@ -20,7 +20,7 @@ commands:
       - run:
           name: Docker-compose logs
           command: |
-            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core && docker-compose -f $CFG_NAME logs"
+            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core && docker-compose -f $CFG_NAME logs --tail="10""
 
 jobs:
   build:
