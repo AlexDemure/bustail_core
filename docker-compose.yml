@@ -18,7 +18,7 @@ services:
     env_file: ./env_files/postgres.env
 
   core:
-    image: alexdemure/bustail:core
+    build: backend
     container_name: core
     hostname: core
     network_mode: "host"
@@ -36,7 +36,9 @@ services:
       - ./backend:/app/backend/
 
   frontend:
-    image: alexdemure/bustail:frontend
+    build:
+      context: frontend
+      dockerfile: Dockerfile.dev
     container_name: frontend
     hostname: frontend
     network_mode: host
