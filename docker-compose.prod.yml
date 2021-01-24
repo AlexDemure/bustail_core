@@ -44,8 +44,6 @@ services:
     network_mode: host
     ports:
       - "4000:4000"
-    volumes:
-      - ./frontend:/app/
 
   redis:
     image: "redis:alpine"
