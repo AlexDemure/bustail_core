@@ -16,7 +16,7 @@ commands:
       - run:
           name: install requirements for test
           command: |
-            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core/backend && pip3 install -r requirements.txt && pip3 install pytest"
+            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core/backend && pip3 install pytest"
           environment:
             - ENV: DEV
             - SERVER: https
