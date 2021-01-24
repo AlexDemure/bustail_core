@@ -2,7 +2,6 @@ version: 2.1
 
 commands:
   build_app:
-    working
     steps:
       - add_ssh_keys
       - run:
