@@ -14,8 +14,12 @@ commands:
           command: |
             ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core && git pull"
       - run:
+          name: install requirements for test
           command: |
             ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core/backend && pip3 install -r requirements.txt"
+      - run:
+          name: run backend test by pytest
+          command: |
             ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core/backend && pytest --junitxml=test-results/junit.xml"
           environment:
             - ENV: DEV
