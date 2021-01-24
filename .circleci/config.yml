@@ -22,6 +22,7 @@ commands:
           name: cp test file
           command: |
               mkdir -p ~/test-results/
+              pwd
               scp $SSH_USER@$SSH_HOST:/home/alex/bustail_core/backend/test-results/junit.xml ~/test-results/
 
       - store_test_results:
