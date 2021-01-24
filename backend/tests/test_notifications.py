@@ -1,7 +1,7 @@
 import random
 
 import pytest
-
+from tortoise import Tortoise
 from backend.db.database import sqlite_db_init
 from backend.enums.notifications import NotificationTypes
 from backend.permissions.fixtures import setup_permissions_and_roles
@@ -144,3 +144,6 @@ class TestNotification(BaseTest):
                     )
                 )
             assert response.status_code == 200
+
+        await Tortoise.close_connections()
+        assert "X"

@@ -1,5 +1,5 @@
 import pytest
-
+from tortoise import Tortoise
 from backend.tests.data import BaseTest, TestApplicationData, TestAccountData
 
 pytestmark = pytest.mark.asyncio
@@ -19,3 +19,6 @@ class TestApplications(BaseTest):
                     "/applications/", headers=self.headers, json=app
                 )
             assert response.status_code == 201
+
+        await Tortoise.close_connections()
+        assert "X"

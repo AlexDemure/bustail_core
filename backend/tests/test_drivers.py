@@ -1,7 +1,7 @@
 import random
 
 import pytest
-
+from tortoise import Tortoise
 from backend.tests.data import BaseTest, TestDriverData, TestAccountData
 
 pytestmark = pytest.mark.asyncio
@@ -25,6 +25,9 @@ class TestDriver(BaseTest):
             response = await ac.get("/drivers/me/", headers=self.headers)
         assert response.status_code == 200
 
+        await Tortoise.close_connections()
+        assert "X"
+
     async def test_transport(self):
         await self.get_user()
 
@@ -41,6 +44,9 @@ class TestDriver(BaseTest):
 
             await self.create_transport_photo(response_json['id'])
 
+        await Tortoise.close_connections()
+        assert "X"
+
     async def create_transport_photo(self, transport_id: int):
         files = ["test_01.jpg", "test_02.jpg", "test_03.jpg", "test_04.jpg"]
 
@@ -55,4 +61,3 @@ class TestDriver(BaseTest):
             )
 
         assert response.status_code == 201
-

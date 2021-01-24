@@ -1,6 +1,6 @@
 import pytest
 from backend.permissions.fixtures import setup_permissions_and_roles
-
+from tortoise import Tortoise
 from backend.db.database import sqlite_db_init
 from backend.tests.data import BaseTest, TestAccountData
 from backend.redis.service import redis
@@ -22,4 +22,5 @@ class TestAccount(BaseTest):
 
         await self.create_account()
 
-        return 0
+        await Tortoise.close_connections()
+        assert "X"
