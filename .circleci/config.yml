@@ -21,12 +21,12 @@ commands:
       - run:
           name: cp test file
           command: |
-              mkdir -p ~/test-results/
+              cd projects/
+              mkdir -p test-results/
+              scp $SSH_USER@$SSH_HOST:/home/alex/bustail_core/backend/test-results/junit.xml ~/projects/test-results/
+              cd test-results/
               pwd
-              cd ~/test-results/
-              pwd
-              scp $SSH_USER@$SSH_HOST:/home/alex/bustail_core/backend/test-results/junit.xml ~/test-results/
-
+              ls
       - store_test_results:
           path: test-results
 
