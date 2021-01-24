@@ -12,7 +12,6 @@ commands:
       - run:
           name: git pull
           command: |
-            ssh $SSH_USER@$SSH_HOST "sudo grep github ~/.ssh/known_hosts || sudo ssh-keyscan github.com >> ~/.ssh/known_hosts"
             ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core && git pull"
       - run:
           name: Docker-compose up
