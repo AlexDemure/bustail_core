@@ -16,7 +16,7 @@ commands:
       - run:
           name: install requirements for test
           command: |
-            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core/backend && pip3 install -r requirements.txt && pip3 install pytest && pytest --junitxml=test-results/junit.xml"
+            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core/backend && pip3 install -r requirements.txt && pip3 install pytest"
           environment:
             - ENV: DEV
             - SERVER: https
@@ -39,14 +39,14 @@ commands:
           path: test-results
 
 
-      - run:
-          name: Docker-compose up
-          command: |
-            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core && docker-compose -f $CFG_NAME up -d --build"
-      - run:
-          name: Docker-compose logs
-          command: |
-            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core && docker-compose -f $CFG_NAME logs --tail="10""
+#      - run:
+#          name: Docker-compose up
+#          command: |
+#            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core && docker-compose -f $CFG_NAME up -d --build"
+#      - run:
+#          name: Docker-compose logs
+#          command: |
+#            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core && docker-compose -f $CFG_NAME logs --tail="10""
 
 jobs:
   build:
