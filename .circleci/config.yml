@@ -33,10 +33,10 @@ commands:
             - REDIS_PASSWORD: foobared
 
       - store_test_results:
-          path: test-results
+          path: /home/alex/bustail_core/backend/test-results
 
       - store_artifacts:
-          path: test-results
+          path: /home/alex/bustail_core/backend/test-results
 
 
 #      - run:
