@@ -21,9 +21,8 @@ commands:
       - run:
           name: cp test file
           command: |
-              cd projects/
               mkdir -p test-results/
-              scp $SSH_USER@$SSH_HOST:/home/alex/bustail_core/backend/test-results/junit.xml ~/projects/test-results/
+              scp $SSH_USER@$SSH_HOST:/home/alex/bustail_core/backend/test-results/junit.xml ~/project/test-results/
               cd test-results/
               pwd
               ls
