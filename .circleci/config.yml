@@ -16,13 +16,13 @@ commands:
       - run:
           name: install requirements for test
           command: |
-              ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core/backend && export YANDEX_ACCESS_KEY_ID=UefYhTqRQsB_oNVErPLA && export YANDEX_SECRET_ACCESS_KEY=74jLKEMaKfUUgeZhSoqj1QSygCCGAJzYKMNh6hY2 && export YANDEX_BUCKET_NAME=bustail && export POSTGRES_DB=bustail && export POSTGRES_USER=postgres && export POSTGRES_PASSWORD=bustail && export POSTGRES_SERVER=127.0.0.1 && export MAILING_SECRET_KEY=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 && export MAILING_EMAIL=alexanderdemure@gmail.com && export MAILING_NAME=Bustail && export REDIS_HOST=localhost && export REDIS_DB=0 && export REDIS_PORT=6379 && export REDIS_PASSWORD=foobared && mkdir -p hello-world && python3 -m pytest --junitxml=hello-world/junit.xml"
+              ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core/backend && export YANDEX_ACCESS_KEY_ID=UefYhTqRQsB_oNVErPLA && export YANDEX_SECRET_ACCESS_KEY=74jLKEMaKfUUgeZhSoqj1QSygCCGAJzYKMNh6hY2 && export YANDEX_BUCKET_NAME=bustail && export POSTGRES_DB=bustail && export POSTGRES_USER=postgres && export POSTGRES_PASSWORD=bustail && export POSTGRES_SERVER=127.0.0.1 && export MAILING_SECRET_KEY=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 && export MAILING_EMAIL=alexanderdemure@gmail.com && export MAILING_NAME=Bustail && export REDIS_HOST=localhost && export REDIS_DB=0 && export REDIS_PORT=6379 && export REDIS_PASSWORD=foobared && mkdir -p /home/circleci/project/tests/junit && python3 -m pytest --junitxml=/home/circleci/project/tests/junit/junit.xml"
 
       - store_test_results:
-          path: ~/backend/hello-world
+          path: tests
 
       - store_artifacts:
-          path: ~/backend/hello-world
+          path: tests/junit
 
 
 #      - run:
