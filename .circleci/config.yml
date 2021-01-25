@@ -5,6 +5,12 @@ commands:
   abstract_deploy:
     steps:
       - run:
+          name: Install Docker Compose
+          command: |
+            curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
+            chmod +x ~/docker-compose
+            sudo mv ~/docker-compose /usr/local/bin/docker-compose
+      - run:
           name: Добавление GitHub.com в known hosts
           command: |
             mkdir -p ~/.ssh/
@@ -18,11 +24,14 @@ commands:
             cp env_files/mailing.env.example env_files/mailing.env
             cp env_files/postgres.env.example env_files/postgres.env
             cp env_files/redis.env.example env_files/redis.env
+
       - run:
           name:  Запуск docker-compose.prod.yml
           command: |
             cd bustail_core/
-            docker-compose -f docker-compose.prod.yml up -d --build
+            pwd
+            ls
+            docker-compose up -d --build
       - run:
           name:  Работа внутри Core контейнера
           command: |
