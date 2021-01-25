@@ -61,7 +61,7 @@ jobs:
       - run:
           name: Экспортирование переменных и запуск тестов
           command: |
-            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core/backend && export REDIS_HOST=localhost && export REDIS_DB=0 && export REDIS_PORT=6379 && export REDIS_PASSWORD=foobared && python3 -m pytest --junitxml=test-results/junit.xml"
+            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core/backend && export REDIS_HOST=localhost REDIS_DB=0 REDIS_PORT=6379 REDIS_PASSWORD=foobared && python3 -m pytest --junitxml=test-results/junit.xml"
       - run:
           name: Копирование файла с сервера в контейнер circleci
           command: |
@@ -80,7 +80,6 @@ jobs:
           name: Остановка контейнеров и чиста образов
           command: |
             ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core && docker-compose -f $CFG_NAME down"
-            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core && docker image prune -f"
 
       - run:
           name: Развертывание контейнеров
