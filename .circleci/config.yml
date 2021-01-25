@@ -1,36 +1,49 @@
 version: 2.1
 
 commands:
-  build_app:
+  # Абстрактное развертывание приложение внутри докера из Ubuntu 20.04 LTS
+  abstract_deploy:
     steps:
-      - add_ssh_keys
-      - run:
-          name: Add to known hosts
-          command: |
-            mkdir -p ~/.ssh/
-            ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
       - run:
           name: git pull
           command: |
-            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core && git pull"
-      - run:
-          name: install requirements for test
-          command: |
-              ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core/backend && export YANDEX_ACCESS_KEY_ID=UefYhTqRQsB_oNVErPLA && export YANDEX_SECRET_ACCESS_KEY=74jLKEMaKfUUgeZhSoqj1QSygCCGAJzYKMNh6hY2 && export YANDEX_BUCKET_NAME=bustail && export POSTGRES_DB=bustail && export POSTGRES_USER=postgres && export POSTGRES_PASSWORD=bustail && export POSTGRES_SERVER=127.0.0.1 && export MAILING_SECRET_KEY=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 && export MAILING_EMAIL=alexanderdemure@gmail.com && export MAILING_NAME=Bustail && export REDIS_HOST=localhost && export REDIS_DB=0 && export REDIS_PORT=6379 && export REDIS_PASSWORD=foobared && python3 -m pytest --junitxml=test-results/junit.xml"
+            cd /home/
+            mkdir -p alex/
+            cd alex/
+            git clone git@github.com:AlexDemure/bustail_core.git --recurcive
+            cd bustail_core
+            pwd
 
-      - run:
-          name: cp test file
-          command: |
-              mkdir -p test-results/
-              scp $SSH_USER@$SSH_HOST:/home/alex/bustail_core/backend/test-results/junit.xml ~/project/test-results/
-              cd test-results/
-              pwd
-              ls
-      - store_test_results:
-          path: test-results
-
-      - store_artifacts:
-          path: test-results
+#  build_app:
+#    steps:
+#      - add_ssh_keys
+#      - run:
+#          name: Add to known hosts
+#          command: |
+#            mkdir -p ~/.ssh/
+#            ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
+#      - run:
+#          name: git pull
+#          command: |
+#            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core && git pull"
+#      - run:
+#          name: install requirements for test
+#          command: |
+#              ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core/backend && export YANDEX_ACCESS_KEY_ID=UefYhTqRQsB_oNVErPLA && export YANDEX_SECRET_ACCESS_KEY=74jLKEMaKfUUgeZhSoqj1QSygCCGAJzYKMNh6hY2 && export YANDEX_BUCKET_NAME=bustail && export POSTGRES_DB=bustail && export POSTGRES_USER=postgres && export POSTGRES_PASSWORD=bustail && export POSTGRES_SERVER=127.0.0.1 && export MAILING_SECRET_KEY=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 && export MAILING_EMAIL=alexanderdemure@gmail.com && export MAILING_NAME=Bustail && export REDIS_HOST=localhost && export REDIS_DB=0 && export REDIS_PORT=6379 && export REDIS_PASSWORD=foobared && python3 -m pytest --junitxml=test-results/junit.xml"
+#
+#      - run:
+#          name: cp test file
+#          command: |
+#              mkdir -p test-results/
+#              scp $SSH_USER@$SSH_HOST:/home/alex/bustail_core/backend/test-results/junit.xml ~/project/test-results/
+#              cd test-results/
+#              pwd
+#              ls
+#      - store_test_results:
+#          path: test-results
+#
+#      - store_artifacts:
+#          path: test-results
 
 
 #      - run:
