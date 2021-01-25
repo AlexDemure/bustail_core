@@ -20,7 +20,7 @@ services:
   core:
     build: backend
     container_name: core
-    command: uvicorn core.application:app --host 127.0.0.1 --port 7040
+    command: uvicorn application:app --host 127.0.0.1 --port 7040
     hostname: core
     network_mode: "host"
     ports:
