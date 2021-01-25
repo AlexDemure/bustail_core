@@ -13,6 +13,11 @@ commands:
           name: git pull
           command: |
             git clone git@github.com:AlexDemure/bustail_core.git --recursive
+            cd bustail_core
+            ls
+            cd backend/
+            ls
+            cd auth/
             ls
             pwd
 
