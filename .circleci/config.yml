@@ -34,11 +34,13 @@ commands:
             pwd
             ls
             docker-compose up -d --build
-      - run:
-          name:  Работа внутри Core контейнера
-          command: |
+            docker logs -f core
             docker exec -it core bash
-            ls
+#      - run:
+#          name:  Работа внутри Core контейнера
+#          command: |
+#            docker exec -it core bash
+#            ls
 
 #  build_app:
 #    steps:
