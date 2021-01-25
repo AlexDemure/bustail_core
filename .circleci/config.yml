@@ -33,8 +33,8 @@ commands:
             cd bustail_core/
             pwd
             ls
-            docker-compose -f docker-compose.prod.yml up -d --build
-            docker-compose logs
+            docker-compose -f docker-compose.prod.yml up -d --build core
+            docker logs core
 
 #      - run:
 #          name:  Работа внутри Core контейнера
