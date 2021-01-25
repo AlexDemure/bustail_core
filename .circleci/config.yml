@@ -1,26 +1,27 @@
 version: 2.1
 
 commands:
-  # Абстрактное развертывание приложение внутри докера из Ubuntu 20.04 LTS
+  # Абстрактное развертывание приложения под DEV окружением внутри докера из Ubuntu 20.04 LTS
   abstract_deploy:
     steps:
       - run:
-          name: Add github.com to known hosts
+          name: Добавление GitHub.com в known hosts
           command: |
             mkdir -p ~/.ssh/
             ssh-keyscan github.com >> ~/.ssh/known_hosts
       - run:
-          name: git pull
+          name:  Клонирование репозитория с подготовкой окружения
           command: |
             git clone git@github.com:AlexDemure/bustail_core.git --recursive
             cd bustail_core
+            cp env_files/global.env.example global.env
+            cp env_files/mailing.env.example mailing.env
+            cp env_files/postgres.env.example postgres.env
+            cp env_files/redis.env.example redis.env
+            cd env_files/
             ls
-            cd backend/
-            ls
-            cd auth/
-            ls
+            cd ..
             pwd
-
 #  build_app:
 #    steps:
 #      - add_ssh_keys
