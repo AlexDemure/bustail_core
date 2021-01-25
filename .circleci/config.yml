@@ -4,13 +4,13 @@ commands:
   # Абстрактное развертывание приложение внутри докера из Ubuntu 20.04 LTS
   abstract_deploy:
     steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "4d:35:44:32:03:ec:2d:78:1c:23:c8:bc:d0:18:be:0a"
+      - run:
+          name: Add github.com to known hosts
+          command: ssh-keyscan github.com >> ~/.ssh/known_hosts
       - run:
           name: git pull
           command: |
-            git clone git@github.com:AlexDemure/bustail_core.git --recursive
+            git clone git@github.com:AlexDemure/bustail_core.git --recursive yes
             cd bustail_core
             pwd
 
