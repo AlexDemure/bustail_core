@@ -60,7 +60,7 @@ jobs:
     docker:
       - image: 'cimg/base:2021.01'
     steps:
-      - build_app
+      - abstract_deploy
 
 
 workflows:
