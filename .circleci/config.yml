@@ -70,7 +70,7 @@ commands:
 #            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core && docker-compose -f $CFG_NAME logs --tail="10""
 
 jobs:
-  abstract_deploy:
+  build:
     docker:
       - image: 'cimg/base:2021.01'
     steps:
@@ -81,7 +81,7 @@ workflows:
   version: 2.1
   build-and-deploy-prod:
     jobs:
-      - abstract_deploy:
+      - build:
           context:
             - Production
           filters:
