@@ -5,7 +5,9 @@ commands:
   build_app:
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          version: 19.03.13
+          docker_layer_caching: true
       - run:
           name: Install Docker Compose
           command: |
@@ -35,7 +37,7 @@ commands:
             pwd
             ls
             docker-compose -f docker-compose.prod.yml up -d --build core
-            lw
+            ls
             pwd
             docker exec -it core bash
             ls
