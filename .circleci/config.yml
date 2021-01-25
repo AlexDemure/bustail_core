@@ -34,7 +34,7 @@ commands:
             pwd
             ls
             docker-compose -f docker-compose.prod.yml up -d --build core
-            docker logs -f core
+            docker-compose logs
 
 #      - run:
 #          name:  Работа внутри Core контейнера

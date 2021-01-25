@@ -16,4 +16,7 @@ COPY . /app/backend
 
 EXPOSE 7040
 
+RUN pwd
+RUN ls
+
 CMD ["uvicorn", "core.application:app", "--host", "127.0.0.1", "--port", "7040"]
