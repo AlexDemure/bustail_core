@@ -28,12 +28,12 @@ commands:
             cp env_files/redis.env.example env_files/redis.env
 
       - run:
+          # TODO Какая-та херня с путями не находит файл для запуска приложения.
           name:  Запуск docker-compose.prod.yml
           command: |
             cd bustail_core/
             pwd
             ls
-              TODO Какая-та херня с путями не находит файл для запуска приложения.
             docker-compose -f docker-compose.prod.yml up -d --build core
             docker exec -it core bash
             ls
