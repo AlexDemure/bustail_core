@@ -7,9 +7,6 @@ commands:
       - run:
           name: git pull
           command: |
-            cd /home/
-            mkdir -p alex/
-            cd alex/
             git clone git@github.com:AlexDemure/bustail_core.git --recurcive
             cd bustail_core
             pwd
