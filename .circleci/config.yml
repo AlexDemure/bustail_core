@@ -12,8 +12,8 @@ commands:
       - run:
           name: git pull
           command: |
-            git clone git@github.com:AlexDemure/bustail_core.git --recursive yes
-            cd bustail_core
+            git clone git@github.com:AlexDemure/bustail_core.git --recursive
+            ls
             pwd
 
 #  build_app:
