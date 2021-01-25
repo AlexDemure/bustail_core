@@ -80,7 +80,6 @@ jobs:
           name: Остановка контейнеров и чиста образов
           command: |
             ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core && docker-compose -f $CFG_NAME down"
-            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core && docker stop $(docker ps -a q) && docker rm $(docker ps -a -q)"
             ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core && docker image prune -f"
 
       - run:
