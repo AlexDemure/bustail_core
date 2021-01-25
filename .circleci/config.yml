@@ -1,94 +1,90 @@
 version: 2.1
 
-commands:
+#commands:
   # Абстрактное развертывание приложения под PROD но с переменными из под DEV внутри докера из Ubuntu 20.04 LTS
-  abstract_deploy:
-    steps:
-      - checkout
-      - setup_remote_docker
-      - run:
-          name: Install Docker Compose
-          command: |
-            curl -L https://github.com/docker/compose/releases/download/1.26.0/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
-            chmod +x ~/docker-compose
-            sudo mv ~/docker-compose /usr/local/bin/docker-compose
-      - run:
-          name: Добавление GitHub.com в known hosts
-          command: |
-            mkdir -p ~/.ssh/
-            ssh-keyscan github.com >> ~/.ssh/known_hosts
-      - run:
-          name:  Клонирование репозитория с подготовкой окружения
-          command: |
-            git clone git@github.com:AlexDemure/bustail_core.git --recursive
-            cd bustail_core
-            cp env_files/global.env.example env_files/global.env
-            cp env_files/mailing.env.example env_files/mailing.env
-            cp env_files/postgres.env.example env_files/postgres.env
-            cp env_files/redis.env.example env_files/redis.env
-
-      - run:
-          name:  Запуск docker-compose.prod.yml
-          command: |
-            cd bustail_core/
-            pwd
-            ls
-            docker-compose -f docker-compose.prod.yml up -d --build core
-            docker-compose logs core
-
-#      - run:
-#          name:  Работа внутри Core контейнера
-#          command: |
-#            docker-compose logs
-#            docker exec -it core bash
-
-#  build_app:
+#  abstract_deploy:
 #    steps:
-#      - add_ssh_keys
+#      - checkout
+#      - setup_remote_docker
 #      - run:
-#          name: Add to known hosts
+#          name: Install Docker Compose
+#          command: |
+#            curl -L https://github.com/docker/compose/releases/download/1.26.0/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
+#            chmod +x ~/docker-compose
+#            sudo mv ~/docker-compose /usr/local/bin/docker-compose
+#      - run:
+#          name: Добавление GitHub.com в known hosts
 #          command: |
 #            mkdir -p ~/.ssh/
-#            ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
+#            ssh-keyscan github.com >> ~/.ssh/known_hosts
 #      - run:
-#          name: git pull
+#          name:  Клонирование репозитория с подготовкой окружения
 #          command: |
-#            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core && git pull"
-#      - run:
-#          name: install requirements for test
-#          command: |
-#              ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core/backend && export YANDEX_ACCESS_KEY_ID=UefYhTqRQsB_oNVErPLA && export YANDEX_SECRET_ACCESS_KEY=74jLKEMaKfUUgeZhSoqj1QSygCCGAJzYKMNh6hY2 && export YANDEX_BUCKET_NAME=bustail && export POSTGRES_DB=bustail && export POSTGRES_USER=postgres && export POSTGRES_PASSWORD=bustail && export POSTGRES_SERVER=127.0.0.1 && export MAILING_SECRET_KEY=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 && export MAILING_EMAIL=alexanderdemure@gmail.com && export MAILING_NAME=Bustail && export REDIS_HOST=localhost && export REDIS_DB=0 && export REDIS_PORT=6379 && export REDIS_PASSWORD=foobared && python3 -m pytest --junitxml=test-results/junit.xml"
+#            git clone git@github.com:AlexDemure/bustail_core.git --recursive
+#            cd bustail_core
+#            cp env_files/global.env.example env_files/global.env
+#            cp env_files/mailing.env.example env_files/mailing.env
+#            cp env_files/postgres.env.example env_files/postgres.env
+#            cp env_files/redis.env.example env_files/redis.env
 #
 #      - run:
-#          name: cp test file
+#          name:  Запуск docker-compose.prod.yml
 #          command: |
-#              mkdir -p test-results/
-#              scp $SSH_USER@$SSH_HOST:/home/alex/bustail_core/backend/test-results/junit.xml ~/project/test-results/
-#              cd test-results/
-#              pwd
-#              ls
-#      - store_test_results:
-#          path: test-results
-#
-#      - store_artifacts:
-#          path: test-results
+#            cd bustail_core/
+#            pwd
+#            ls
+             # TODO Какая-та херня с путями не находит файл для запуска приложения.
+#            docker-compose -f docker-compose.prod.yml up -d --build core
+#            docker-compose logs core
+
+commands:
+  build_app:
+    steps:
+      - add_ssh_keys
+      - run:
+          name: Add to known hosts
+          command: |
+            mkdir -p ~/.ssh/
+            ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
+      - run:
+          name: git pull
+          command: |
+            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core && git pull"
+      - run:
+          name: install requirements for test
+          command: |
+              ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core/backend && export YANDEX_ACCESS_KEY_ID=test&& export YANDEX_SECRET_ACCESS_KEY=test && export YANDEX_BUCKET_NAME=bustail && export POSTGRES_DB=bustail && export POSTGRES_USER=postgres && export POSTGRES_PASSWORD=bustail && export POSTGRES_SERVER=127.0.0.1 && export MAILING_SECRET_KEY=test && export MAILING_EMAIL=alexanderdemure@gmail.com && export MAILING_NAME=Bustail && export REDIS_HOST=localhost && export REDIS_DB=0 && export REDIS_PORT=6379 && export REDIS_PASSWORD=foobared && python3 -m pytest --junitxml=test-results/junit.xml"
+
+      - run:
+          name: cp test file
+          command: |
+              mkdir -p test-results/
+              scp $SSH_USER@$SSH_HOST:/home/alex/bustail_core/backend/test-results/junit.xml ~/project/test-results/
+              cd test-results/
+              pwd
+              ls
+      - store_test_results:
+          path: test-results
+
+      - store_artifacts:
+          path: test-results
 
 
-#      - run:
-#          name: Docker-compose up
-#          command: |
-#            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core && docker-compose -f $CFG_NAME up -d --build"
-#      - run:
-#          name: Docker-compose logs
-#          command: |
-#            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core && docker-compose -f $CFG_NAME logs --tail="10""
+      - run:
+          name: Docker-compose up
+          command: |
+            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core && docker-compose -f $CFG_NAME up -d --build"
+      - run:
+          name: Docker-compose logs
+          command: |
+            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core && docker-compose -f $CFG_NAME logs --tail="10""
 
 jobs:
   build:
     docker:
       - image: 'cimg/base:2021.01'
     steps:
-      - abstract_deploy
+      - build_app
 
 
 workflows:
