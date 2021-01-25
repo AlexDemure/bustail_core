@@ -21,7 +21,7 @@ commands:
       - run:
           name:  Запуск docker-compose.prod.yml
           command: |
-            docker-compose -f $CFG_NAME up -d --build
+            docker-compose -f docker-compose.prod.yml up -d --build
       - run:
           name:  Работа внутри Core контейнера
           command: |
