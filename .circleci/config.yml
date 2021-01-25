@@ -53,7 +53,7 @@ commands:
       - run:
           name: install requirements for test
           command: |
-              ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core/backend && export YANDEX_ACCESS_KEY_ID=test&& export YANDEX_SECRET_ACCESS_KEY=test && export YANDEX_BUCKET_NAME=bustail && export POSTGRES_DB=bustail && export POSTGRES_USER=postgres && export POSTGRES_PASSWORD=bustail && export POSTGRES_SERVER=127.0.0.1 && export MAILING_SECRET_KEY=test && export MAILING_EMAIL=alexanderdemure@gmail.com && export MAILING_NAME=Bustail && export REDIS_HOST=localhost && export REDIS_DB=0 && export REDIS_PORT=6379 && export REDIS_PASSWORD=foobared && python3 -m pytest --junitxml=test-results/junit.xml"
+              ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core/backend && export REDIS_HOST=localhost && export REDIS_DB=0 && export REDIS_PORT=6379 && export REDIS_PASSWORD=foobared && python3 -m pytest --junitxml=test-results/junit.xml"
 
       - run:
           name: cp test file

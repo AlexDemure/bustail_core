@@ -23,9 +23,9 @@ class SecuritySettings(BaseConfig):
 
 class MailingMandrillSettings(BaseConfig):
 
-    MAILING_SECRET_KEY: str = os.environ.get("MAILING_SECRET_KEY")
-    MAILING_EMAIL: str = os.environ.get("MAILING_EMAIL")
-    MAILING_NAME: str = os.environ.get("MAILING_NAME")
+    MAILING_SECRET_KEY: str = os.environ.get("MAILING_SECRET_KEY", "NOT_SET")
+    MAILING_EMAIL: str = os.environ.get("MAILING_EMAIL", "NOT_SET")
+    MAILING_NAME: str = os.environ.get("MAILING_NAME", "NOT_SET")
 
 
 class PostgresDBSettings(BaseConfig):
@@ -39,10 +39,10 @@ class PostgresDBSettings(BaseConfig):
         # Return URL-connect 'postgresql://postgres:bustail@postgres/bustail'
         return PostgresDsn.build(
             scheme="postgres",
-            user=os.environ.get("POSTGRES_USER"),
-            password=os.environ.get("POSTGRES_PASSWORD"),
-            host=os.environ.get("POSTGRES_SERVER"),
-            path=f"/{os.environ.get('POSTGRES_DB')}",
+            user=os.environ.get("POSTGRES_USER", "postgres"),
+            password=os.environ.get("POSTGRES_PASSWORD", "bustail"),
+            host=os.environ.get("POSTGRES_SERVER", "127.0.0.1"),
+            path=f"/{os.environ.get('POSTGRES_DB', 'bustail')}",
         )
 
 
@@ -53,9 +53,9 @@ class SQLiteDBSettings(BaseConfig):
 
 class YandexObjectStorage(BaseConfig):
 
-    YANDEX_ACCESS_KEY_ID: str = os.environ["YANDEX_ACCESS_KEY_ID"]
-    YANDEX_SECRET_ACCESS_KEY: str = os.environ["YANDEX_SECRET_ACCESS_KEY"]
-    YANDEX_BUCKET_NAME: str = os.environ["YANDEX_BUCKET_NAME"]
+    YANDEX_ACCESS_KEY_ID: str = os.environ.get("YANDEX_ACCESS_KEY_ID", "NOT_SET")
+    YANDEX_SECRET_ACCESS_KEY: str = os.environ.get("YANDEX_SECRET_ACCESS_KEY", "NOT_SET")
+    YANDEX_BUCKET_NAME: str = os.environ.get("YANDEX_BUCKET_NAME", "bustail")
 
     MAX_FILE_SIZE_MB: int = 100
 
