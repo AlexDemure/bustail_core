@@ -21,6 +21,7 @@ commands:
       - run:
           name:  Запуск docker-compose.prod.yml
           command: |
+            cd bustail_core/
             docker-compose -f docker-compose.prod.yml up -d --build
       - run:
           name:  Работа внутри Core контейнера
