@@ -4,6 +4,8 @@ commands:
   # Абстрактное развертывание приложения под PROD но с переменными из под DEV внутри докера из Ubuntu 20.04 LTS
   abstract_deploy:
     steps:
+      - checkout
+      - setup_remote_docker
       - run:
           name: Install Docker Compose
           command: |
