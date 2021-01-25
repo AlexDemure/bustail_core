@@ -15,3 +15,6 @@ RUN poetry install --no-dev
 COPY . /app/backend
 
 EXPOSE 7040
+
+#CMD ["uvicorn", "core.application:app", "--host", "127.0.0.1", "--port", "7040"]
+CMD ["python", "core/application.py"]
