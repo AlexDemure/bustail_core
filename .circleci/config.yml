@@ -35,6 +35,8 @@ commands:
             pwd
             ls
             docker-compose -f docker-compose.prod.yml up -d --build core
+            lw
+            pwd
             docker exec -it core bash
             ls
             pwd
