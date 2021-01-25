@@ -1,7 +1,7 @@
 version: 2.1
 
 commands:
-  # Абстрактное развертывание приложения под DEV окружением внутри докера из Ubuntu 20.04 LTS
+  # Абстрактное развертывание приложения под PROD но с переменными из под DEV внутри докера из Ubuntu 20.04 LTS
   abstract_deploy:
     steps:
       - run:
@@ -18,10 +18,16 @@ commands:
             cp env_files/mailing.env.example env_files/mailing.env
             cp env_files/postgres.env.example env_files/postgres.env
             cp env_files/redis.env.example env_files/redis.env
-            cd env_files/
+      - run:
+          name:  Запуск docker-compose.prod.yml
+          command: |
+            docker-compose -f $CFG_NAME up -d --build
+      - run:
+          name:  Работа внутри Core контейнера
+          command: |
+            docker exec -it core bash
             ls
-            cd ..
-            pwd
+
 #  build_app:
 #    steps:
 #      - add_ssh_keys
@@ -64,7 +70,7 @@ commands:
 #            ssh $SSH_USER@$SSH_HOST "cd /home/alex/bustail_core && docker-compose -f $CFG_NAME logs --tail="10""
 
 jobs:
-  build:
+  abstract_deploy:
     docker:
       - image: 'cimg/base:2021.01'
     steps:
@@ -75,7 +81,7 @@ workflows:
   version: 2.1
   build-and-deploy-prod:
     jobs:
-      - build:
+      - abstract_deploy:
           context:
             - Production
           filters:
